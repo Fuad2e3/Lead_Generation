@@ -1,14 +1,11 @@
-/* ==========================================================================
-   WEBSITE DATA MINER - GitHub Web Edition Stylesheet
-   Design System: Glassmorphism, Dynamic Light/Dark Themes, Smooth Micro-Animations
-   ========================================================================== */
 
-/* --- CSS Root Variables & Theme Tokens --- */
+
+
 :root {
   --font-primary: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --font-mono: 'JetBrains Mono', monospace;
 
-  /* Accent Colors */
+  
   --color-primary: #6C63FF;
   --color-primary-hover: #5A52E0;
   --color-accent: #00D2FF;
@@ -16,14 +13,14 @@
   --color-warning: #FFB347;
   --color-danger: #FF6B6B;
 
-  /* Export Format Colors */
+  
   --color-excel: #1D6F42;
   --color-csv: #009688;
   --color-pdf: #E53935;
   --color-json: #F57C00;
   --color-txt: #1976D2;
 
-  /* Theme Defaults (Dark Theme) */
+  
   --bg-app: #0A0A1A;
   --bg-card: rgba(20, 20, 42, 0.7);
   --bg-card-hover: rgba(28, 28, 58, 0.8);
@@ -61,7 +58,7 @@
   --shadow-glow: 0 0 20px rgba(108, 99, 255, 0.15);
 }
 
-/* Reset & Global Base Settings */
+
 *,
 *::before,
 *::after {
@@ -80,7 +77,7 @@ body {
   transition: background-color 0.4s ease, color 0.4s ease;
 }
 
-/* App Wrapper */
+
 .app-container {
   max-width: 1380px;
   margin: 0 auto;
@@ -90,7 +87,7 @@ body {
   min-height: 100vh;
 }
 
-/* --- App Header & Top Nav --- */
+
 .app-header {
   display: flex;
   align-items: center;
@@ -203,7 +200,7 @@ body {
   color: var(--color-primary);
 }
 
-/* --- Hero Banner --- */
+
 .hero-banner {
   background: linear-gradient(135deg, rgba(108, 99, 255, 0.15), rgba(0, 210, 255, 0.08));
   border: 1px solid rgba(108, 99, 255, 0.25);
@@ -224,7 +221,7 @@ body {
   font-size: 14px;
 }
 
-/* --- Card & Layout Systems --- */
+
 .grid-layout-2col {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -268,7 +265,7 @@ body {
   padding: 24px;
 }
 
-/* Dropzone Styling */
+
 .dropzone {
   border: 2px dashed var(--border-card);
   border-radius: var(--radius-md);
@@ -319,7 +316,7 @@ body {
   margin-top: 10px;
 }
 
-/* Forms & Textarea */
+
 .form-group label {
   display: block;
   font-size: 13px;
@@ -355,7 +352,7 @@ textarea {
   resize: vertical;
 }
 
-/* Checkbox Custom styling */
+
 .checkbox-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -408,7 +405,7 @@ textarea {
   opacity: 1;
 }
 
-/* Buttons System */
+
 .btn {
   display: inline-flex;
   align-items: center;
@@ -478,7 +475,7 @@ textarea {
   font-size: 11px;
 }
 
-/* Speed Selector Pills */
+
 .speed-selector {
   display: flex;
   gap: 8px;
@@ -503,7 +500,7 @@ textarea {
   color: var(--color-primary);
 }
 
-/* --- TAB 2: LIVE AUTOMATION & TRACKER --- */
+
 .automation-top-bar {
   display: flex;
   align-items: center;
@@ -566,7 +563,7 @@ textarea {
   color: var(--color-accent);
 }
 
-/* Progress Container */
+
 .progress-container {
   background: var(--bg-input);
   padding: 20px;
@@ -609,7 +606,7 @@ textarea {
   margin-top: 10px;
 }
 
-/* Stat Box Grid */
+
 .stats-counters-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -681,7 +678,7 @@ textarea {
   margin-top: 4px;
 }
 
-/* Pipeline Step List */
+
 .pipeline-list {
   list-style: none;
 }
@@ -740,7 +737,7 @@ textarea {
   color: var(--text-muted);
 }
 
-/* Console Box */
+
 .console-box {
   background: #05050D;
   border: 1px solid rgba(255, 255, 255, 0.1);
@@ -771,7 +768,7 @@ textarea {
   color: var(--color-success);
 }
 
-/* Data Grid Table */
+
 .table-responsive {
   width: 100%;
   overflow-x: auto;
@@ -803,7 +800,7 @@ textarea {
   background: var(--bg-card-hover);
 }
 
-/* Modals */
+
 .modal-backdrop {
   position: fixed;
   top: 0; left: 0; right: 0; bottom: 0;
@@ -930,7 +927,7 @@ textarea {
   color: var(--text-muted);
 }
 
-/* Helper classes */
+
 .hidden {
   display: none !important;
 }
