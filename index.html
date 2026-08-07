@@ -60,77 +60,64 @@
     <main class="app-main">
 
 
-      <div class="grid-layout-3col">
-
+      <div class="grid-layout-2col">
 
         <div class="card glass-card">
-          <div class="card-header flex-between">
-            <h3><i class="fa-solid fa-file-import"></i> <span data-i18n="input_heading">1. Input Website URLs</span>
-            </h3>
+          <div class="card-header flex-between" style="padding: 12px 20px;">
+            <h3><i class="fa-solid fa-file-import"></i> <span data-i18n="input_heading">1. Input Website URLs</span></h3>
             <div class="input-stats-pills" style="display: flex; gap: 8px;">
-              <span class="stat-pill"><i class="fa-solid fa-globe"></i> <span id="detected-urls-count">0</span>
-                URLs</span>
-              <span id="duplicate-warning" class="stat-pill warning hidden"
-                style="background: rgba(255, 179, 71, 0.15); color: var(--color-warning); border: 1px solid rgba(255, 179, 71, 0.3); padding: 4px 10px; border-radius: 20px; font-size: 12px;"><i
-                  class="fa-solid fa-clone"></i> <span id="duplicates-count">0</span> Duplicates Skipped</span>
+              <span class="stat-pill"><i class="fa-solid fa-globe"></i> <span id="detected-urls-count">0</span> URLs</span>
+              <span id="duplicate-warning" class="stat-pill warning hidden" style="background: rgba(255, 179, 71, 0.15); color: var(--color-warning); border: 1px solid rgba(255, 179, 71, 0.3); padding: 2px 8px; border-radius: 12px; font-size: 11px;"><i class="fa-solid fa-clone"></i> <span id="duplicates-count">0</span> Dups</span>
             </div>
           </div>
 
-          <div class="card-body">
-
-            <div class="dropzone" id="file-dropzone">
-              <i class="fa-solid fa-cloud-arrow-up dropzone-icon"></i>
-              <p class="dropzone-text" data-i18n="dropzone_msg">Drag & Drop <strong>.txt</strong>,
-                <strong>.csv</strong>, or <strong>.xlsx</strong> file here
-              </p>
-              <span class="dropzone-or">or</span>
-              <label for="file-input" class="btn btn-secondary btn-sm">
+          <div class="card-body" style="padding: 16px 20px;">
+            <div class="dropzone" id="file-dropzone" style="padding: 14px 16px;">
+              <i class="fa-solid fa-cloud-arrow-up dropzone-icon" style="font-size: 26px; margin-bottom: 6px;"></i>
+              <p class="dropzone-text" style="font-size: 12px; margin-bottom: 6px;" data-i18n="dropzone_msg">Drag & Drop <strong>.txt</strong>, <strong>.csv</strong>, or <strong>.xlsx</strong> file here</p>
+              <span class="dropzone-or" style="margin: 4px 0;">or</span>
+              <label for="file-input" class="btn btn-secondary btn-xs">
                 <i class="fa-solid fa-folder-open"></i> <span data-i18n="browse_btn">Browse Files</span>
               </label>
               <input type="file" id="file-input" accept=".txt,.csv,.xlsx,.xls" hidden>
-              <div id="file-info" class="file-info-badge hidden">
+              <div id="file-info" class="file-info-badge hidden" style="margin-top: 6px; padding: 4px 10px; font-size: 11px;">
                 <i class="fa-solid fa-file-csv"></i> <span id="file-name">filename.csv</span>
                 <button id="btn-remove-file" class="btn-icon"><i class="fa-solid fa-xmark"></i></button>
               </div>
             </div>
 
-
-            <div class="form-group margin-top-md">
-              <label for="url-textarea"><i class="fa-solid fa-list-check"></i> <span data-i18n="manual_urls_label">Or
-                  Paste URLs/Domains directly:</span></label>
-              <textarea id="url-textarea" placeholder="https://example.com&#10;mycompany.org&#10;agency.net"
-                rows="8"></textarea>
+            <div class="form-group margin-top-sm">
+              <label for="url-textarea" style="margin-bottom: 4px; font-size: 12px;"><i class="fa-solid fa-list-check"></i> <span data-i18n="manual_urls_label">Or Paste URLs/Domains directly:</span></label>
+              <textarea id="url-textarea" placeholder="https://example.com&#10;mycompany.org&#10;agency.net" rows="4" style="height: 90px; padding: 8px 12px; font-size: 12px;"></textarea>
             </div>
           </div>
         </div>
 
 
         <div class="card glass-card">
-          <div class="card-header">
-            <h3><i class="fa-solid fa-square-check"></i> <span data-i18n="options_heading">2. Extraction
-                Parameters</span></h3>
+          <div class="card-header" style="padding: 12px 20px;">
+            <h3><i class="fa-solid fa-square-check"></i> <span data-i18n="options_heading">2. Extraction Parameters</span></h3>
           </div>
-          <div class="card-body">
-
+          <div class="card-body" style="padding: 16px 20px;">
             <div class="options-section">
-              <h4 class="section-title"><i class="fa-solid fa-file-lines"></i> Page Text Sections</h4>
-              <div class="checkbox-grid">
-                <label class="custom-checkbox">
+              <h4 class="section-title" style="font-size: 12px; margin-bottom: 8px;"><i class="fa-solid fa-file-lines"></i> Page Text Sections</h4>
+              <div class="checkbox-grid" style="grid-template-columns: repeat(2, 1fr); gap: 8px;">
+                <label class="custom-checkbox" style="padding: 8px 12px; font-size: 12px;">
                   <input type="checkbox" id="chk-home" checked>
                   <span class="checkmark"></span>
                   <span>Homepage Text</span>
                 </label>
-                <label class="custom-checkbox">
+                <label class="custom-checkbox" style="padding: 8px 12px; font-size: 12px;">
                   <input type="checkbox" id="chk-about" checked>
                   <span class="checkmark"></span>
                   <span>About Us Section</span>
                 </label>
-                <label class="custom-checkbox">
+                <label class="custom-checkbox" style="padding: 8px 12px; font-size: 12px;">
                   <input type="checkbox" id="chk-contact" checked>
                   <span class="checkmark"></span>
                   <span>Contact Us Section</span>
                 </label>
-                <label class="custom-checkbox">
+                <label class="custom-checkbox" style="padding: 8px 12px; font-size: 12px;">
                   <input type="checkbox" id="chk-services" checked>
                   <span class="checkmark"></span>
                   <span>Services Section</span>
@@ -138,112 +125,103 @@
               </div>
             </div>
 
-            <div class="options-section margin-top-md">
-              <h4 class="section-title"><i class="fa-solid fa-address-card"></i> Contact & Media Details</h4>
-              <div class="checkbox-grid">
-                <label class="custom-checkbox">
+            <div class="options-section margin-top-sm">
+              <h4 class="section-title" style="font-size: 12px; margin-bottom: 8px;"><i class="fa-solid fa-address-card"></i> Contact & Media Details</h4>
+              <div class="checkbox-grid" style="grid-template-columns: repeat(2, 1fr); gap: 8px;">
+                <label class="custom-checkbox" style="padding: 8px 12px; font-size: 12px;">
                   <input type="checkbox" id="chk-phone" checked>
                   <span class="checkmark"></span>
-                  <span><i class="fa-solid fa-phone color-accent"></i> Phone Numbers</span>
+                  <span><i class="fa-solid fa-phone color-accent"></i> Phones</span>
                 </label>
-                <label class="custom-checkbox">
+                <label class="custom-checkbox" style="padding: 8px 12px; font-size: 12px;">
                   <input type="checkbox" id="chk-email" checked>
                   <span class="checkmark"></span>
-                  <span><i class="fa-solid fa-envelope color-primary"></i> Email Addresses</span>
+                  <span><i class="fa-solid fa-envelope color-primary"></i> Emails</span>
                 </label>
-                <label class="custom-checkbox">
+                <label class="custom-checkbox" style="padding: 8px 12px; font-size: 12px;">
                   <input type="checkbox" id="chk-social" checked>
                   <span class="checkmark"></span>
-                  <span><i class="fa-solid fa-share-nodes color-success"></i> Social Media Links</span>
+                  <span><i class="fa-solid fa-share-nodes color-success"></i> Social Links</span>
                 </label>
-                <label class="custom-checkbox">
+                <label class="custom-checkbox" style="padding: 8px 12px; font-size: 12px;">
                   <input type="checkbox" id="chk-skip-dup" checked>
                   <span class="checkmark"></span>
-                  <span><i class="fa-solid fa-filter color-warning"></i> Skip Duplicate URLs</span>
+                  <span><i class="fa-solid fa-filter color-warning"></i> Skip Duplicates</span>
                 </label>
               </div>
             </div>
 
-
-            <div class="form-group margin-top-md">
-              <label for="custom-keywords-input"><i class="fa-solid fa-tags"></i> Custom Target Keywords (comma
-                separated):</label>
-              <input type="text" id="custom-keywords-input" placeholder="e.g. Careers, Pricing, Team, FAQ">
+            <div class="form-group margin-top-sm">
+              <label for="custom-keywords-input" style="margin-bottom: 4px; font-size: 12px;"><i class="fa-solid fa-tags"></i> Custom Target Keywords:</label>
+              <input type="text" id="custom-keywords-input" placeholder="e.g. Careers, Pricing, Team, FAQ" style="padding: 6px 12px; font-size: 12px;">
             </div>
 
-
-            <div class="margin-top-lg">
-              <button id="btn-apply-parameters" class="btn btn-secondary btn-block btn-lg">
+            <div class="margin-top-sm">
+              <button id="btn-apply-parameters" class="btn btn-secondary btn-block btn-sm">
                 <i class="fa-solid fa-square-plus"></i> <span data-i18n="apply_param_btn">Apply Columns & Parameters</span>
               </button>
             </div>
-
           </div>
         </div>
 
+      </div>
 
-        <div class="card glass-card">
-          <div class="automation-top-bar" style="padding: 20px 24px;">
-            <div class="session-info">
-              <h2><i class="fa-solid fa-bolt color-warning"></i> <span data-i18n="live_tracker_title">Live Execution Progress</span></h2>
-              <span id="session-status-badge" class="badge badge-idle">Idle</span>
-            </div>
+
+      <div class="card glass-card margin-top-md">
+        <div class="automation-top-bar" style="padding: 12px 20px;">
+          <div class="session-info">
+            <h2 style="font-size: 15px;"><i class="fa-solid fa-bolt color-warning"></i> <span data-i18n="live_tracker_title">Live Execution Progress</span></h2>
+            <span id="session-status-badge" class="badge badge-idle">Idle</span>
           </div>
-          
-          <div class="card-body" style="padding-top: 14px;">
-            <div class="session-controls" style="display: flex; flex-direction: column; gap: 8px;">
-              <div style="display: flex; gap: 8px; width: 100%;">
-                <button id="btn-restart" class="btn btn-primary btn-block"><i class="fa-solid fa-play"></i> Launch Mining Session</button>
-                <button id="btn-export-toolbar" class="btn btn-secondary btn-block"><i class="fa-solid fa-download"></i> Export Data</button>
-              </div>
-              <div style="display: flex; gap: 8px; width: 100%;">
-                <button id="btn-pause" class="btn btn-warning btn-sm hidden" style="flex: 1;"><i class="fa-solid fa-pause"></i> Pause</button>
-                <button id="btn-resume" class="btn btn-success btn-sm hidden" style="flex: 1;"><i class="fa-solid fa-play"></i> Resume</button>
-                <button id="btn-stop" class="btn btn-danger btn-sm hidden" style="flex: 1;"><i class="fa-solid fa-stop"></i> Stop</button>
-                <button id="btn-retry-failed" class="btn btn-warning btn-sm hidden" style="flex: 1;"><i class="fa-solid fa-rotate-right"></i> Retry Failed</button>
-              </div>
-            </div>
 
-            <div id="quick-status" class="quick-status-banner hidden margin-top-md" style="background: rgba(108, 99, 255, 0.1); border: 1px solid rgba(108, 99, 255, 0.3); padding: 8px 16px; border-radius: 8px; color: var(--color-primary); font-size: 13px; font-weight: 500;">
-              <i class="fa-solid fa-spinner fa-spin"></i> <span id="lbl-status-text">Mining in progress...</span>
-            </div>
-
-            <div class="progress-container margin-top-md">
-              <div class="progress-metrics">
-                <span class="metric-text"><span id="lbl-processed-sites">0</span> / <span id="lbl-total-sites">0</span> Processed</span>
-                <span id="lbl-percentage" class="metric-percentage">0.0%</span>
-              </div>
-              <div class="progress-bar-bg">
-                <div id="progress-bar-fill" class="progress-bar-fill" style="width: 0%;"></div>
-              </div>
-              <div class="progress-subtext">
-                <span><i class="fa-solid fa-stopwatch"></i> Elapsed: <strong id="lbl-elapsed-time">00:00:00</strong></span>
-                <span><i class="fa-solid fa-microchip"></i> Mode: <span id="lbl-active-proxy">Direct</span></span>
-              </div>
-            </div>
-
-            <div class="stats-counters-grid margin-top-md" style="grid-template-columns: 1fr 1fr; gap: 10px;">
-              <div class="stat-box blue" style="padding: 10px;">
-                <div class="stat-number" id="stat-total" style="font-size: 20px;">0</div>
-                <div class="stat-label" style="font-size: 10px;">Total Sites</div>
-              </div>
-              <div class="stat-box green" style="padding: 10px;">
-                <div class="stat-number" id="stat-done" style="font-size: 20px;">0</div>
-                <div class="stat-label" style="font-size: 10px;">Successful</div>
-              </div>
-              <div class="stat-box red" style="padding: 10px;">
-                <div class="stat-number" id="stat-error" style="font-size: 20px;">0</div>
-                <div class="stat-label" style="font-size: 10px;">Failed/Error</div>
-              </div>
-              <div class="stat-box orange" style="padding: 10px;">
-                <div class="stat-number" id="stat-skipped" style="font-size: 20px;">0</div>
-                <div class="stat-label" style="font-size: 10px;">Skipped</div>
-              </div>
-            </div>
-
+          <div class="session-controls" style="display: flex; gap: 8px;">
+            <button id="btn-pause" class="btn btn-warning btn-xs hidden"><i class="fa-solid fa-pause"></i> Pause</button>
+            <button id="btn-resume" class="btn btn-success btn-xs hidden"><i class="fa-solid fa-play"></i> Resume</button>
+            <button id="btn-stop" class="btn btn-danger btn-xs hidden"><i class="fa-solid fa-stop"></i> Stop</button>
+            <button id="btn-retry-failed" class="btn btn-warning btn-xs hidden"><i class="fa-solid fa-rotate-right"></i> Retry Failed</button>
+            <button id="btn-restart" class="btn btn-primary btn-sm"><i class="fa-solid fa-play"></i> Launch Mining Session</button>
+            <button id="btn-export-toolbar" class="btn btn-secondary btn-sm"><i class="fa-solid fa-download"></i> Export Data</button>
           </div>
         </div>
 
+        <div class="card-body" style="padding: 12px 20px;">
+          <div id="quick-status" class="quick-status-banner hidden" style="background: rgba(108, 99, 255, 0.1); border: 1px solid rgba(108, 99, 255, 0.3); padding: 6px 14px; border-radius: 6px; color: var(--color-primary); font-size: 12px; font-weight: 500; margin-bottom: 8px;">
+            <i class="fa-solid fa-spinner fa-spin"></i> <span id="lbl-status-text">Mining in progress...</span>
+          </div>
+
+          <div class="progress-container" style="padding: 10px 16px;">
+            <div class="progress-metrics" style="font-size: 12px; margin-bottom: 6px;">
+              <span class="metric-text"><span id="lbl-processed-sites">0</span> / <span id="lbl-total-sites">0</span> Websites Processed</span>
+              <span id="lbl-percentage" class="metric-percentage" style="font-size: 14px;">0.0%</span>
+            </div>
+            <div class="progress-bar-bg" style="height: 8px;">
+              <div id="progress-bar-fill" class="progress-bar-fill" style="width: 0%;"></div>
+            </div>
+            <div class="progress-subtext" style="font-size: 11px; margin-top: 6px;">
+              <span><i class="fa-solid fa-stopwatch"></i> Elapsed: <strong id="lbl-elapsed-time">00:00:00</strong></span>
+              <span><i class="fa-solid fa-microchip"></i> Mode: <span id="lbl-active-proxy">Direct Native Fetch</span></span>
+            </div>
+          </div>
+
+          <div class="stats-counters-grid margin-top-sm" style="grid-template-columns: repeat(4, 1fr); gap: 12px;">
+            <div class="stat-box blue" style="padding: 8px 12px;">
+              <div class="stat-number" id="stat-total" style="font-size: 20px;">0</div>
+              <div class="stat-label" style="font-size: 10px;">Total Sites</div>
+            </div>
+            <div class="stat-box green" style="padding: 8px 12px;">
+              <div class="stat-number" id="stat-done" style="font-size: 20px;">0</div>
+              <div class="stat-label" style="font-size: 10px;">Successful</div>
+            </div>
+            <div class="stat-box red" style="padding: 8px 12px;">
+              <div class="stat-number" id="stat-error" style="font-size: 20px;">0</div>
+              <div class="stat-label" style="font-size: 10px;">Failed/Error</div>
+            </div>
+            <div class="stat-box orange" style="padding: 8px 12px;">
+              <div class="stat-number" id="stat-skipped" style="font-size: 20px;">0</div>
+              <div class="stat-label" style="font-size: 10px;">Duplicates Skipped</div>
+            </div>
+          </div>
+        </div>
       </div>
 
 
