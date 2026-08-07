@@ -242,19 +242,6 @@
       </div>
 
 
-      <div class="card glass-card margin-top-lg">
-        <div class="card-header flex-between">
-          <div class="terminal-title">
-            <span class="terminal-dots"><i class="dot red"></i><i class="dot yellow"></i><i class="dot green"></i></span>
-            <h3><i class="fa-solid fa-terminal color-accent"></i> <span>Live Execution Console</span></h3>
-          </div>
-          <button id="btn-clear-log" class="btn btn-secondary btn-xs"><i class="fa-solid fa-trash"></i> Clear Log</button>
-        </div>
-        <div class="card-body">
-          <div id="console-log" class="console-box" style="height: 160px; overflow-y: auto;"></div>
-        </div>
-      </div>
-
 
       <div class="card glass-card margin-top-lg">
         <div class="card-header flex-between">
@@ -301,8 +288,10 @@
       <option value="direct" selected></option>
     </select>
     <input type="checkbox" id="chk-sound" checked>
+    <div id="console-log"></div>
     <canvas id="status-chart"></canvas>
     <tbody id="history-table-body"></tbody>
+    <button id="btn-clear-log"></button>
     <button id="btn-clean-data"></button>
     <button id="btn-clear-history"></button>
   </div>
