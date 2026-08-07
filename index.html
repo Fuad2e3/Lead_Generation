@@ -1,34 +1,39 @@
 <!DOCTYPE html>
 <html lang="en" data-theme="dark">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Lead Generation - Web Data Scraper</title>
-  <meta name="description" content="Automated Web Data Mining Tool. Extract Emails, Phones, Social Links, and Page Content at scale.">
+  <meta name="description"
+    content="Automated Web Data Mining Tool. Extract Emails, Phones, Social Links, and Page Content at scale.">
 
-  
+
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-  
-  
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap"
+    rel="stylesheet">
+
+
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  
-  
+
+
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 
-  
+
   <link rel="stylesheet" href="styles.css">
 </head>
+
 <body>
 
-  
+
   <div class="app-container">
-    
-    
+
+
     <header class="app-header">
       <div class="header-brand">
         <div class="brand-icon">
@@ -40,7 +45,7 @@
         </div>
       </div>
 
-      
+
       <div class="header-actions">
         <button id="btn-lang" class="action-pill" title="Switch Language">
           <i class="fa-solid fa-language"></i> <span id="lang-label">English</span>
@@ -51,27 +56,33 @@
       </div>
     </header>
 
-    
+
     <main class="app-main">
-      
-      
+
+
       <div class="grid-layout-2col">
-        
-        
+
+
         <div class="card glass-card">
           <div class="card-header flex-between">
-            <h3><i class="fa-solid fa-file-import"></i> <span data-i18n="input_heading">1. Input Website URLs</span></h3>
+            <h3><i class="fa-solid fa-file-import"></i> <span data-i18n="input_heading">1. Input Website URLs</span>
+            </h3>
             <div class="input-stats-pills" style="display: flex; gap: 8px;">
-              <span class="stat-pill"><i class="fa-solid fa-globe"></i> <span id="detected-urls-count">0</span> URLs</span>
-              <span id="duplicate-warning" class="stat-pill warning hidden" style="background: rgba(255, 179, 71, 0.15); color: var(--color-warning); border: 1px solid rgba(255, 179, 71, 0.3); padding: 4px 10px; border-radius: 20px; font-size: 12px;"><i class="fa-solid fa-clone"></i> <span id="duplicates-count">0</span> Duplicates Skipped</span>
+              <span class="stat-pill"><i class="fa-solid fa-globe"></i> <span id="detected-urls-count">0</span>
+                URLs</span>
+              <span id="duplicate-warning" class="stat-pill warning hidden"
+                style="background: rgba(255, 179, 71, 0.15); color: var(--color-warning); border: 1px solid rgba(255, 179, 71, 0.3); padding: 4px 10px; border-radius: 20px; font-size: 12px;"><i
+                  class="fa-solid fa-clone"></i> <span id="duplicates-count">0</span> Duplicates Skipped</span>
             </div>
           </div>
-          
+
           <div class="card-body">
-            
+
             <div class="dropzone" id="file-dropzone">
               <i class="fa-solid fa-cloud-arrow-up dropzone-icon"></i>
-              <p class="dropzone-text" data-i18n="dropzone_msg">Drag & Drop <strong>.txt</strong>, <strong>.csv</strong>, or <strong>.xlsx</strong> file here</p>
+              <p class="dropzone-text" data-i18n="dropzone_msg">Drag & Drop <strong>.txt</strong>,
+                <strong>.csv</strong>, or <strong>.xlsx</strong> file here
+              </p>
               <span class="dropzone-or">or</span>
               <label for="file-input" class="btn btn-secondary btn-sm">
                 <i class="fa-solid fa-folder-open"></i> <span data-i18n="browse_btn">Browse Files</span>
@@ -83,21 +94,24 @@
               </div>
             </div>
 
-            
+
             <div class="form-group margin-top-md">
-              <label for="url-textarea"><i class="fa-solid fa-list-check"></i> <span data-i18n="manual_urls_label">Or Paste URLs/Domains directly:</span></label>
-              <textarea id="url-textarea" placeholder="https://example.com&#10;mycompany.org&#10;agency.net" rows="8"></textarea>
+              <label for="url-textarea"><i class="fa-solid fa-list-check"></i> <span data-i18n="manual_urls_label">Or
+                  Paste URLs/Domains directly:</span></label>
+              <textarea id="url-textarea" placeholder="https://example.com&#10;mycompany.org&#10;agency.net"
+                rows="8"></textarea>
             </div>
           </div>
         </div>
 
-        
+
         <div class="card glass-card">
           <div class="card-header">
-            <h3><i class="fa-solid fa-square-check"></i> <span data-i18n="options_heading">2. Extraction Parameters</span></h3>
+            <h3><i class="fa-solid fa-square-check"></i> <span data-i18n="options_heading">2. Extraction
+                Parameters</span></h3>
           </div>
           <div class="card-body">
-            
+
             <div class="options-section">
               <h4 class="section-title"><i class="fa-solid fa-file-lines"></i> Page Text Sections</h4>
               <div class="checkbox-grid">
@@ -150,26 +164,17 @@
               </div>
             </div>
 
-            
+
             <div class="form-group margin-top-md">
-              <label for="custom-keywords-input"><i class="fa-solid fa-tags"></i> Custom Target Keywords (comma separated):</label>
+              <label for="custom-keywords-input"><i class="fa-solid fa-tags"></i> Custom Target Keywords (comma
+                separated):</label>
               <input type="text" id="custom-keywords-input" placeholder="e.g. Careers, Pricing, Team, FAQ">
             </div>
 
-            
-            <div class="form-group margin-top-md">
-              <label><i class="fa-solid fa-gauge-high"></i> Request Speed & Parallel Workers:</label>
-              <div class="speed-selector">
-                <button class="speed-btn active" data-delay="0.2">Ultra (20x Parallel)</button>
-                <button class="speed-btn" data-delay="0.5">Turbo (15x Parallel)</button>
-                <button class="speed-btn" data-delay="1.5">Fast (10x Parallel)</button>
-              </div>
-            </div>
 
-            
             <div class="margin-top-lg">
-              <button id="btn-start-mining" class="btn btn-primary btn-block btn-lg">
-                <i class="fa-solid fa-play"></i> <span data-i18n="start_btn">Launch Mining Session</span>
+              <button id="btn-apply-parameters" class="btn btn-secondary btn-block btn-lg">
+                <i class="fa-solid fa-square-plus"></i> <span data-i18n="apply_param_btn">Apply Columns & Parameters</span>
               </button>
             </div>
 
@@ -177,7 +182,7 @@
         </div>
       </div>
 
-      
+
       <div class="card glass-card margin-top-lg">
         <div class="automation-top-bar">
           <div class="session-info">
@@ -190,15 +195,16 @@
             <button id="btn-resume" class="btn btn-success btn-sm hidden"><i class="fa-solid fa-play"></i> Resume</button>
             <button id="btn-stop" class="btn btn-danger btn-sm hidden"><i class="fa-solid fa-stop"></i> Stop</button>
             <button id="btn-retry-failed" class="btn btn-warning btn-sm hidden"><i class="fa-solid fa-rotate-right"></i> Retry Failed Sites</button>
-            <button id="btn-restart" class="btn btn-success btn-sm"><i class="fa-solid fa-play"></i> Start New Session</button>
-            <button id="btn-export-toolbar" class="btn btn-primary btn-sm"><i class="fa-solid fa-download"></i> Export Data</button>
+            <button id="btn-restart" class="btn btn-primary btn-sm"><i class="fa-solid fa-play"></i> Launch Mining Session</button>
+            <button id="btn-export-toolbar" class="btn btn-secondary btn-sm"><i class="fa-solid fa-download"></i> Export Data</button>
           </div>
         </div>
 
-        
+
         <div class="progress-container margin-top-md">
           <div class="progress-metrics">
-            <span class="metric-text"><span id="lbl-processed-sites">0</span> / <span id="lbl-total-sites">0</span> Websites Processed</span>
+            <span class="metric-text"><span id="lbl-processed-sites">0</span> / <span id="lbl-total-sites">0</span>
+              Websites Processed</span>
             <span id="lbl-percentage" class="metric-percentage">0.0%</span>
           </div>
           <div class="progress-bar-bg">
@@ -206,11 +212,12 @@
           </div>
           <div class="progress-subtext">
             <span><i class="fa-solid fa-stopwatch"></i> Elapsed: <strong id="lbl-elapsed-time">00:00:00</strong></span>
-            <span><i class="fa-solid fa-microchip"></i> Mode: <span id="lbl-active-proxy">Direct Native Fetch</span></span>
+            <span><i class="fa-solid fa-microchip"></i> Mode: <span id="lbl-active-proxy">Direct Native
+                Fetch</span></span>
           </div>
         </div>
 
-        
+
         <div class="stats-counters-grid margin-top-md">
           <div class="stat-box blue">
             <div class="stat-number" id="stat-total">0</div>
@@ -231,7 +238,7 @@
         </div>
       </div>
 
-      
+
       <div class="card glass-card margin-top-lg">
         <div class="card-header flex-between">
           <h3><i class="fa-solid fa-table-list"></i> <span>Extracted Website Data Grid</span></h3>
@@ -259,7 +266,8 @@
               </thead>
               <tbody id="table-body">
                 <tr>
-                  <td colspan="11" class="text-center text-muted">No mined data yet. Click "Launch Mining Session" above.</td>
+                  <td colspan="11" class="text-center text-muted">No mined data yet. Click "Launch Mining Session"
+                    above.</td>
                 </tr>
               </tbody>
             </table>
@@ -270,9 +278,11 @@
     </main>
   </div>
 
-  
+
   <div class="hidden-background-elements" style="display: none !important;">
-    <select id="proxy-select"><option value="direct" selected></option></select>
+    <select id="proxy-select">
+      <option value="direct" selected></option>
+    </select>
     <input type="checkbox" id="chk-sound" checked>
     <div id="console-log"></div>
     <canvas id="status-chart"></canvas>
@@ -282,7 +292,7 @@
     <button id="btn-clear-history"></button>
   </div>
 
-  
+
   <div id="modal-export" class="modal-backdrop hidden">
     <div class="modal-box">
       <div class="modal-header">
@@ -322,7 +332,7 @@
     </div>
   </div>
 
-  
+
   <div id="modal-detail" class="modal-backdrop hidden">
     <div class="modal-box modal-lg">
       <div class="modal-header">
@@ -330,7 +340,7 @@
         <button class="btn-close" id="btn-close-detail"><i class="fa-solid fa-xmark"></i></button>
       </div>
       <div class="modal-body" id="detail-modal-body">
-        
+
       </div>
       <div class="modal-footer">
         <button id="btn-back-detail" class="btn btn-primary btn-md">
@@ -340,7 +350,8 @@
     </div>
   </div>
 
-  
+
   <script src="app.js"></script>
 </body>
+
 </html>
