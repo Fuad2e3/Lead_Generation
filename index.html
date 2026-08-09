@@ -235,25 +235,7 @@
           </div>
         </div>
 
-        <!-- Terminal Log Section -->
-        <div class="card glass-card margin-top-sm">
-          <div class="card-header flex-between" style="padding: 10px 18px; border-bottom: 1px solid rgba(108, 99, 255, 0.1);">
-            <div class="terminal-title">
-              <div class="terminal-dots">
-                <span class="dot red"></span>
-                <span class="dot yellow"></span>
-                <span class="dot green"></span>
-              </div>
-              <h3 style="font-size: 12px; margin-left: 10px; color: var(--text-muted);"><i class="fa-solid fa-terminal"></i> System Activity Log</h3>
-            </div>
-            <button id="btn-clear-log-visible" class="btn-icon" title="Clear Log"><i class="fa-solid fa-trash-can"></i></button>
-          </div>
-          <div class="card-body" style="padding: 0;">
-            <div id="console-log-visible" class="console-box">
-              <div class="log-line system">> System initialized. Awaiting user input...</div>
-            </div>
-          </div>
-        </div>
+
 
       </div>
 
@@ -305,9 +287,11 @@
     </select>
     <input type="checkbox" id="chk-sound" checked>
     <div id="console-log"></div>
+    <div id="console-log-visible"></div>
     <canvas id="status-chart"></canvas>
     <tbody id="history-table-body"></tbody>
     <button id="btn-clear-log"></button>
+    <button id="btn-clear-log-visible"></button>
     <button id="btn-clean-data"></button>
     <button id="btn-clear-history"></button>
   </div>
