@@ -27,6 +27,19 @@
 
   <link rel="stylesheet" href="styles.css">
   <link rel="stylesheet" href="auth.css">
+
+  <script>
+    (function() {
+      try {
+        var user = localStorage.getItem('leadgen_current_user');
+        if (user) {
+          document.documentElement.setAttribute('data-authenticated', 'true');
+        } else {
+          document.documentElement.setAttribute('data-authenticated', 'false');
+        }
+      } catch (e) {}
+    })();
+  </script>
 </head>
 
 <body>
