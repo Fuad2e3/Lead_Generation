@@ -599,6 +599,39 @@ input[type="text"]:focus {
   border-radius: 10px;
   transition: width 0.3s ease;
   box-shadow: var(--shadow-accent-glow);
+  position: relative;
+  overflow: hidden;
+}
+
+.progress-bar-fill::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.2),
+    transparent
+  );
+  animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+.badge-running {
+  animation: pulse-glow 2s infinite;
+}
+
+@keyframes pulse-glow {
+  0% { box-shadow: 0 0 5px rgba(0, 210, 255, 0.2); }
+  50% { box-shadow: 0 0 15px rgba(0, 210, 255, 0.5); }
+  100% { box-shadow: 0 0 5px rgba(0, 210, 255, 0.2); }
 }
 
 .progress-subtext {
