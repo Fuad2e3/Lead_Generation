@@ -253,23 +253,6 @@
   display: none;
 }
 
-/* Zero-Flicker Instant Session Persistence Rules */
-html[data-authenticated="true"] #modal-auth {
-  display: none !important;
-}
-
-html[data-authenticated="true"] #app-container {
-  display: flex !important;
-}
-
-html[data-authenticated="false"] #modal-auth {
-  display: flex !important;
-}
-
-html[data-authenticated="false"] #app-container {
-  display: none !important;
-}
-
 .auth-modal-box {
   background: var(--bg-card);
   backdrop-filter: blur(30px);

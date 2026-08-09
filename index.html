@@ -33,9 +33,12 @@
       try {
         var user = localStorage.getItem('leadgen_current_user');
         if (user) {
-          document.documentElement.setAttribute('data-authenticated', 'true');
-        } else {
-          document.documentElement.setAttribute('data-authenticated', 'false');
+          document.addEventListener('DOMContentLoaded', function() {
+            var m = document.getElementById('modal-auth');
+            var a = document.getElementById('app-container');
+            if (m) { m.classList.add('hidden'); m.classList.remove('auth-page-mode'); }
+            if (a) { a.classList.remove('hidden'); }
+          });
         }
       } catch (e) {}
     })();
