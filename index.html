@@ -32,12 +32,12 @@
     (function() {
       try {
         var user = localStorage.getItem('leadgen_current_user');
-        if (user) {
+        if (user && user !== 'null' && user !== 'undefined') {
           document.addEventListener('DOMContentLoaded', function() {
             var m = document.getElementById('modal-auth');
             var a = document.getElementById('app-container');
-            if (m) { m.classList.add('hidden'); m.classList.remove('auth-page-mode'); }
-            if (a) { a.classList.remove('hidden'); }
+            if (m) { m.classList.add('hidden'); m.classList.remove('auth-page-mode'); m.style.display = 'none'; }
+            if (a) { a.classList.remove('hidden'); a.style.display = 'flex'; }
           });
         }
       } catch (e) {}
