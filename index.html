@@ -2,6 +2,11 @@
 <html lang="en" data-theme="dark">
 
 <head>
+  <script>
+    if (localStorage.getItem('isLoggedIn') !== 'true') {
+      window.location.href = 'login.html';
+    }
+  </script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Lead Generation - Web Data Scraper</title>
@@ -26,29 +31,12 @@
 
 
   <link rel="stylesheet" href="styles.css">
-  <link rel="stylesheet" href="auth.css">
-
-  <script>
-    (function() {
-      try {
-        var user = localStorage.getItem('leadgen_current_user');
-        if (user && user !== 'null' && user !== 'undefined') {
-          document.addEventListener('DOMContentLoaded', function() {
-            var m = document.getElementById('modal-auth');
-            var a = document.getElementById('app-container');
-            if (m) { m.classList.add('hidden'); m.classList.remove('auth-page-mode'); m.style.display = 'none'; }
-            if (a) { a.classList.remove('hidden'); a.style.display = 'flex'; }
-          });
-        }
-      } catch (e) {}
-    })();
-  </script>
 </head>
 
 <body>
 
 
-  <div id="app-container" class="app-container hidden">
+  <div class="app-container">
 
 
     <header class="app-header">
@@ -70,48 +58,9 @@
         <button id="btn-theme" class="action-pill" title="Toggle Light/Dark Theme">
           <i class="fa-solid fa-moon"></i>
         </button>
-
-        <!-- Auth Header Integration -->
-        <div id="auth-header-container" class="auth-header-container">
-          <button id="btn-open-auth" class="btn btn-primary btn-sm auth-trigger-btn">
-            <i class="fa-solid fa-right-to-bracket"></i>
-            <span>Sign In</span>
-          </button>
-
-          <div id="user-profile-menu" class="user-profile-menu hidden">
-            <button id="btn-user-avatar" class="avatar-pill-btn" aria-label="User Menu">
-              <div class="avatar-badge" id="header-user-avatar">JD</div>
-              <span class="user-name-text" id="header-user-name">John Doe</span>
-              <span class="user-plan-badge" id="header-user-plan"><i class="fa-solid fa-bolt"></i> Pro</span>
-              <i class="fa-solid fa-chevron-down avatar-chevron"></i>
-            </button>
-            <div id="profile-dropdown" class="profile-dropdown-card hidden">
-              <div class="profile-dropdown-header">
-                <div class="profile-avatar-lg" id="dropdown-user-avatar">JD</div>
-                <div class="profile-details">
-                  <div class="profile-fullname" id="dropdown-user-name">John Doe</div>
-                  <div class="profile-email" id="dropdown-user-email">john@leadgen.com</div>
-                  <div class="profile-badge-row">
-                    <span class="badge-plan-tier" id="dropdown-user-plan"><i class="fa-solid fa-crown"></i> Pro Tier</span>
-                  </div>
-                </div>
-              </div>
-              <div class="profile-dropdown-divider"></div>
-              <div class="profile-dropdown-items">
-                <div class="profile-stat-box">
-                  <span class="stat-lbl"><i class="fa-solid fa-database"></i> Scraped Leads</span>
-                  <span class="stat-val" id="dropdown-scraped-count">4,280 / 10,000</span>
-                </div>
-                <button class="profile-item" id="btn-open-account-settings">
-                  <i class="fa-solid fa-sliders"></i> Account Preferences
-                </button>
-                <button class="profile-item logout-item" id="btn-auth-logout">
-                  <i class="fa-solid fa-right-from-bracket"></i> Sign Out
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
+        <button id="btn-logout" class="action-pill" title="Logout" style="color: #ff4d4d; border-color: rgba(255, 77, 77, 0.3);">
+          <i class="fa-solid fa-right-from-bracket"></i>
+        </button>
       </div>
     </header>
 
@@ -401,315 +350,15 @@
   </div>
 
 
-  <!-- High-End Professional Auth Modal (Login / Register / Forgot Password) -->
-  <div id="modal-auth" class="modal-backdrop auth-page-mode">
-    <div class="auth-modal-box">
-      <button class="btn-close auth-close-btn" id="btn-close-auth" aria-label="Close Auth Modal">
-        <i class="fa-solid fa-xmark"></i>
-      </button>
-
-      <div class="auth-split-container">
-        <!-- Left Side Showcase Panel -->
-        <div class="auth-showcase-panel">
-          <div class="auth-showcase-bg-shapes">
-            <div class="shape-glow glow-1"></div>
-            <div class="shape-glow glow-2"></div>
-          </div>
-          <div class="auth-showcase-content">
-            <div class="auth-brand-header">
-              <div class="auth-brand-icon">
-                <i class="fa-solid fa-spider"></i>
-              </div>
-              <div class="auth-brand-text">
-                <h2>Lead Generation</h2>
-                <span>Web Data Mining Suite v2.5</span>
-              </div>
-            </div>
-
-            <div class="auth-headline">
-              <h3>Supercharge your B2B sales pipeline with automated intelligence.</h3>
-              <p>Extract verified emails, phone numbers, social media channels & company insights in seconds.</p>
-            </div>
-
-            <div class="auth-feature-list">
-              <div class="auth-feature-item">
-                <div class="feature-icon"><i class="fa-solid fa-bolt"></i></div>
-                <div class="feature-text">
-                  <strong>15x Multi-Thread Mining Engine</strong>
-                  <span>Instant parallel data extraction at scale</span>
-                </div>
-              </div>
-              <div class="auth-feature-item">
-                <div class="feature-icon"><i class="fa-solid fa-shield-halved"></i></div>
-                <div class="feature-text">
-                  <strong>Domain Security Guard & Anti-Bot</strong>
-                  <span>Direct native fetch with multi-proxy fallback</span>
-                </div>
-              </div>
-              <div class="auth-feature-item">
-                <div class="feature-icon"><i class="fa-solid fa-file-export"></i></div>
-                <div class="feature-text">
-                  <strong>Multi-Format Smart Exporter</strong>
-                  <span>Instant export to Excel, CSV, PDF & JSON</span>
-                </div>
-              </div>
-            </div>
-
-            <div class="auth-testimonial-card">
-              <div class="testimonial-rating">
-                <i class="fa-solid fa-star"></i>
-                <i class="fa-solid fa-star"></i>
-                <i class="fa-solid fa-star"></i>
-                <i class="fa-solid fa-star"></i>
-                <i class="fa-solid fa-star"></i>
-                <span>5.0 / 5.0</span>
-              </div>
-              <p class="testimonial-quote">"This tool replaced three separate scraping tools. We generated 5,000+ targeted leads in our first week!"</p>
-              <div class="testimonial-user">
-                <div class="user-avatar-sm">SK</div>
-                <div class="user-info">
-                  <strong>Sarah Jenkins</strong>
-                  <span>VP of Growth, TechScale Agency</span>
-                </div>
-              </div>
-            </div>
-
-            <div class="auth-trust-badges">
-              <span><i class="fa-solid fa-circle-check"></i> 10M+ Leads Processed</span>
-              <span><i class="fa-solid fa-circle-check"></i> 99.9% Data Accuracy</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Right Side Form Panel -->
-        <div class="auth-form-panel">
-          <!-- Auth Navigation Tabs -->
-          <div class="auth-tabs">
-            <button class="auth-tab-btn active" id="tab-login" data-target="form-login">
-              <i class="fa-solid fa-right-to-bracket"></i> Sign In
-            </button>
-            <button class="auth-tab-btn" id="tab-register" data-target="form-register">
-              <i class="fa-solid fa-user-plus"></i> Create Account
-            </button>
-            <div class="tab-indicator" id="tab-indicator"></div>
-          </div>
-
-          <!-- Alert Container for Form Notifications -->
-          <div id="auth-alert-box" class="auth-alert hidden">
-            <i class="fa-solid fa-triangle-exclamation alert-icon"></i>
-            <span id="auth-alert-msg">An error occurred</span>
-          </div>
-
-          <!-- FORM 1: LOGIN -->
-          <form id="form-login" class="auth-form active" novalidate>
-            <div class="auth-form-header">
-              <h3>Welcome Back!</h3>
-              <p>Sign in to access your saved scraper sessions & exported leads.</p>
-            </div>
-
-            <!-- Quick Social Auth -->
-            <div class="social-auth-grid">
-              <button type="button" class="btn-social btn-google" id="btn-social-google">
-                <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#EA4335" d="M12 5c1.6 0 3 .6 4.1 1.6l3.1-3.1C17.3 1.7 14.8 1 12 1 7.4 1 3.5 3.6 1.6 7.4l3.7 2.9C6.2 7.1 8.9 5 12 5z"/><path fill="#4285F4" d="M23.5 12.3c0-.8-.1-1.6-.2-2.3H12v4.5h6.5c-.3 1.5-1.1 2.8-2.4 3.7l3.7 2.9c2.2-2 3.7-5 3.7-8.8z"/><path fill="#FBBC05" d="M5.3 14.7c-.3-.8-.4-1.7-.4-2.7s.1-1.9.4-2.7L1.6 6.4C.6 8.4 0 10.1 0 12s.6 3.6 1.6 5.6l3.7-2.9z"/><path fill="#34A853" d="M12 23c3.2 0 6-1.1 8-3l-3.7-2.9c-1.1.7-2.5 1.2-4.3 1.2-3.1 0-5.8-2.1-6.7-5.3L1.6 16C3.5 19.8 7.4 23 12 23z"/></svg>
-                <span>Google</span>
-              </button>
-              <button type="button" class="btn-social btn-github" id="btn-social-github">
-                <i class="fa-brands fa-github"></i>
-                <span>GitHub</span>
-              </button>
-              <button type="button" class="btn-social btn-microsoft" id="btn-social-microsoft">
-                <svg width="18" height="18" viewBox="0 0 23 23"><path fill="#F35325" d="M1 1h10v10H1z"/><path fill="#81BC06" d="M12 1h10v10H12z"/><path fill="#05A6F0" d="M1 12h10v10H1z"/><path fill="#FFBA08" d="M12 12h10v10H12z"/></svg>
-                <span>Microsoft</span>
-              </button>
-            </div>
-
-            <div class="auth-divider">
-              <span>or sign in with email</span>
-            </div>
-
-            <div class="form-group">
-              <label for="login-email"><i class="fa-solid fa-envelope"></i> Work Email Address</label>
-              <div class="input-with-icon">
-                <i class="fa-solid fa-at input-icon"></i>
-                <input type="email" id="login-email" placeholder="name@company.com" autocomplete="email" required>
-                <i class="fa-solid fa-circle-check valid-icon hidden"></i>
-              </div>
-            </div>
-
-            <div class="form-group">
-              <div class="label-row">
-                <label for="login-password"><i class="fa-solid fa-lock"></i> Password</label>
-                <a href="#" id="link-forgot-password" class="auth-link font-sm">Forgot password?</a>
-              </div>
-              <div class="input-with-icon">
-                <i class="fa-solid fa-key input-icon"></i>
-                <input type="password" id="login-password" placeholder="••••••••••••" autocomplete="current-password" required>
-                <button type="button" class="btn-toggle-password" id="btn-toggle-login-pass" tabindex="-1" title="Show/Hide Password">
-                  <i class="fa-solid fa-eye"></i>
-                </button>
-              </div>
-              <div id="login-caps-warning" class="caps-warning hidden">
-                <i class="fa-solid fa-arrow-up-z-a"></i> Caps Lock is ON
-              </div>
-            </div>
-
-            <div class="form-row-remember">
-              <label class="custom-checkbox">
-                <input type="checkbox" id="chk-remember-me" checked>
-                <span class="checkmark"></span>
-                <span>Keep me signed in on this device</span>
-              </label>
-            </div>
-
-            <button type="submit" id="btn-submit-login" class="btn btn-primary btn-block btn-lg auth-submit-btn">
-              <span class="btn-text"><i class="fa-solid fa-right-to-bracket"></i> Sign In to Dashboard</span>
-              <span class="btn-spinner hidden"><i class="fa-solid fa-circle-notch fa-spin"></i></span>
-            </button>
-
-            <div class="demo-account-hint">
-              <i class="fa-solid fa-lightbulb color-warning"></i>
-              <span>Quick Demo Account: <strong>demo@leadgen.com</strong> / <strong>123456</strong></span>
-              <button type="button" class="btn-link-fill" id="btn-fill-demo">Auto Fill</button>
-            </div>
-
-            <div class="auth-footer-switch">
-              <span>Don't have an account yet?</span>
-              <a href="#" id="link-goto-register" class="auth-link bold">Create Account</a>
-            </div>
-          </form>
-
-          <!-- FORM 2: REGISTER -->
-          <form id="form-register" class="auth-form" novalidate>
-            <div class="auth-form-header">
-              <h3>Create Your Account</h3>
-              <p>Start extracting unlimited B2B lead intelligence immediately.</p>
-            </div>
-
-            <div class="form-grid-2col">
-              <div class="form-group">
-                <label for="reg-fullname"><i class="fa-solid fa-user"></i> Full Name</label>
-                <div class="input-with-icon">
-                  <i class="fa-solid fa-id-card input-icon"></i>
-                  <input type="text" id="reg-fullname" placeholder="John Doe" autocomplete="name" required>
-                </div>
-              </div>
-              <div class="form-group">
-                <label for="reg-company"><i class="fa-solid fa-building"></i> Company / Agency</label>
-                <div class="input-with-icon">
-                  <i class="fa-solid fa-briefcase input-icon"></i>
-                  <input type="text" id="reg-company" placeholder="Acme Inc.">
-                </div>
-              </div>
-            </div>
-
-            <div class="form-group">
-              <label for="reg-email"><i class="fa-solid fa-envelope"></i> Work Email Address</label>
-              <div class="input-with-icon">
-                <i class="fa-solid fa-at input-icon"></i>
-                <input type="email" id="reg-email" placeholder="name@company.com" autocomplete="email" required>
-                <i class="fa-solid fa-circle-check valid-icon hidden"></i>
-              </div>
-            </div>
-
-            <div class="form-group">
-              <label for="reg-role"><i class="fa-solid fa-layer-group"></i> Account Type</label>
-              <select id="reg-role" class="auth-select">
-                <option value="agency" selected>Sales / Lead Gen Agency (Pro Tier)</option>
-                <option value="individual">Freelancer / Individual Scraper</option>
-                <option value="enterprise">Enterprise Business / Automation Team</option>
-              </select>
-            </div>
-
-            <div class="form-group">
-              <label for="reg-password"><i class="fa-solid fa-lock"></i> Create Password</label>
-              <div class="input-with-icon">
-                <i class="fa-solid fa-key input-icon"></i>
-                <input type="password" id="reg-password" placeholder="Create a strong password" autocomplete="new-password" required>
-                <button type="button" class="btn-toggle-password" id="btn-toggle-reg-pass" tabindex="-1" title="Show/Hide Password">
-                  <i class="fa-solid fa-eye"></i>
-                </button>
-              </div>
-
-              <!-- Password Strength Meter -->
-              <div class="password-strength-container margin-top-xs">
-                <div class="strength-bar-bg">
-                  <div id="strength-bar-fill" class="strength-bar-fill strength-weak"></div>
-                </div>
-                <div class="strength-label-row">
-                  <span class="strength-title">Password Strength:</span>
-                  <span id="strength-label-text" class="strength-text text-weak">Weak</span>
-                </div>
-                <div class="strength-criteria-grid">
-                  <span id="crit-length" class="crit-item"><i class="fa-solid fa-circle-xmark"></i> 8+ characters</span>
-                  <span id="crit-upper" class="crit-item"><i class="fa-solid fa-circle-xmark"></i> Uppercase & lowercase</span>
-                  <span id="crit-number" class="crit-item"><i class="fa-solid fa-circle-xmark"></i> Number (0-9)</span>
-                  <span id="crit-symbol" class="crit-item"><i class="fa-solid fa-circle-xmark"></i> Special char (!@#$)</span>
-                </div>
-              </div>
-            </div>
-
-            <div class="form-group">
-              <label for="reg-confirm-password"><i class="fa-solid fa-check-double"></i> Confirm Password</label>
-              <div class="input-with-icon">
-                <i class="fa-solid fa-shield-check input-icon"></i>
-                <input type="password" id="reg-confirm-password" placeholder="Re-type password" autocomplete="new-password" required>
-                <span id="match-indicator" class="match-badge hidden"><i class="fa-solid fa-check"></i> Matches</span>
-              </div>
-            </div>
-
-            <div class="form-group">
-              <label class="custom-checkbox">
-                <input type="checkbox" id="chk-terms" required>
-                <span class="checkmark"></span>
-                <span class="terms-text">I agree to the <a href="#" class="auth-link">Terms of Service</a> & <a href="#" class="auth-link">Privacy Policy</a></span>
-              </label>
-            </div>
-
-            <button type="submit" id="btn-submit-register" class="btn btn-primary btn-block btn-lg auth-submit-btn">
-              <span class="btn-text"><i class="fa-solid fa-user-plus"></i> Create Free Account</span>
-              <span class="btn-spinner hidden"><i class="fa-solid fa-circle-notch fa-spin"></i></span>
-            </button>
-
-            <div class="auth-footer-switch">
-              <span>Already have an account?</span>
-              <a href="#" id="link-goto-login" class="auth-link bold">Sign In</a>
-            </div>
-          </form>
-
-          <!-- FORM 3: FORGOT PASSWORD -->
-          <form id="form-forgot" class="auth-form" novalidate>
-            <div class="auth-form-header">
-              <h3>Reset Password</h3>
-              <p>Enter your registered account email and we'll send you an instant recovery link.</p>
-            </div>
-
-            <div class="form-group">
-              <label for="forgot-email"><i class="fa-solid fa-envelope"></i> Account Email Address</label>
-              <div class="input-with-icon">
-                <i class="fa-solid fa-at input-icon"></i>
-                <input type="email" id="forgot-email" placeholder="name@company.com" required>
-              </div>
-            </div>
-
-            <button type="submit" id="btn-submit-forgot" class="btn btn-primary btn-block btn-lg auth-submit-btn">
-              <span class="btn-text"><i class="fa-solid fa-paper-plane"></i> Send Password Reset Link</span>
-              <span class="btn-spinner hidden"><i class="fa-solid fa-circle-notch fa-spin"></i></span>
-            </button>
-
-            <div class="auth-footer-switch">
-              <a href="#" id="link-back-to-login" class="auth-link bold"><i class="fa-solid fa-arrow-left"></i> Back to Sign In</a>
-            </div>
-          </form>
-
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Global Toast Notification Container -->
-  <div id="toast-container" class="toast-container"></div>
-
   <script src="app.js"></script>
+  <script>
+    document.getElementById('btn-logout').addEventListener('click', function() {
+      if (confirm('Are you sure you want to logout?')) {
+        localStorage.removeItem('isLoggedIn');
+        window.location.href = 'login.html';
+      }
+    });
+  </script>
 </body>
 
 </html>
