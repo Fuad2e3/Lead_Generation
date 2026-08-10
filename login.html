@@ -448,55 +448,112 @@
     <!-- Right Column: Form -->
     <div class="form-side">
       <div class="tab-nav">
-        <button class="tab-btn active"><i class="fa-solid fa-right-to-bracket"></i> Sign In</button>
-        <button class="tab-btn"><i class="fa-solid fa-user-plus"></i> Create Account</button>
+        <button id="signin-tab" class="tab-btn active"><i class="fa-solid fa-right-to-bracket"></i> Sign In</button>
+        <button id="signup-tab" class="tab-btn"><i class="fa-solid fa-user-plus"></i> Create Account</button>
       </div>
 
-      <h2>Welcome Back!</h2>
-      <p class="welcome-msg">Sign in to access your saved scraper sessions & exported leads.</p>
+      <!-- Sign In Section -->
+      <div id="signin-section">
+        <h2>Welcome Back!</h2>
+        <p class="welcome-msg">Sign in to access your saved scraper sessions & exported leads.</p>
 
-      <div class="social-logins">
-        <button class="social-btn"><i class="fa-brands fa-google" style="color: #DB4437;"></i> Google</button>
-        <button class="social-btn"><i class="fa-brands fa-github"></i> GitHub</button>
-        <button class="social-btn"><i class="fa-brands fa-microsoft" style="color: #00A4EF;"></i> Microsoft</button>
+        <div class="social-logins">
+          <button class="social-btn"><i class="fa-brands fa-google" style="color: #DB4437;"></i> Google</button>
+          <button class="social-btn"><i class="fa-brands fa-github"></i> GitHub</button>
+          <button class="social-btn"><i class="fa-brands fa-microsoft" style="color: #00A4EF;"></i> Microsoft</button>
+        </div>
+
+        <div class="divider">
+          <span>Or sign in with email</span>
+        </div>
+
+        <div id="error-msg">Invalid email or password!</div>
+
+        <form id="login-form">
+          <div class="input-label" style="color: var(--color-primary);">
+            <span><i class="fa-solid fa-envelope" style="margin-right: 5px;"></i> Work Email Address</span>
+          </div>
+          <div class="input-wrapper">
+            <i class="fa-solid fa-at"></i>
+            <input type="email" id="email" placeholder="name@company.com" required>
+          </div>
+
+          <div class="input-label">
+            <span style="color: var(--color-primary);"><i class="fa-solid fa-lock" style="margin-right: 5px;"></i> Password</span>
+            <a href="#" class="forgot-link">Forgot password??</a>
+          </div>
+          <div class="input-wrapper">
+            <i class="fa-solid fa-key"></i>
+            <input type="password" id="password" placeholder="••••••••••••" required>
+            <i class="fa-solid fa-eye" style="left: auto; right: 15px; color: var(--text-muted); cursor: pointer;"></i>
+          </div>
+
+          <div class="remember-forgot">
+            <label class="custom-check">
+              <input type="checkbox" checked>
+              <span>Keep me signed in on this device</span>
+            </label>
+          </div>
+
+          <button type="submit" class="btn-submit">
+            <i class="fa-solid fa-right-to-bracket"></i> Sign In to Dashboard
+          </button>
+        </form>
       </div>
 
-      <div class="divider">
-        <span>Or sign in with email</span>
+      <!-- Sign Up Section -->
+      <div id="signup-section" style="display: none;">
+        <h2>Get Started Now</h2>
+        <p class="welcome-msg">Create your account to start generating high-quality leads.</p>
+
+        <div class="social-logins">
+          <button class="social-btn"><i class="fa-brands fa-google" style="color: #DB4437;"></i> Google</button>
+          <button class="social-btn"><i class="fa-brands fa-github"></i> GitHub</button>
+          <button class="social-btn"><i class="fa-brands fa-microsoft" style="color: #00A4EF;"></i> Microsoft</button>
+        </div>
+
+        <div class="divider">
+          <span>Or register with email</span>
+        </div>
+
+        <form id="signup-form">
+          <div class="input-label" style="color: var(--color-primary);">
+            <span><i class="fa-solid fa-user" style="margin-right: 5px;"></i> Full Name</span>
+          </div>
+          <div class="input-wrapper">
+            <i class="fa-solid fa-user-tag"></i>
+            <input type="text" id="reg-name" placeholder="John Doe" required>
+          </div>
+
+          <div class="input-label" style="color: var(--color-primary);">
+            <span><i class="fa-solid fa-envelope" style="margin-right: 5px;"></i> Work Email Address</span>
+          </div>
+          <div class="input-wrapper">
+            <i class="fa-solid fa-at"></i>
+            <input type="email" id="reg-email" placeholder="name@company.com" required>
+          </div>
+
+          <div class="input-label" style="color: var(--color-primary);">
+            <span><i class="fa-solid fa-lock" style="margin-right: 5px;"></i> Create Password</span>
+          </div>
+          <div class="input-wrapper">
+            <i class="fa-solid fa-key"></i>
+            <input type="password" id="reg-password" placeholder="••••••••••••" required>
+            <i class="fa-solid fa-eye" style="left: auto; right: 15px; color: var(--text-muted); cursor: pointer;"></i>
+          </div>
+
+          <div class="remember-forgot">
+            <label class="custom-check">
+              <input type="checkbox" required>
+              <span>I agree to the <a href="#" class="forgot-link">Terms & Privacy</a></span>
+            </label>
+          </div>
+
+          <button type="submit" class="btn-submit">
+            <i class="fa-solid fa-user-plus"></i> Create My Account
+          </button>
+        </form>
       </div>
-
-      <div id="error-msg">Invalid email or password!</div>
-
-      <form id="login-form">
-        <div class="input-label" style="color: var(--color-primary);">
-          <span><i class="fa-solid fa-envelope" style="margin-right: 5px;"></i> Work Email Address</span>
-        </div>
-        <div class="input-wrapper">
-          <i class="fa-solid fa-at"></i>
-          <input type="email" id="email" placeholder="name@company.com" required>
-        </div>
-
-        <div class="input-label">
-          <span style="color: var(--color-primary);"><i class="fa-solid fa-lock" style="margin-right: 5px;"></i> Password</span>
-          <a href="#" class="forgot-link">Forgot password??</a>
-        </div>
-        <div class="input-wrapper">
-          <i class="fa-solid fa-key"></i>
-          <input type="password" id="password" placeholder="••••••••••••" required>
-          <i class="fa-solid fa-eye" style="left: auto; right: 15px; color: var(--text-muted); cursor: pointer;"></i>
-        </div>
-
-        <div class="remember-forgot">
-          <label class="custom-check">
-            <input type="checkbox" checked>
-            <span>Keep me signed in on this device</span>
-          </label>
-        </div>
-
-        <button type="submit" class="btn-submit">
-          <i class="fa-solid fa-right-to-bracket"></i> Sign In to Dashboard
-        </button>
-      </form>
     </div>
   </div>
 
@@ -505,6 +562,25 @@
     if (localStorage.getItem('isLoggedIn') === 'true') {
       window.location.href = 'index.html';
     }
+
+    const signinTab = document.getElementById('signin-tab');
+    const signupTab = document.getElementById('signup-tab');
+    const signinSection = document.getElementById('signin-section');
+    const signupSection = document.getElementById('signup-section');
+
+    signinTab.addEventListener('click', () => {
+      signinTab.classList.add('active');
+      signupTab.classList.remove('active');
+      signinSection.style.display = 'block';
+      signupSection.style.display = 'none';
+    });
+
+    signupTab.addEventListener('click', () => {
+      signupTab.classList.add('active');
+      signinTab.classList.remove('active');
+      signupSection.style.display = 'block';
+      signinSection.style.display = 'none';
+    });
 
     document.getElementById('login-form').addEventListener('submit', function (e) {
       e.preventDefault();
@@ -522,6 +598,29 @@
           errorMsg.style.display = 'none';
         }, 3000);
       }
+    });
+
+    document.getElementById('signup-form').addEventListener('submit', function (e) {
+      e.preventDefault();
+      // For demo, just log in after signup
+      localStorage.setItem('isLoggedIn', 'true');
+      window.location.href = 'index.html';
+    });
+
+    // Toggle Password Visibility
+    document.querySelectorAll('.fa-eye').forEach(eye => {
+      eye.addEventListener('click', function() {
+        const input = this.parentElement.querySelector('input');
+        if (input.type === 'password') {
+          input.type = 'text';
+          this.classList.remove('fa-eye');
+          this.classList.add('fa-eye-slash');
+        } else {
+          input.type = 'password';
+          this.classList.remove('fa-eye-slash');
+          this.classList.add('fa-eye');
+        }
+      });
     });
   </script>
 </body>
