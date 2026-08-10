@@ -25,21 +25,20 @@
       background-color: var(--bg-app);
       margin: 0;
       font-family: 'Inter', sans-serif;
-      padding: 20px;
-      overflow: hidden;
+      padding: 40px 20px;
+      overflow-y: auto; /* Enable scrolling */
       position: relative;
     }
 
-    /* 1. Animated Background Elements */
+    /* 1. Animated Background Elements - Optimized */
     .bg-blobs {
-      position: absolute;
+      position: fixed; /* Keep background static while scrolling */
       top: 0;
       left: 0;
       width: 100%;
       height: 100%;
       z-index: -1;
       overflow: hidden;
-      filter: blur(80px);
     }
 
     .blob {
@@ -48,8 +47,10 @@
       height: 400px;
       background: var(--color-primary);
       border-radius: 50%;
-      opacity: 0.15;
-      animation: move 20s infinite alternate;
+      opacity: 0.12;
+      filter: blur(60px); /* Slightly reduced blur for performance */
+      animation: move 20s infinite alternate linear;
+      will-change: transform; /* Hardware acceleration */
     }
 
     .blob-1 { top: -100px; left: -100px; background: var(--color-primary); }
@@ -57,8 +58,8 @@
     .blob-3 { top: 20%; right: 10%; background: var(--color-primary); width: 300px; height: 300px; animation-delay: -10s; }
 
     @keyframes move {
-      from { transform: translate(0, 0) scale(1); }
-      to { transform: translate(100px, 100px) scale(1.2); }
+      from { transform: translate3d(0, 0, 0) scale(1); }
+      to { transform: translate3d(80px, 80px, 0) scale(1.1); }
     }
 
     .login-wrapper {
