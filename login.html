@@ -25,49 +25,18 @@
       background-color: var(--bg-app);
       margin: 0;
       font-family: 'Inter', sans-serif;
-      padding: 40px 20px;
-      overflow-y: auto; /* Enable scrolling */
+      padding: 15px; /* Minimal padding */
+      overflow: hidden; /* No scroll on desktop */
       position: relative;
-    }
-
-    /* 1. Animated Background Elements - Optimized */
-    .bg-blobs {
-      position: fixed; /* Keep background static while scrolling */
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      z-index: -1;
-      overflow: hidden;
-    }
-
-    .blob {
-      position: absolute;
-      width: 400px;
-      height: 400px;
-      background: var(--color-primary);
-      border-radius: 50%;
-      opacity: 0.12;
-      filter: blur(60px); /* Slightly reduced blur for performance */
-      animation: move 20s infinite alternate linear;
-      will-change: transform; /* Hardware acceleration */
-    }
-
-    .blob-1 { top: -100px; left: -100px; background: var(--color-primary); }
-    .blob-2 { bottom: -100px; right: -100px; background: var(--color-accent); animation-delay: -5s; }
-    .blob-3 { top: 20%; right: 10%; background: var(--color-primary); width: 300px; height: 300px; animation-delay: -10s; }
-
-    @keyframes move {
-      from { transform: translate3d(0, 0, 0) scale(1); }
-      to { transform: translate3d(80px, 80px, 0) scale(1.1); }
     }
 
     .login-wrapper {
       display: grid;
       grid-template-columns: 1fr 1fr;
       width: 100%;
-      max-width: 1000px;
-      min-height: 650px;
+      max-width: 950px;
+      height: 90vh; /* Responsive height */
+      max-height: 620px; /* Fixed max height for compact look */
       background: var(--bg-card);
       border: 1px solid var(--border-card);
       border-radius: var(--radius-xl);
@@ -78,127 +47,95 @@
       z-index: 1;
     }
 
-    /* 4. Shake Animation */
-    @keyframes shake {
-      0%, 100% { transform: translateX(0); }
-      25% { transform: translateX(-10px); }
-      75% { transform: translateX(10px); }
+    /* Left Column */
+    .info-side {
+      padding: 35px 40px; /* Reduced padding */
+      background: linear-gradient(135deg, rgba(108, 99, 255, 0.1), rgba(0, 210, 255, 0.05));
+      border-right: 1px solid var(--border-input);
+      display: flex;
+      flex-direction: column;
     }
-    .shake { animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both; }
 
-    /* 6. Floating Labels & Input Redesign */
-    .floating-group {
-      position: relative;
+    .logo-area {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 25px; /* Reduced margin */
+    }
+
+    .headline {
+      font-size: 24px; /* Slightly smaller font */
+      font-weight: 800;
+      line-height: 1.2;
+      color: white;
+      margin-bottom: 15px;
+    }
+
+    .sub-headline {
+      font-size: 14px;
+      color: var(--text-muted);
       margin-bottom: 25px;
     }
 
-    .floating-group input {
-      width: 100%;
-      padding: 16px 16px 16px 45px;
-      background: var(--bg-input);
-      border: 1px solid var(--border-input);
-      border-radius: 10px;
-      color: white;
-      font-size: 14px;
-      transition: var(--transition-fast);
-    }
-
-    .floating-group label {
-      position: absolute;
-      left: 45px;
-      top: 50%;
-      transform: translateY(-50%);
-      color: var(--text-muted);
-      pointer-events: none;
-      transition: all 0.2s ease;
-      font-size: 14px;
-      font-weight: 500;
-    }
-
-    .floating-group i.main-icon {
-      position: absolute;
-      left: 15px;
-      top: 50%;
-      transform: translateY(-50%);
-      color: var(--color-primary);
-      font-size: 16px;
-      z-index: 2;
-    }
-
-    .floating-group i.eye-icon {
-      position: absolute;
-      right: 15px;
-      top: 50%;
-      transform: translateY(-50%);
-      color: var(--text-muted);
-      cursor: pointer;
-      z-index: 2;
-    }
-
-    .floating-group input:focus ~ label,
-    .floating-group input:not(:placeholder-shown) ~ label {
-      top: -10px;
-      left: 10px;
-      font-size: 12px;
-      color: var(--color-primary);
-      background: var(--bg-app);
-      padding: 0 8px;
-      border-radius: 4px;
-      transform: translateY(0);
-    }
-
-    .floating-group input:focus {
-      outline: none;
-      border-color: var(--color-primary);
-      background: var(--bg-input-focus);
-      box-shadow: 0 0 15px rgba(108, 99, 255, 0.15);
-    }
-
-    /* 3. Strength Meter */
-    .strength-meter {
-      height: 4px;
-      background: var(--border-input);
-      margin-top: -15px;
-      margin-bottom: 20px;
-      border-radius: 2px;
-      overflow: hidden;
-      display: none;
-    }
-    .strength-bar {
-      height: 100%;
-      width: 0;
-      transition: all 0.3s ease;
-    }
-
-    /* 5. Loading State */
-    .btn-submit.is-loading {
-      pointer-events: none;
-      opacity: 0.8;
-    }
-    .btn-submit .spinner {
-      display: none;
-      width: 18px;
-      height: 18px;
-      border: 2px solid rgba(255,255,255,0.3);
-      border-radius: 50%;
-      border-top-color: #fff;
-      animation: spin 0.8s linear infinite;
-    }
-    .btn-submit.is-loading .spinner { display: inline-block; }
-    .btn-submit.is-loading i:not(.spinner),
-    .btn-submit.is-loading span { display: none; }
-
-    @keyframes spin { to { transform: rotate(360deg); } }
-
-    .input-label-row {
+    .features-list {
       display: flex;
-      justify-content: space-between;
-      margin-bottom: 8px;
-      font-size: 13px;
+      flex-direction: column;
+      gap: 15px; /* Tighter gap */
     }
 
-    /* Left Column */
-    .info-side {
+    .testimonial-card {
+      margin-top: auto;
+      padding: 15px;
+      background: rgba(255, 255, 255, 0.03);
+    }
+
+    /* Right Column */
+    .form-side {
+      padding: 35px 40px;
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto; /* Scroll only inside the form if needed */
+    }
+
+    .tab-nav {
+      margin-bottom: 25px;
+    }
+
+    .form-side h2 {
+      font-size: 22px;
+      margin: 0 0 5px 0;
+    }
+
+    .form-side .welcome-msg {
+      font-size: 13px;
+      margin-bottom: 20px;
+    }
+
+    .social-logins {
+      margin-bottom: 15px;
+    }
+
+    .divider {
+      margin-bottom: 15px;
+    }
+
+    .floating-group {
+      margin-bottom: 18px; /* Tighter spacing */
+    }
+
+    @media (max-width: 850px) {
+      body {
+        overflow-y: auto; /* Enable scroll on small mobile only */
+        padding: 10px;
+      }
+      .login-wrapper {
+        height: auto;
+        max-height: none;
+        max-width: 500px;
+      }
+      .info-side { padding: 25px; }
+      .form-side { padding: 25px 20px; }
+    }
       padding: 50px;
       background: linear-gradient(135deg, rgba(108, 99, 255, 0.1), rgba(0, 210, 255, 0.05));
       border-right: 1px solid var(--border-input);
