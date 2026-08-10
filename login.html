@@ -11,6 +11,12 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="stylesheet" href="styles.css">
   <style>
+    :root {
+      --color-strength-weak: #ff4757;
+      --color-strength-medium: #ffa502;
+      --color-strength-strong: #2ed573;
+    }
+
     body {
       display: flex;
       align-items: center;
@@ -20,6 +26,39 @@
       margin: 0;
       font-family: 'Inter', sans-serif;
       padding: 20px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* 1. Animated Background Elements */
+    .bg-blobs {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+      overflow: hidden;
+      filter: blur(80px);
+    }
+
+    .blob {
+      position: absolute;
+      width: 400px;
+      height: 400px;
+      background: var(--color-primary);
+      border-radius: 50%;
+      opacity: 0.15;
+      animation: move 20s infinite alternate;
+    }
+
+    .blob-1 { top: -100px; left: -100px; background: var(--color-primary); }
+    .blob-2 { bottom: -100px; right: -100px; background: var(--color-accent); animation-delay: -5s; }
+    .blob-3 { top: 20%; right: 10%; background: var(--color-primary); width: 300px; height: 300px; animation-delay: -10s; }
+
+    @keyframes move {
+      from { transform: translate(0, 0) scale(1); }
+      to { transform: translate(100px, 100px) scale(1.2); }
     }
 
     .login-wrapper {
@@ -34,6 +73,127 @@
       box-shadow: var(--shadow-glass);
       overflow: hidden;
       backdrop-filter: blur(20px);
+      position: relative;
+      z-index: 1;
+    }
+
+    /* 4. Shake Animation */
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-10px); }
+      75% { transform: translateX(10px); }
+    }
+    .shake { animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both; }
+
+    /* 6. Floating Labels & Input Redesign */
+    .floating-group {
+      position: relative;
+      margin-bottom: 25px;
+    }
+
+    .floating-group input {
+      width: 100%;
+      padding: 16px 16px 16px 45px;
+      background: var(--bg-input);
+      border: 1px solid var(--border-input);
+      border-radius: 10px;
+      color: white;
+      font-size: 14px;
+      transition: var(--transition-fast);
+    }
+
+    .floating-group label {
+      position: absolute;
+      left: 45px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+      pointer-events: none;
+      transition: all 0.2s ease;
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    .floating-group i.main-icon {
+      position: absolute;
+      left: 15px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--color-primary);
+      font-size: 16px;
+      z-index: 2;
+    }
+
+    .floating-group i.eye-icon {
+      position: absolute;
+      right: 15px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+      cursor: pointer;
+      z-index: 2;
+    }
+
+    .floating-group input:focus ~ label,
+    .floating-group input:not(:placeholder-shown) ~ label {
+      top: -10px;
+      left: 10px;
+      font-size: 12px;
+      color: var(--color-primary);
+      background: var(--bg-app);
+      padding: 0 8px;
+      border-radius: 4px;
+      transform: translateY(0);
+    }
+
+    .floating-group input:focus {
+      outline: none;
+      border-color: var(--color-primary);
+      background: var(--bg-input-focus);
+      box-shadow: 0 0 15px rgba(108, 99, 255, 0.15);
+    }
+
+    /* 3. Strength Meter */
+    .strength-meter {
+      height: 4px;
+      background: var(--border-input);
+      margin-top: -15px;
+      margin-bottom: 20px;
+      border-radius: 2px;
+      overflow: hidden;
+      display: none;
+    }
+    .strength-bar {
+      height: 100%;
+      width: 0;
+      transition: all 0.3s ease;
+    }
+
+    /* 5. Loading State */
+    .btn-submit.is-loading {
+      pointer-events: none;
+      opacity: 0.8;
+    }
+    .btn-submit .spinner {
+      display: none;
+      width: 18px;
+      height: 18px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-radius: 50%;
+      border-top-color: #fff;
+      animation: spin 0.8s linear infinite;
+    }
+    .btn-submit.is-loading .spinner { display: inline-block; }
+    .btn-submit.is-loading i:not(.spinner),
+    .btn-submit.is-loading span { display: none; }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .input-label-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 8px;
+      font-size: 13px;
     }
 
     /* Left Column */
@@ -273,46 +433,6 @@
       flex: 1;
     }
 
-    .input-wrapper {
-      position: relative;
-      margin-bottom: 20px;
-    }
-
-    .input-wrapper i {
-      position: absolute;
-      left: 15px;
-      top: 50%;
-      transform: translateY(-50%);
-      color: var(--color-primary);
-      font-size: 14px;
-    }
-
-    .input-wrapper input {
-      width: 100%;
-      padding: 14px 16px 14px 45px;
-      background: var(--bg-input);
-      border: 1px solid var(--border-input);
-      border-radius: 10px;
-      color: white;
-      font-size: 14px;
-      transition: var(--transition-fast);
-    }
-
-    .input-wrapper input:focus {
-      outline: none;
-      border-color: var(--color-primary);
-      background: var(--bg-input-focus);
-      box-shadow: 0 0 15px rgba(108, 99, 255, 0.15);
-    }
-
-    .input-label {
-      display: flex;
-      justify-content: space-between;
-      margin-bottom: 8px;
-      font-size: 13px;
-      font-weight: 600;
-    }
-
     .remember-forgot {
       display: flex;
       align-items: center;
@@ -385,6 +505,13 @@
 </head>
 
 <body>
+  <!-- 1. Animated Background -->
+  <div class="bg-blobs">
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
+  </div>
+
   <div class="login-wrapper">
     <!-- Left Column: Info -->
     <div class="info-side">
@@ -470,22 +597,21 @@
         <div id="error-msg">Invalid email or password!</div>
 
         <form id="login-form">
-          <div class="input-label" style="color: var(--color-primary);">
-            <span><i class="fa-solid fa-envelope" style="margin-right: 5px;"></i> Work Email Address</span>
-          </div>
-          <div class="input-wrapper">
-            <i class="fa-solid fa-at"></i>
-            <input type="email" id="email" placeholder="name@company.com" required>
+          <div class="floating-group">
+            <i class="fa-solid fa-at main-icon"></i>
+            <input type="email" id="email" placeholder=" " required>
+            <label>Work Email Address</label>
           </div>
 
-          <div class="input-label">
-            <span style="color: var(--color-primary);"><i class="fa-solid fa-lock" style="margin-right: 5px;"></i> Password</span>
+          <div class="input-label-row">
+            <span></span>
             <a href="#" class="forgot-link">Forgot password??</a>
           </div>
-          <div class="input-wrapper">
-            <i class="fa-solid fa-key"></i>
-            <input type="password" id="password" placeholder="••••••••••••" required>
-            <i class="fa-solid fa-eye" style="left: auto; right: 15px; color: var(--text-muted); cursor: pointer;"></i>
+          <div class="floating-group">
+            <i class="fa-solid fa-key main-icon"></i>
+            <input type="password" id="password" placeholder=" " required>
+            <label>Password</label>
+            <i class="fa-solid fa-eye eye-icon"></i>
           </div>
 
           <div class="remember-forgot">
@@ -496,7 +622,8 @@
           </div>
 
           <button type="submit" class="btn-submit">
-            <i class="fa-solid fa-right-to-bracket"></i> Sign In to Dashboard
+            <div class="spinner"></div>
+            <i class="fa-solid fa-right-to-bracket"></i> <span>Sign In to Dashboard</span>
           </button>
         </form>
       </div>
@@ -517,29 +644,27 @@
         </div>
 
         <form id="signup-form">
-          <div class="input-label" style="color: var(--color-primary);">
-            <span><i class="fa-solid fa-user" style="margin-right: 5px;"></i> Full Name</span>
-          </div>
-          <div class="input-wrapper">
-            <i class="fa-solid fa-user-tag"></i>
-            <input type="text" id="reg-name" placeholder="John Doe" required>
+          <div class="floating-group">
+            <i class="fa-solid fa-user-tag main-icon"></i>
+            <input type="text" id="reg-name" placeholder=" " required>
+            <label>Full Name</label>
           </div>
 
-          <div class="input-label" style="color: var(--color-primary);">
-            <span><i class="fa-solid fa-envelope" style="margin-right: 5px;"></i> Work Email Address</span>
-          </div>
-          <div class="input-wrapper">
-            <i class="fa-solid fa-at"></i>
-            <input type="email" id="reg-email" placeholder="name@company.com" required>
+          <div class="floating-group">
+            <i class="fa-solid fa-at main-icon"></i>
+            <input type="email" id="reg-email" placeholder=" " required>
+            <label>Work Email Address</label>
           </div>
 
-          <div class="input-label" style="color: var(--color-primary);">
-            <span><i class="fa-solid fa-lock" style="margin-right: 5px;"></i> Create Password</span>
+          <div class="floating-group">
+            <i class="fa-solid fa-key main-icon"></i>
+            <input type="password" id="reg-password" placeholder=" " required>
+            <label>Create Password</label>
+            <i class="fa-solid fa-eye eye-icon"></i>
           </div>
-          <div class="input-wrapper">
-            <i class="fa-solid fa-key"></i>
-            <input type="password" id="reg-password" placeholder="••••••••••••" required>
-            <i class="fa-solid fa-eye" style="left: auto; right: 15px; color: var(--text-muted); cursor: pointer;"></i>
+
+          <div class="strength-meter" id="strength-meter">
+            <div class="strength-bar" id="strength-bar"></div>
           </div>
 
           <div class="remember-forgot">
@@ -550,7 +675,8 @@
           </div>
 
           <button type="submit" class="btn-submit">
-            <i class="fa-solid fa-user-plus"></i> Create My Account
+            <div class="spinner"></div>
+            <i class="fa-solid fa-user-plus"></i> <span>Create My Account</span>
           </button>
         </form>
       </div>
@@ -584,27 +710,68 @@
 
     document.getElementById('login-form').addEventListener('submit', function (e) {
       e.preventDefault();
+      const btn = this.querySelector('.btn-submit');
       const email = document.getElementById('email').value;
       const password = document.getElementById('password').value;
       const errorMsg = document.getElementById('error-msg');
+      const wrapper = document.querySelector('.login-wrapper');
 
-      // Demo credentials
-      if (email === 'admin@gmail.com' && password === 'admin') {
-        localStorage.setItem('isLoggedIn', 'true');
-        window.location.href = 'index.html';
-      } else {
-        errorMsg.style.display = 'block';
-        setTimeout(() => {
-          errorMsg.style.display = 'none';
-        }, 3000);
-      }
+      // 5. Loading State
+      btn.classList.add('is-loading');
+
+      setTimeout(() => {
+        // Demo credentials
+        if (email === 'admin@gmail.com' && password === 'admin') {
+          localStorage.setItem('isLoggedIn', 'true');
+          window.location.href = 'index.html';
+        } else {
+          btn.classList.remove('is-loading');
+
+          // 4. Shake Animation on failure
+          wrapper.classList.add('shake');
+          errorMsg.style.display = 'block';
+
+          setTimeout(() => {
+            wrapper.classList.remove('shake');
+            errorMsg.style.display = 'none';
+          }, 3000);
+        }
+      }, 1500);
     });
 
     document.getElementById('signup-form').addEventListener('submit', function (e) {
       e.preventDefault();
-      // For demo, just log in after signup
-      localStorage.setItem('isLoggedIn', 'true');
-      window.location.href = 'index.html';
+      const btn = this.querySelector('.btn-submit');
+      btn.classList.add('is-loading');
+
+      setTimeout(() => {
+        localStorage.setItem('isLoggedIn', 'true');
+        window.location.href = 'index.html';
+      }, 1500);
+    });
+
+    // 3. Password Strength Meter
+    const regPass = document.getElementById('reg-password');
+    const strengthMeter = document.getElementById('strength-meter');
+    const strengthBar = document.getElementById('strength-bar');
+
+    regPass.addEventListener('input', () => {
+      const val = regPass.value;
+      if (val.length > 0) {
+        strengthMeter.style.display = 'block';
+        let strength = 0;
+        if (val.length > 5) strength += 33;
+        if (/[A-Z]/.test(val)) strength += 33;
+        if (/[0-9]/.test(val) || /[^A-Za-z0-9]/.test(val)) strength += 34;
+
+        strengthBar.style.width = strength + '%';
+
+        if (strength <= 33) strengthBar.style.background = 'var(--color-strength-weak)';
+        else if (strength <= 66) strengthBar.style.background = 'var(--color-strength-medium)';
+        else strengthBar.style.background = 'var(--color-strength-strong)';
+      } else {
+        strengthMeter.style.display = 'none';
+      }
     });
 
     // Toggle Password Visibility
