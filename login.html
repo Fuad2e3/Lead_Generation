@@ -66,7 +66,7 @@
       grid-template-columns: 1fr 1fr;
       width: 100%;
       max-width: 900px;
-      height: 580px; /* Rigid fixed height */
+      height: 540px; /* Fixed height to keep it consistent */
       background: var(--bg-card);
       border: 1px solid var(--border-card);
       border-radius: var(--radius-xl);
@@ -91,7 +91,7 @@
       display: flex;
       align-items: center;
       gap: 12px;
-      margin-bottom: 30px;
+      margin-bottom: 25px;
     }
 
     .logo-box {
@@ -119,19 +119,19 @@
       font-weight: 800;
       line-height: 1.2;
       color: white;
-      margin-bottom: 15px;
+      margin-bottom: 12px;
     }
 
     .sub-headline {
       font-size: 14px;
       color: var(--text-muted);
-      margin-bottom: 30px;
+      margin-bottom: 25px;
     }
 
     .features-list {
       display: flex;
       flex-direction: column;
-      gap: 20px;
+      gap: 18px;
     }
 
     .feature-item {
@@ -159,7 +159,7 @@
       padding: 40px;
       display: flex;
       flex-direction: column;
-      justify-content: center; /* Center content vertically */
+      justify-content: center; /* This centers the form contents vertically */
     }
 
     .tab-nav {
@@ -167,7 +167,7 @@
       background: var(--bg-input);
       border-radius: 30px;
       padding: 4px;
-      margin-bottom: 20px; /* Adjusted spacing */
+      margin-bottom: 25px;
     }
 
     .tab-btn {
@@ -198,19 +198,19 @@
     .welcome-msg {
       font-size: 13px;
       color: var(--text-muted);
-      margin-bottom: 25px;
+      margin-bottom: 20px;
     }
 
     .social-logins {
       display: flex;
       justify-content: center;
       gap: 15px;
-      margin-bottom: 20px;
+      margin-bottom: 18px;
     }
 
     .social-btn {
-      width: 42px;
-      height: 42px;
+      width: 40px;
+      height: 40px;
       border-radius: 50%;
       background: var(--bg-input);
       border: 1px solid var(--border-input);
@@ -233,7 +233,7 @@
       display: flex;
       align-items: center;
       gap: 15px;
-      margin-bottom: 20px;
+      margin-bottom: 18px;
     }
 
     .divider span {
@@ -254,7 +254,7 @@
     /* Floating Labels */
     .floating-group {
       position: relative;
-      margin-bottom: 20px;
+      margin-bottom: 18px;
     }
 
     .floating-group input {
@@ -315,7 +315,7 @@
       font-size: 14px;
     }
 
-    /* Strength Meter - Absolutely positioned to avoid shifting height */
+    /* Strength Meter */
     .strength-meter {
       position: absolute;
       width: 100%;
@@ -371,7 +371,7 @@
 
     @media (max-width: 850px) {
       body { overflow-y: auto; align-items: flex-start; }
-      .login-wrapper { grid-template-columns: 1fr; max-height: none; }
+      .login-wrapper { grid-template-columns: 1fr; height: auto; max-height: none; }
       .info-side { display: none; }
     }
   </style>
@@ -445,7 +445,7 @@
 
       <div id="signup-section" style="display: none;">
         <h2>Create Account</h2>
-        <p class="welcome-msg" style="margin-bottom: 30px;">Join 5,000+ businesses mining leads today.</p>
+        <p class="welcome-msg" style="margin-bottom: 25px;">Join 5,000+ businesses mining leads today.</p>
 
         <form id="signup-form">
           <div class="floating-group">
