@@ -196,25 +196,44 @@ body {
 /* Grid Layout */
 .grid-layout-3col {
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-columns: repeat(3, 1fr);
   gap: 20px;
 }
 
 .grid-layout-2col {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(2, 1fr);
   gap: 24px;
 }
 
-@media (max-width: 1200px) {
-  .grid-layout-3col {
+@media (max-width: 1100px) {
+  .grid-layout-3col, .grid-layout-2col {
     grid-template-columns: 1fr;
   }
 }
 
-@media (max-width: 900px) {
-  .grid-layout-2col {
-    grid-template-columns: 1fr;
+@media (max-width: 768px) {
+  .app-container {
+    padding: 10px 12px 30px;
+  }
+
+  .app-header {
+    padding: 12px 16px;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .header-actions {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .action-pill span {
+    display: none; /* Hide labels on mobile to save space */
+  }
+
+  .card-header h3 {
+    font-size: 15px;
   }
 }
 
