@@ -77,6 +77,9 @@
 
 
       <div class="header-actions">
+        <span id="header-credit-badge" class="action-pill" style="font-weight:700;color:var(--color-primary);border-color:rgba(108,99,255,0.3);">
+          <i class="fa-solid fa-coins" style="color:#ffb347;"></i> <span id="lbl-user-credits">Credits: 50 / 50</span>
+        </span>
         <button id="btn-lang" class="action-pill" title="Switch Language">
           <i class="fa-solid fa-language"></i> <span id="lang-label">English</span>
         </button>
@@ -92,6 +95,14 @@
 
     <main class="app-main">
 
+      <!-- Live System Announcement Banner -->
+      <div id="system-announcement-banner" class="quick-status-banner" style="display: none; background: linear-gradient(135deg, rgba(255, 179, 71, 0.15), rgba(108, 99, 255, 0.15)); border: 1px solid rgba(255, 179, 71, 0.4); padding: 10px 18px; border-radius: 10px; color: #fff; font-size: 13px; font-weight: 600; margin-bottom: 16px; align-items: center; justify-content: space-between;">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <i class="fa-solid fa-bullhorn" style="color: var(--color-warning); font-size: 16px;"></i>
+          <span id="announcement-banner-text">Welcome to Lead Generation!</span>
+        </div>
+        <button onclick="document.getElementById('system-announcement-banner').style.display='none';" style="background: transparent; border: none; color: rgba(255,255,255,0.6); cursor: pointer; font-size: 14px;"><i class="fa-solid fa-xmark"></i></button>
+      </div>
 
       <div class="top-dashboard-section">
 
@@ -381,24 +392,113 @@
 
   <script src="app.js"></script>
   <script>
-    // Show logged-in user name in header
-    (function() {
+    const API_BASE_AUTH = 'http://localhost:3000/api/auth';
+    let currentUserSession = null;
+    let currentUserCredits = { dailyCredits: 50, usedCreditsToday: 0, remainingCredits: 50 };
+
+    // Fetch User Status, Credits, and System Announcement on Load
+    async function syncUserStatusAndCredits() {
       try {
-        const u = JSON.parse(localStorage.getItem('lgs_session') || 'null');
-        const badge = document.getElementById('header-user-badge');
-        if (u && badge) {
-          badge.textContent = '\u{1F464} ' + (u.fullname || u.email || 'User');
-          badge.style.background = 'rgba(108,99,255,0.15)';
-          badge.style.color = 'var(--color-primary)';
-          badge.style.border = '1px solid rgba(108,99,255,0.3)';
+        const sessionStr = localStorage.getItem('lgs_session');
+        if (!sessionStr) return;
+        currentUserSession = JSON.parse(sessionStr);
+
+        const res = await fetch(`${API_BASE_AUTH}/check-status`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: currentUserSession.email, id: currentUserSession.id })
+        });
+        const data = await res.json();
+
+        if (!data.success || data.status === 'banned' || data.status === 'deleted' || data.status === 'inactive') {
+          localStorage.removeItem('lgs_auth');
+          localStorage.removeItem('lgs_session');
+          localStorage.removeItem('lgs_token');
+          alert(data.message || 'Your account has been banned or removed by an administrator.');
+          window.location.href = 'login.html';
+          return;
         }
-      } catch(e) {}
-    })();
+
+        // Render User Name & Package Badge
+        const userBadge = document.getElementById('header-user-badge');
+        if (userBadge && data.user) {
+          const pkg = (data.user.package || 'free').toUpperCase();
+          userBadge.textContent = '\u{1F464} ' + (data.user.name || currentUserSession.fullname || 'User') + ' [' + pkg + ']';
+          userBadge.style.background = pkg === 'ENTERPRISE' ? 'rgba(255,179,71,0.2)' : pkg === 'PRO' ? 'rgba(108,99,255,0.2)' : 'rgba(100,116,139,0.2)';
+        }
+
+        // Render Credit Badge
+        if (data.user) {
+          currentUserCredits = {
+            dailyCredits: data.user.dailyCredits || 50,
+            usedCreditsToday: data.user.usedCreditsToday || 0,
+            remainingCredits: data.user.remainingCredits !== undefined ? data.user.remainingCredits : 50
+          };
+          const credLbl = document.getElementById('lbl-user-credits');
+          if (credLbl) {
+            credLbl.textContent = `Credits: ${currentUserCredits.remainingCredits} / ${currentUserCredits.dailyCredits}`;
+          }
+        }
+
+        // Render System Announcement Banner
+        if (data.announcement) {
+          const banner = document.getElementById('system-announcement-banner');
+          const bannerText = document.getElementById('announcement-banner-text');
+          if (banner && bannerText) {
+            bannerText.textContent = data.announcement;
+            banner.style.display = 'flex';
+          }
+        }
+      } catch(e) {
+        console.error('Credit/Status Sync Error:', e);
+      }
+    }
+
+    // Intercept Launch Mining Session (#btn-restart) to check & deduct credits
+    document.addEventListener('DOMContentLoaded', function() {
+      syncUserStatusAndCredits();
+
+      const btnRestart = document.getElementById('btn-restart');
+      if (btnRestart) {
+        btnRestart.addEventListener('click', async function(e) {
+          if (!currentUserSession) return;
+          const urlText = (document.getElementById('url-textarea')?.value || '').trim();
+          const lines = urlText ? urlText.split('\n').filter(l => l.trim().length > 0) : [];
+          const count = lines.length || 1;
+
+          if (currentUserCredits.remainingCredits < count) {
+            e.stopImmediatePropagation();
+            e.preventDefault();
+            alert(`⚠️ Credit limit reached!\n\nYou have ${currentUserCredits.remainingCredits} credit(s) remaining today, but tried to mine ${count} URL(s).\n\nPlease contact Admin or Upgrade to Pro/Enterprise for more credits!`);
+            return false;
+          }
+
+          // Deduct credits via API
+          try {
+            const res = await fetch(`${API_BASE_AUTH}/deduct-credits`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ email: currentUserSession.email, id: currentUserSession.id, count: count })
+            });
+            const data = await res.json();
+            if (data.success) {
+              currentUserCredits.remainingCredits = data.remainingCredits;
+              currentUserCredits.usedCreditsToday = data.usedCreditsToday;
+              const credLbl = document.getElementById('lbl-user-credits');
+              if (credLbl) credLbl.textContent = `Credits: ${data.remainingCredits} / ${currentUserCredits.dailyCredits}`;
+            }
+          } catch(err) {
+            console.error('Credit deduction network error:', err);
+          }
+        }, true);
+      }
+    });
 
     document.getElementById('btn-logout').addEventListener('click', function() {
       if (confirm('Are you sure you want to logout?')) {
         localStorage.removeItem('lgs_auth');
         localStorage.removeItem('lgs_session');
+        localStorage.removeItem('lgs_token');
         window.location.href = 'login.html';
       }
     });
