@@ -503,19 +503,23 @@
     }
 
     // Error message helper
-    function showError(msg) {
+    function showError(msg, isSuccess = false) {
       let el = document.getElementById('login-error-msg');
       if (!el) {
         el = document.createElement('p');
         el.id = 'login-error-msg';
-        el.style.cssText = 'color:#ff4757;font-size:13px;margin:8px 0 0;text-align:center;font-weight:600;';
+        el.style.cssText = 'font-size:13px;margin:8px 0 0;text-align:center;font-weight:600;';
         document.getElementById('login-form').appendChild(el);
       }
+      el.style.color = isSuccess ? '#2ed573' : '#ff4757';
       el.textContent = msg;
     }
     function clearError() {
       const el = document.getElementById('login-error-msg');
-      if (el) el.textContent = '';
+      if (el) {
+        el.style.color = '#ff4757';
+        el.textContent = '';
+      }
     }
 
     // ── LOGIN FORM
@@ -588,6 +592,15 @@
       }
       errEl.textContent = '';
 
+      let successEl = document.getElementById('signup-success-msg');
+      if (!successEl) {
+        successEl = document.createElement('p');
+        successEl.id = 'signup-success-msg';
+        successEl.style.cssText = 'color:#2ed573;font-size:13px;margin:8px 0 0;text-align:center;font-weight:600;background:rgba(46,213,115,0.1);padding:8px;border-radius:6px;border:1px solid rgba(46,213,115,0.3);';
+        document.getElementById('signup-form').appendChild(successEl);
+      }
+      successEl.innerHTML = '';
+
       if (!name || !email || !password) {
         errEl.textContent = 'Please fill in all fields.'; return;
       }
@@ -600,6 +613,19 @@
 
       btn.classList.add('is-loading');
 
+      const handleSuccess = () => {
+        btn.classList.remove('is-loading');
+        document.getElementById('email').value = email;
+        successEl.innerHTML = '<i class="fa-solid fa-circle-check"></i> Registration successful! Switching to Sign In...';
+        document.getElementById('signup-form').reset();
+
+        setTimeout(() => {
+          successEl.innerHTML = '';
+          signinTab.click();
+          showError('Registration successful! Please enter your password to sign in.', true);
+        }, 1200);
+      };
+
       try {
         const res = await fetch(`${API_BASE}/register`, {
           method: 'POST',
@@ -609,19 +635,13 @@
         const data = await res.json();
 
         if (data.success) {
-          const userSession = data.user ? { fullname: data.user.name, email: data.user.email, id: data.user.id } : { fullname: name, email: email };
-          localStorage.setItem('lgs_auth', 'true');
-          localStorage.setItem('lgs_session', JSON.stringify(userSession));
-          if (data.token) localStorage.setItem('lgs_token', data.token);
-
           // Save to local storage cache as backup
           const users = getUsers();
           if (!users.find(u => u.email === email)) {
             users.push({ fullname: name, email: email, password: password, createdAt: new Date().toISOString() });
             saveUsers(users);
           }
-
-          window.location.href = 'index.html';
+          handleSuccess();
         } else {
           btn.classList.remove('is-loading');
           errEl.textContent = data.message || 'Registration failed!';
@@ -645,9 +665,7 @@
         };
         users.push(newUser);
         saveUsers(users);
-        localStorage.setItem('lgs_auth', 'true');
-        localStorage.setItem('lgs_session', JSON.stringify(newUser));
-        window.location.href = 'index.html';
+        handleSuccess();
       }
     };
 
