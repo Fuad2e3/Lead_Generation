@@ -492,6 +492,8 @@
       signupSection.style.display = 'block'; signinSection.style.display = 'none';
     };
 
+    const API_BASE = 'http://localhost:3000/api/auth';
+
     // ── Helpers: User Storage
     function getUsers() {
       try { return JSON.parse(localStorage.getItem('lgs_users') || '[]'); } catch(e) { return []; }
@@ -517,7 +519,7 @@
     }
 
     // ── LOGIN FORM
-    document.getElementById('login-form').onsubmit = function (e) {
+    document.getElementById('login-form').onsubmit = async function (e) {
       e.preventDefault();
       clearError();
       const btn = this.querySelector('.btn-submit');
@@ -530,7 +532,29 @@
       }
 
       btn.classList.add('is-loading');
-      setTimeout(() => {
+
+      try {
+        const res = await fetch(`${API_BASE}/login`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password })
+        });
+        const data = await res.json();
+
+        if (data.success) {
+          localStorage.setItem('lgs_auth', 'true');
+          const userObj = data.user ? { fullname: data.user.name, email: data.user.email, id: data.user.id } : { fullname: email, email };
+          localStorage.setItem('lgs_session', JSON.stringify(userObj));
+          if (data.token) localStorage.setItem('lgs_token', data.token);
+          window.location.href = 'index.html';
+        } else {
+          btn.classList.remove('is-loading');
+          showError(data.message || 'Invalid email or password. Please try again.');
+          wrapper.classList.add('shake');
+          setTimeout(() => wrapper.classList.remove('shake'), 500);
+        }
+      } catch (err) {
+        // Fallback to local storage if API server is offline
         const users = getUsers();
         const found = users.find(u => u.email === email && u.password === password);
         if (found) {
@@ -543,11 +567,11 @@
           wrapper.classList.add('shake');
           setTimeout(() => wrapper.classList.remove('shake'), 500);
         }
-      }, 1200);
+      }
     };
 
     // ── SIGNUP FORM
-    document.getElementById('signup-form').onsubmit = function (e) {
+    document.getElementById('signup-form').onsubmit = async function (e) {
       e.preventDefault();
       clearError();
       const btn = this.querySelector('.btn-submit');
@@ -574,13 +598,45 @@
         errEl.textContent = 'Password must be at least 6 characters.'; return;
       }
 
-      const users = getUsers();
-      if (users.find(u => u.email === email)) {
-        errEl.textContent = 'An account with this email already exists!'; return;
-      }
-
       btn.classList.add('is-loading');
-      setTimeout(() => {
+
+      try {
+        const res = await fetch(`${API_BASE}/register`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, email, password })
+        });
+        const data = await res.json();
+
+        if (data.success) {
+          const userSession = data.user ? { fullname: data.user.name, email: data.user.email, id: data.user.id } : { fullname: name, email: email };
+          localStorage.setItem('lgs_auth', 'true');
+          localStorage.setItem('lgs_session', JSON.stringify(userSession));
+          if (data.token) localStorage.setItem('lgs_token', data.token);
+
+          // Save to local storage cache as backup
+          const users = getUsers();
+          if (!users.find(u => u.email === email)) {
+            users.push({ fullname: name, email: email, password: password, createdAt: new Date().toISOString() });
+            saveUsers(users);
+          }
+
+          window.location.href = 'index.html';
+        } else {
+          btn.classList.remove('is-loading');
+          errEl.textContent = data.message || 'Registration failed!';
+          wrapper.classList.add('shake');
+          setTimeout(() => wrapper.classList.remove('shake'), 500);
+        }
+      } catch (err) {
+        // Fallback to local storage if API server is offline
+        const users = getUsers();
+        if (users.find(u => u.email === email)) {
+          btn.classList.remove('is-loading');
+          errEl.textContent = 'An account with this email already exists!';
+          return;
+        }
+
         const newUser = {
           fullname: name,
           email: email,
@@ -592,7 +648,7 @@
         localStorage.setItem('lgs_auth', 'true');
         localStorage.setItem('lgs_session', JSON.stringify(newUser));
         window.location.href = 'index.html';
-      }, 1200);
+      }
     };
 
     document.getElementById('reg-password').oninput = function() {
