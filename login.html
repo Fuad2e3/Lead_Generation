@@ -475,7 +475,7 @@
   </div>
 
   <script>
-    if (localStorage.getItem('isLoggedIn') === 'true') { window.location.href = 'index.html'; }
+    if (localStorage.getItem('lgs_auth') === 'true') { window.location.href = 'index.html'; }
 
     const signinTab = document.getElementById('signin-tab');
     const signupTab = document.getElementById('signup-tab');
@@ -492,26 +492,107 @@
       signupSection.style.display = 'block'; signinSection.style.display = 'none';
     };
 
+    // ── Helpers: User Storage
+    function getUsers() {
+      try { return JSON.parse(localStorage.getItem('lgs_users') || '[]'); } catch(e) { return []; }
+    }
+    function saveUsers(users) {
+      localStorage.setItem('lgs_users', JSON.stringify(users));
+    }
+
+    // Error message helper
+    function showError(msg) {
+      let el = document.getElementById('login-error-msg');
+      if (!el) {
+        el = document.createElement('p');
+        el.id = 'login-error-msg';
+        el.style.cssText = 'color:#ff4757;font-size:13px;margin:8px 0 0;text-align:center;font-weight:600;';
+        document.getElementById('login-form').appendChild(el);
+      }
+      el.textContent = msg;
+    }
+    function clearError() {
+      const el = document.getElementById('login-error-msg');
+      if (el) el.textContent = '';
+    }
+
+    // ── LOGIN FORM
     document.getElementById('login-form').onsubmit = function (e) {
       e.preventDefault();
+      clearError();
       const btn = this.querySelector('.btn-submit');
+      const email = (document.getElementById('email').value || '').trim().toLowerCase();
+      const password = (document.getElementById('password').value || '');
+
+      if (!email || !password) {
+        showError('Please enter your email and password.');
+        return;
+      }
+
       btn.classList.add('is-loading');
       setTimeout(() => {
-        if (document.getElementById('email').value === 'admin@gmail.com' && document.getElementById('password').value === 'admin') {
-          localStorage.setItem('isLoggedIn', 'true'); window.location.href = 'index.html';
+        const users = getUsers();
+        const found = users.find(u => u.email === email && u.password === password);
+        if (found) {
+          localStorage.setItem('lgs_auth', 'true');
+          localStorage.setItem('lgs_session', JSON.stringify(found));
+          window.location.href = 'index.html';
         } else {
           btn.classList.remove('is-loading');
+          showError('Invalid email or password. Please try again.');
           wrapper.classList.add('shake');
           setTimeout(() => wrapper.classList.remove('shake'), 500);
         }
-      }, 1500);
+      }, 1200);
     };
 
+    // ── SIGNUP FORM
     document.getElementById('signup-form').onsubmit = function (e) {
       e.preventDefault();
+      clearError();
       const btn = this.querySelector('.btn-submit');
+      const name    = (document.getElementById('reg-name').value || '').trim();
+      const email   = (document.getElementById('reg-email').value || '').trim().toLowerCase();
+      const password = (document.getElementById('reg-password').value || '');
+
+      let errEl = document.getElementById('signup-error-msg');
+      if (!errEl) {
+        errEl = document.createElement('p');
+        errEl.id = 'signup-error-msg';
+        errEl.style.cssText = 'color:#ff4757;font-size:13px;margin:8px 0 0;text-align:center;font-weight:600;';
+        document.getElementById('signup-form').appendChild(errEl);
+      }
+      errEl.textContent = '';
+
+      if (!name || !email || !password) {
+        errEl.textContent = 'Please fill in all fields.'; return;
+      }
+      if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
+        errEl.textContent = 'Please enter a valid email address.'; return;
+      }
+      if (password.length < 6) {
+        errEl.textContent = 'Password must be at least 6 characters.'; return;
+      }
+
+      const users = getUsers();
+      if (users.find(u => u.email === email)) {
+        errEl.textContent = 'An account with this email already exists!'; return;
+      }
+
       btn.classList.add('is-loading');
-      setTimeout(() => { localStorage.setItem('isLoggedIn', 'true'); window.location.href = 'index.html'; }, 1500);
+      setTimeout(() => {
+        const newUser = {
+          fullname: name,
+          email: email,
+          password: password,
+          createdAt: new Date().toISOString()
+        };
+        users.push(newUser);
+        saveUsers(users);
+        localStorage.setItem('lgs_auth', 'true');
+        localStorage.setItem('lgs_session', JSON.stringify(newUser));
+        window.location.href = 'index.html';
+      }, 1200);
     };
 
     document.getElementById('reg-password').oninput = function() {

@@ -3,7 +3,7 @@
 
 <head>
   <script>
-    if (localStorage.getItem('isLoggedIn') !== 'true') {
+    if (localStorage.getItem('lgs_auth') !== 'true') {
       window.location.href = 'login.html';
     }
   </script>
@@ -47,7 +47,7 @@
         </div>
         <div class="brand-text">
           <h1 data-i18n="app_title">Lead Generation</h1>
-          <span class="badge-v2">Web Edition v2.5</span>
+          <span class="badge-v2" id="header-user-badge">Lead Gen</span>
         </div>
       </div>
 
@@ -357,9 +357,24 @@
 
   <script src="app.js"></script>
   <script>
+    // Show logged-in user name in header
+    (function() {
+      try {
+        const u = JSON.parse(localStorage.getItem('lgs_session') || 'null');
+        const badge = document.getElementById('header-user-badge');
+        if (u && badge) {
+          badge.textContent = '\u{1F464} ' + (u.fullname || u.email || 'User');
+          badge.style.background = 'rgba(108,99,255,0.15)';
+          badge.style.color = 'var(--color-primary)';
+          badge.style.border = '1px solid rgba(108,99,255,0.3)';
+        }
+      } catch(e) {}
+    })();
+
     document.getElementById('btn-logout').addEventListener('click', function() {
       if (confirm('Are you sure you want to logout?')) {
-        localStorage.removeItem('isLoggedIn');
+        localStorage.removeItem('lgs_auth');
+        localStorage.removeItem('lgs_session');
         window.location.href = 'login.html';
       }
     });
