@@ -5,6 +5,30 @@
   <script>
     if (localStorage.getItem('lgs_auth') !== 'true') {
       window.location.href = 'login.html';
+    } else {
+      (async function() {
+        try {
+          const sessionStr = localStorage.getItem('lgs_session');
+          if (!sessionStr) return;
+          const session = JSON.parse(sessionStr);
+          if (!session || (!session.email && !session.id)) return;
+
+          const res = await fetch('http://localhost:3000/api/auth/check-status', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email: session.email, id: session.id })
+          });
+          const data = await res.json();
+
+          if (!data.success || data.status === 'banned' || data.status === 'deleted' || data.status === 'inactive') {
+            localStorage.removeItem('lgs_auth');
+            localStorage.removeItem('lgs_session');
+            localStorage.removeItem('lgs_token');
+            alert(data.message || 'Your account has been banned or removed by an administrator.');
+            window.location.href = 'login.html';
+          }
+        } catch(e) {}
+      })();
     }
   </script>
   <meta charset="UTF-8">
