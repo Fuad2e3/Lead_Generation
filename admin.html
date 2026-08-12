@@ -1,14 +1,13 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en">
 
 <head>
   <script>
+    // Automatic Laptop OS Theme Detection (Day / Night Sync)
     (function() {
-      function getSystemTheme() {
-        return (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
-      }
+      const isLaptopDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
       const savedTheme = localStorage.getItem('lgs_theme');
-      const activeTheme = savedTheme ? savedTheme : getSystemTheme();
+      const activeTheme = (savedTheme === 'light' || savedTheme === 'dark') ? savedTheme : (isLaptopDark ? 'dark' : 'light');
       document.documentElement.setAttribute('data-theme', activeTheme);
     })();
   </script>
@@ -37,6 +36,18 @@
       --text-muted:#64748b;
       --radius:    12px;
       --shadow:    0 8px 32px rgba(0,0,0,0.4);
+    }
+
+    @media (prefers-color-scheme: light) {
+      :root:not([data-theme="dark"]) {
+        --bg:        #f0f4f8;
+        --bg-card:   #ffffff;
+        --bg-input:  #f8fafc;
+        --border:    rgba(0,0,0,0.1);
+        --text:      #1e293b;
+        --text-muted:#64748b;
+        --shadow:    0 8px 32px rgba(108,99,255,0.1);
+      }
     }
 
     [data-theme="light"] {
@@ -1036,14 +1047,17 @@
     }
 
     (function initThemeSystem() {
-      const savedTheme = localStorage.getItem('lgs_theme');
-      const systemTheme = (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
-      const initialTheme = savedTheme || systemTheme;
+      const getSystemTheme = () => (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
+      let savedTheme = localStorage.getItem('lgs_theme');
+      if (savedTheme !== 'dark' && savedTheme !== 'light') savedTheme = null;
+
+      const initialTheme = savedTheme || getSystemTheme();
       applyTheme(initialTheme);
 
       if (window.matchMedia) {
         window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function(e) {
-          if (!localStorage.getItem('lgs_theme')) {
+          const currentSaved = localStorage.getItem('lgs_theme');
+          if (currentSaved !== 'dark' && currentSaved !== 'light') {
             applyTheme(e.matches ? 'dark' : 'light');
           }
         });
@@ -1052,8 +1066,8 @@
       const btnTheme = document.getElementById('btn-theme');
       if (btnTheme) {
         btnTheme.addEventListener('click', function() {
-          const currentTheme = document.documentElement.getAttribute('data-theme') || 'dark';
-          const nextTheme = currentTheme === 'dark' ? 'light' : 'dark';
+          const activeTheme = document.documentElement.getAttribute('data-theme') || 'dark';
+          const nextTheme = activeTheme === 'dark' ? 'light' : 'dark';
           localStorage.setItem('lgs_theme', nextTheme);
           applyTheme(nextTheme);
         });
