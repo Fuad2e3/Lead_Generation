@@ -85,6 +85,24 @@
   --shadow-accent-glow: 0 0 20px rgba(0, 210, 255, 0.2);
 }
 
+[data-theme="dark"] {
+  --bg-app: #070913;
+  --bg-card: rgba(15, 18, 38, 0.75);
+  --bg-card-hover: rgba(22, 27, 54, 0.85);
+  --bg-input: rgba(255, 255, 255, 0.04);
+  --bg-input-focus: rgba(108, 99, 255, 0.08);
+  --border-card: rgba(108, 99, 255, 0.22);
+  --border-input: rgba(255, 255, 255, 0.12);
+
+  --text-main: #E2E8F0;
+  --text-muted: #94A3B8;
+  --text-heading: #FFFFFF;
+
+  --shadow-glass: 0 12px 40px 0 rgba(0, 0, 0, 0.45), inset 0 1px 1px 0 rgba(255, 255, 255, 0.1);
+  --shadow-glow: 0 0 25px rgba(108, 99, 255, 0.35);
+  --shadow-accent-glow: 0 0 25px rgba(0, 210, 255, 0.35);
+}
+
 *,
 *::before,
 *::after {

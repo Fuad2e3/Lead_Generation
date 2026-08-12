@@ -5,10 +5,12 @@
   <script>
     // Automatic Laptop OS Theme Detection (Day / Night Sync)
     (function() {
-      const isLaptopDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
       const savedTheme = localStorage.getItem('lgs_theme');
-      const activeTheme = (savedTheme === 'light' || savedTheme === 'dark') ? savedTheme : (isLaptopDark ? 'dark' : 'light');
-      document.documentElement.setAttribute('data-theme', activeTheme);
+      if (savedTheme === 'light' || savedTheme === 'dark') {
+        document.documentElement.setAttribute('data-theme', savedTheme);
+      } else {
+        document.documentElement.removeAttribute('data-theme');
+      }
     })();
   </script>
   <meta charset="UTF-8">
@@ -717,30 +719,42 @@
     });
 
     // Theme Management System
-    function applyTheme(theme) {
-      document.documentElement.setAttribute('data-theme', theme);
+    function applyThemeMode(mode) {
       const btnTheme = document.getElementById('btn-theme');
-      if (btnTheme) {
-        btnTheme.innerHTML = theme === 'light' 
-          ? '<i class="fa-solid fa-sun" style="color: #ffb347;"></i>' 
-          : '<i class="fa-solid fa-moon"></i>';
-        btnTheme.title = theme === 'light' ? 'Switch to Dark Theme' : 'Switch to Light Theme';
+      if (mode === 'light') {
+        document.documentElement.setAttribute('data-theme', 'light');
+        localStorage.setItem('lgs_theme', 'light');
+        if (btnTheme) {
+          btnTheme.innerHTML = '<i class="fa-solid fa-sun" style="color: #ffb347;"></i>';
+          btnTheme.title = 'Light Mode (Click for Dark)';
+        }
+      } else if (mode === 'dark') {
+        document.documentElement.setAttribute('data-theme', 'dark');
+        localStorage.setItem('lgs_theme', 'dark');
+        if (btnTheme) {
+          btnTheme.innerHTML = '<i class="fa-solid fa-moon"></i>';
+          btnTheme.title = 'Dark Mode (Click for Auto Laptop OS Sync)';
+        }
+      } else {
+        document.documentElement.removeAttribute('data-theme');
+        localStorage.removeItem('lgs_theme');
+        const isDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        if (btnTheme) {
+          btnTheme.innerHTML = isDark ? '<i class="fa-solid fa-desktop"></i>' : '<i class="fa-solid fa-desktop" style="color: #6c63ff;"></i>';
+          btnTheme.title = 'Auto (Laptop OS Sync)';
+        }
       }
     }
 
     (function initThemeSystem() {
-      const getSystemTheme = () => (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
-      let savedTheme = localStorage.getItem('lgs_theme');
-      if (savedTheme !== 'dark' && savedTheme !== 'light') savedTheme = null;
-
-      const initialTheme = savedTheme || getSystemTheme();
-      applyTheme(initialTheme);
+      const savedMode = localStorage.getItem('lgs_theme');
+      applyThemeMode(savedMode || 'auto');
 
       if (window.matchMedia) {
         window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function(e) {
           const currentSaved = localStorage.getItem('lgs_theme');
-          if (currentSaved !== 'dark' && currentSaved !== 'light') {
-            applyTheme(e.matches ? 'dark' : 'light');
+          if (!currentSaved || currentSaved === 'auto') {
+            applyThemeMode('auto');
           }
         });
       }
@@ -748,10 +762,14 @@
       const btnTheme = document.getElementById('btn-theme');
       if (btnTheme) {
         btnTheme.addEventListener('click', function() {
-          const activeTheme = document.documentElement.getAttribute('data-theme') || 'dark';
-          const nextTheme = activeTheme === 'dark' ? 'light' : 'dark';
-          localStorage.setItem('lgs_theme', nextTheme);
-          applyTheme(nextTheme);
+          const savedMode = localStorage.getItem('lgs_theme');
+          if (!savedMode || savedMode === 'auto') {
+            applyThemeMode('light');
+          } else if (savedMode === 'light') {
+            applyThemeMode('dark');
+          } else {
+            applyThemeMode('auto');
+          }
         });
       }
     })();
