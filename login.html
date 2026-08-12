@@ -504,10 +504,11 @@
       signupSection.style.display = 'block'; signinSection.style.display = 'none';
     };
 
-    // Auto-detect server hostname — works from any device on the same network
-    const API_HOST = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
-      ? 'http://localhost:3000'
-      : `http://${window.location.hostname}:3000`;
+    // Auto-detect server hostname — works locally and across devices on the same network
+    const _h = window.location.hostname;
+    const API_HOST = (_h && _h !== 'localhost' && _h !== '127.0.0.1')
+      ? `http://${_h}:3000`
+      : 'http://localhost:3000';
     const API_BASE = `${API_HOST}/api/auth`;
 
     // ── Helpers: User Storage
