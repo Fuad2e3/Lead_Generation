@@ -3,14 +3,11 @@
 
 <head>
   <script>
-    // Automatic OS Theme Detection (Day / Night Sync)
+    // Always OS Theme Sync — ignores any saved preference, always follows device Dark/Light
     (function() {
-      function getSystemTheme() {
-        return (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
-      }
-      const savedTheme = localStorage.getItem('lgs_theme');
-      const activeTheme = (savedTheme === 'light' || savedTheme === 'dark') ? savedTheme : getSystemTheme();
-      document.documentElement.setAttribute('data-theme', activeTheme);
+      const dark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
+      localStorage.removeItem('lgs_theme'); // clear any old manual override
     })();
   </script>
   <meta charset="UTF-8">
@@ -721,67 +718,60 @@
       };
     });
 
-    // Theme Management System (Universal OS Day/Night Auto Sync)
-    function applyThemeMode(mode) {
-      const getSystemTheme = () => (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
-      const btnTheme = document.getElementById('btn-theme');
-      
-      let activeTheme = mode;
-      if (mode !== 'light' && mode !== 'dark') {
-        activeTheme = getSystemTheme();
-        localStorage.removeItem('lgs_theme');
-      } else {
-        localStorage.setItem('lgs_theme', mode);
-      }
 
-      document.documentElement.setAttribute('data-theme', activeTheme);
-
-      if (btnTheme) {
-        if (mode === 'light') {
-          btnTheme.innerHTML = '<i class="fa-solid fa-sun" style="color: #ffb347;"></i>';
-          btnTheme.title = 'Light Mode (Click for Dark)';
-        } else if (mode === 'dark') {
-          btnTheme.innerHTML = '<i class="fa-solid fa-moon"></i>';
-          btnTheme.title = 'Dark Mode (Click for Auto OS Sync)';
-        } else {
-          btnTheme.innerHTML = activeTheme === 'dark' ? '<i class="fa-solid fa-desktop"></i>' : '<i class="fa-solid fa-desktop" style="color: #6c63ff;"></i>';
-          btnTheme.title = `Auto OS Sync (${activeTheme.toUpperCase()})`;
-        }
-      }
-    }
-
-    (function initThemeSystem() {
-      const savedMode = localStorage.getItem('lgs_theme');
-      applyThemeMode(savedMode || 'auto');
-
-      if (window.matchMedia) {
-        const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-        const handleOSChange = function(e) {
-          const currentSaved = localStorage.getItem('lgs_theme');
-          if (!currentSaved || currentSaved === 'auto') {
-            applyThemeMode('auto');
-          }
-        };
-        if (mediaQuery.addEventListener) {
-          mediaQuery.addEventListener('change', handleOSChange);
-        } else if (mediaQuery.addListener) {
-          mediaQuery.addListener(handleOSChange);
-        }
-      }
-
-      const btnTheme = document.getElementById('btn-theme');
-      if (btnTheme) {
-        btnTheme.addEventListener('click', function() {
-          const savedMode = localStorage.getItem('lgs_theme');
-          if (!savedMode || savedMode === 'auto') {
-            applyThemeMode('light');
-          } else if (savedMode === 'light') {
-            applyThemeMode('dark');
-          } else {
-            applyThemeMode('auto');
-          }
-        });
-      }
+    // ── Theme System: OS Auto Sync on Load + Manual Toggle on Click ───────────\r
+    (function initThemeSystem() {\r
+\r
+      function applyTheme(theme) {\r
+        document.documentElement.setAttribute('data-theme', theme);\r
+        const btnTheme = document.getElementById('btn-theme');\r
+        if (!btnTheme) return;\r
+        if (theme === 'dark') {\r
+          btnTheme.innerHTML = '<i class="fa-solid fa-moon" style="color:#a78bfa;"></i>';\r
+          btnTheme.title = 'Dark Mode — Click for Light';\r
+          btnTheme.style.background = 'rgba(109,90,255,0.22)';\r
+          btnTheme.style.border = '1.5px solid rgba(167,139,250,0.6)';\r
+          btnTheme.style.color = '#a78bfa';\r
+          btnTheme.style.boxShadow = '0 0 14px rgba(109,90,255,0.45)';\r
+        } else {\r
+          btnTheme.innerHTML = '<i class="fa-solid fa-sun" style="color:#f59e0b;"></i>';\r
+          btnTheme.title = 'Light Mode — Click for Dark';\r
+          btnTheme.style.background = 'rgba(251,191,36,0.18)';\r
+          btnTheme.style.border = '1.5px solid rgba(251,191,36,0.7)';\r
+          btnTheme.style.color = '#f59e0b';\r
+          btnTheme.style.boxShadow = '0 0 14px rgba(251,191,36,0.4)';\r
+        }\r
+        btnTheme.style.cursor = 'pointer';\r
+        btnTheme.style.pointerEvents = 'auto';\r
+      }\r
+\r
+      // Page load: always follow OS, clear any saved preference\r
+      const osTheme = (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';\r
+      localStorage.removeItem('lgs_theme');\r
+      applyTheme(osTheme);\r
+\r
+      // Live OS listener (only if user hasn't manually toggled this session)\r
+      if (window.matchMedia) {\r
+        const mq = window.matchMedia('(prefers-color-scheme: dark)');\r
+        const onOSChange = () => {\r
+          if (!sessionStorage.getItem('lgs_manual_theme')) {\r
+            applyTheme(mq.matches ? 'dark' : 'light');\r
+          }\r
+        };\r
+        if (mq.addEventListener) mq.addEventListener('change', onOSChange);\r
+        else if (mq.addListener) mq.addListener(onOSChange);\r
+      }\r
+\r
+      // Button click: toggle Light ↔ Dark\r
+      const btnTheme = document.getElementById('btn-theme');\r
+      if (btnTheme) {\r
+        btnTheme.addEventListener('click', function() {\r
+          const current = document.documentElement.getAttribute('data-theme');\r
+          const next = (current === 'dark') ? 'light' : 'dark';\r
+          sessionStorage.setItem('lgs_manual_theme', next);\r
+          applyTheme(next);\r
+        });\r
+      }\r
     })();
   </script>
 </body>

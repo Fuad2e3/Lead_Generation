@@ -3,14 +3,11 @@
 
 <head>
   <script>
-    // Automatic OS Theme Detection (Day / Night Sync)
+    // Always OS Theme Sync — ignores any saved preference, always follows device Dark/Light
     (function() {
-      function getSystemTheme() {
-        return (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
-      }
-      const savedTheme = localStorage.getItem('lgs_theme');
-      const activeTheme = (savedTheme === 'light' || savedTheme === 'dark') ? savedTheme : getSystemTheme();
-      document.documentElement.setAttribute('data-theme', activeTheme);
+      const dark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
+      localStorage.removeItem('lgs_theme'); // clear any old manual override
     })();
 
     if (localStorage.getItem('lgs_auth') !== 'true') {
@@ -788,6 +785,67 @@
         }
       });
     }
+
+
+    // ── Theme System: OS Auto Sync on Load + Manual Toggle on Click ──────────
+    (function initThemeSystem() {
+
+      // Apply theme visually + update button style
+      function applyTheme(theme) {
+        document.documentElement.setAttribute('data-theme', theme);
+        const btnTheme = document.getElementById('btn-theme');
+        if (!btnTheme) return;
+        if (theme === 'dark') {
+          // 🌙 Dark Mode — cool indigo/purple glow
+          btnTheme.innerHTML = '<i class="fa-solid fa-moon" style="color:#a78bfa;"></i>';
+          btnTheme.title = 'Dark Mode — Click for Light';
+          btnTheme.style.background = 'rgba(109,90,255,0.22)';
+          btnTheme.style.border = '1.5px solid rgba(167,139,250,0.6)';
+          btnTheme.style.color = '#a78bfa';
+          btnTheme.style.boxShadow = '0 0 14px rgba(109,90,255,0.45)';
+        } else {
+          // ☀️ Light Mode — warm amber/orange glow
+          btnTheme.innerHTML = '<i class="fa-solid fa-sun" style="color:#f59e0b;"></i>';
+          btnTheme.title = 'Light Mode — Click for Dark';
+          btnTheme.style.background = 'rgba(251,191,36,0.18)';
+          btnTheme.style.border = '1.5px solid rgba(251,191,36,0.7)';
+          btnTheme.style.color = '#f59e0b';
+          btnTheme.style.boxShadow = '0 0 14px rgba(251,191,36,0.4)';
+        }
+        btnTheme.style.cursor = 'pointer';
+        btnTheme.style.pointerEvents = 'auto';
+      }
+
+      // On every page load: always follow OS, clear any old saved preference
+      const osTheme = (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
+      localStorage.removeItem('lgs_theme');
+      applyTheme(osTheme);
+
+      // Live OS listener: auto-update if OS Dark/Light changes while page is open
+      if (window.matchMedia) {
+        const mq = window.matchMedia('(prefers-color-scheme: dark)');
+        const onOSChange = () => {
+          // Only follow OS if user hasn't manually toggled this session
+          if (!sessionStorage.getItem('lgs_manual_theme')) {
+            applyTheme(mq.matches ? 'dark' : 'light');
+          }
+        };
+        if (mq.addEventListener) mq.addEventListener('change', onOSChange);
+        else if (mq.addListener) mq.addListener(onOSChange);
+      }
+
+      // Button click: manually toggle Light ↔ Dark
+      const btnTheme = document.getElementById('btn-theme');
+      if (btnTheme) {
+        btnTheme.addEventListener('click', function() {
+          const current = document.documentElement.getAttribute('data-theme');
+          const next = (current === 'dark') ? 'light' : 'dark';
+          sessionStorage.setItem('lgs_manual_theme', next); // remember for OS listener
+          applyTheme(next);
+        });
+      }
+    })();
+    // ─────────────────────────────────────────────────────────────────────────
   </script>
 </body>
 
