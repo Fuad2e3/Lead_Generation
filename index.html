@@ -63,9 +63,15 @@
 
 
       <div class="header-actions">
-        <span id="header-credit-badge" class="action-pill" style="font-weight:700;color:var(--color-primary);border-color:rgba(108,99,255,0.3);">
-          <i class="fa-solid fa-coins" style="color:#ffb347;"></i> <span id="lbl-user-credits">Credits: 50 / 50</span>
-        </span>
+        <div id="header-credit-badge" class="action-pill" style="font-weight:700;color:var(--color-primary);border-color:rgba(108,99,255,0.3);display:inline-flex;flex-direction:column;gap:3px;padding:6px 12px;min-width:155px;justify-content:center;">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:6px;width:100%;line-height:1.2;">
+            <span style="display:flex;align-items:center;gap:5px;font-size:12px;"><i class="fa-solid fa-coins" style="color:#ffb347;"></i> <span id="lbl-user-credits">Credits: 50 / 50</span></span>
+            <span id="lbl-user-credit-pct" style="font-size:10px;font-weight:800;color:#ffb347;background:rgba(255,179,71,0.15);padding:1px 5px;border-radius:6px;border:1px solid rgba(255,179,71,0.3);">100%</span>
+          </div>
+          <div style="width:100%;height:5px;background:rgba(255,255,255,0.1);border-radius:10px;overflow:hidden;">
+            <div id="credit-progress-fill" style="width:100%;height:100%;background:linear-gradient(90deg, #6c63ff, #00d2ff);border-radius:10px;transition:width 0.4s ease, background 0.4s ease;"></div>
+          </div>
+        </div>
         <button id="btn-upgrade-plan" class="action-pill" title="Request Package Upgrade" style="font-weight:700;color:#ffb347;border-color:rgba(255,179,71,0.4);background:rgba(255,179,71,0.1);cursor:pointer;display:inline-flex;align-items:center;gap:6px;">
           <i class="fa-solid fa-bolt" style="color:#ffb347;"></i> <span>Upgrade Plan</span>
         </button>
@@ -423,17 +429,14 @@
           userBadge.style.background = pkg === 'ENTERPRISE' ? 'rgba(255,179,71,0.2)' : pkg === 'PRO' ? 'rgba(108,99,255,0.2)' : 'rgba(100,116,139,0.2)';
         }
 
-        // Render Credit Badge
+        // Render Credit Badge & Live Progress Bar
         if (data.user) {
           currentUserCredits = {
             dailyCredits: data.user.dailyCredits || 50,
             usedCreditsToday: data.user.usedCreditsToday || 0,
             remainingCredits: data.user.remainingCredits !== undefined ? data.user.remainingCredits : 50
           };
-          const credLbl = document.getElementById('lbl-user-credits');
-          if (credLbl) {
-            credLbl.textContent = `Credits: ${currentUserCredits.remainingCredits} / ${currentUserCredits.dailyCredits}`;
-          }
+          updateCreditUI(currentUserCredits.remainingCredits, currentUserCredits.dailyCredits);
         }
 
         // Render System Announcement Banner
@@ -829,8 +832,7 @@
             if (data.success) {
               currentUserCredits.remainingCredits = data.remainingCredits;
               currentUserCredits.usedCreditsToday = data.usedCreditsToday;
-              const credLbl = document.getElementById('lbl-user-credits');
-              if (credLbl) credLbl.textContent = `Credits: ${data.remainingCredits} / ${currentUserCredits.dailyCredits}`;
+              updateCreditUI(data.remainingCredits, currentUserCredits.dailyCredits);
             }
           } catch(err) {
             console.error('Credit deduction network error:', err);
@@ -902,7 +904,28 @@
     })();
     // ─────────────────────────────────────────────────────────────────────────
 
-    // ── Toast Notification System ─────────────────────────────────────────────
+    // ── Helper: Live Credit Progress Bar & Percentage UI ──────────────────────
+    function updateCreditUI(remaining, total) {
+      const rem = Math.max(0, parseInt(remaining, 10) || 0);
+      const tot = Math.max(1, parseInt(total, 10) || 50);
+      const pct = Math.min(100, Math.max(0, Math.round((rem / tot) * 100)));
+
+      const credLbl = document.getElementById('lbl-user-credits');
+      if (credLbl) credLbl.textContent = `Credits: ${rem} / ${tot}`;
+
+      const pctLbl = document.getElementById('lbl-user-credit-pct');
+      if (pctLbl) pctLbl.textContent = `${pct}%`;
+
+      const fill = document.getElementById('credit-progress-fill');
+      if (fill) {
+        fill.style.width = `${pct}%`;
+        fill.style.background = pct < 20
+          ? 'linear-gradient(90deg, #ff4757, #ffa502)'
+          : pct < 50
+            ? 'linear-gradient(90deg, #ffa502, #ffb347)'
+            : 'linear-gradient(90deg, #6c63ff, #00d2ff)';
+      }
+    }
     function showToast(msg, type = 'info', duration = 3500) {
       let container = document.getElementById('toast-container');
       if (!container) {
