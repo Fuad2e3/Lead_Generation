@@ -114,18 +114,35 @@
   padding: 0;
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 body {
   font-family: var(--font-primary);
   background-color: var(--bg-app);
-  background-image: 
-    radial-gradient(at 10% 10%, rgba(108, 99, 255, 0.12) 0px, transparent 50%),
-    radial-gradient(at 90% 90%, rgba(0, 210, 255, 0.1) 0px, transparent 50%);
-  background-attachment: fixed;
   color: var(--text-main);
   min-height: 100vh;
   line-height: 1.5;
   overflow-x: hidden;
-  transition: background-color 0.4s ease, color 0.4s ease;
+  position: relative;
+}
+
+/* GPU-accelerated fixed background overlay — 60 FPS smooth scrolling */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: 
+    radial-gradient(at 10% 10%, rgba(108, 99, 255, 0.12) 0px, transparent 50%),
+    radial-gradient(at 90% 90%, rgba(0, 210, 255, 0.1) 0px, transparent 50%);
+  z-index: -1;
+  pointer-events: none;
+  transform: translateZ(0);
+  will-change: transform;
 }
 
 /* Layout Container */
@@ -153,6 +170,8 @@ body {
   margin-bottom: 24px;
   flex-wrap: wrap;
   gap: 16px;
+  transform: translateZ(0);
+  will-change: transform;
 }
 
 .header-brand {
@@ -288,6 +307,7 @@ body {
   box-shadow: var(--shadow-glass);
   overflow: hidden;
   transition: var(--transition-smooth);
+  transform: translateZ(0);
 }
 
 .card:hover {
