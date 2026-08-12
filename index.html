@@ -402,12 +402,16 @@
 
   <script src="app.js"></script>
   <script>
-    // Auto-detect server hostname — works locally and across devices on the same network
+    // ── Server URL Config ────────────────────────────────────────────────────
+    const _FALLBACK_SERVER = 'http://192.168.0.108:3000'; // ← Update if server IP changes
     const _h = window.location.hostname;
     const _API_HOST = (_h && _h !== 'localhost' && _h !== '127.0.0.1')
       ? `http://${_h}:3000`
-      : 'http://localhost:3000';
+      : (_h === 'localhost' || _h === '127.0.0.1')
+        ? 'http://localhost:3000'
+        : _FALLBACK_SERVER;
     const API_BASE_AUTH = `${_API_HOST}/api/auth`;
+    // ─────────────────────────────────────────────────────────────────────────
     let currentUserSession = null;
     let currentUserCredits = { dailyCredits: 50, usedCreditsToday: 0, remainingCredits: 50 };
 

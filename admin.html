@@ -709,12 +709,16 @@
   <div id="toast-container"></div>
 
   <script>
-    // Auto-detect server hostname — works locally and across devices on the same network
+    // ── Server URL Config ────────────────────────────────────────────────────
+    const _FALLBACK_SERVER = 'http://192.168.0.108:3000'; // ← Update if server IP changes
     const _h = window.location.hostname;
     const _API_HOST = (_h && _h !== 'localhost' && _h !== '127.0.0.1')
       ? `http://${_h}:3000`
-      : 'http://localhost:3000';
+      : (_h === 'localhost' || _h === '127.0.0.1')
+        ? 'http://localhost:3000'
+        : _FALLBACK_SERVER;
     const API_BASE = `${_API_HOST}/api/admin`;
+    // ─────────────────────────────────────────────────────────────────────────
     let allUsers = [];
 
     // ── Toast

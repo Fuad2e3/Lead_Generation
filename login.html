@@ -504,12 +504,18 @@
       signupSection.style.display = 'block'; signinSection.style.display = 'none';
     };
 
-    // Auto-detect server hostname — works locally and across devices on the same network
+    // ── Server URL Config ────────────────────────────────────────────────────
+    // If page opened via file://, auto-detect fails → use the real server IP below.
+    // When served via http://[server-ip]:3000/, auto-detect works for all devices.
+    const _FALLBACK_SERVER = 'http://192.168.0.108:3000'; // ← Update this if server IP changes
     const _h = window.location.hostname;
     const API_HOST = (_h && _h !== 'localhost' && _h !== '127.0.0.1')
       ? `http://${_h}:3000`
-      : 'http://localhost:3000';
+      : (_h === 'localhost' || _h === '127.0.0.1')
+        ? 'http://localhost:3000'
+        : _FALLBACK_SERVER; // file:// protocol → use real server
     const API_BASE = `${API_HOST}/api/auth`;
+    // ─────────────────────────────────────────────────────────────────────────
 
     // ── Helpers: User Storage
     function getUsers() {
