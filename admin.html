@@ -709,7 +709,11 @@
   <div id="toast-container"></div>
 
   <script>
-    const API_BASE = 'http://localhost:3000/api/admin';
+    // Auto-detect server hostname — works from any device on the same network
+    const _API_HOST = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+      ? 'http://localhost:3000'
+      : `http://${window.location.hostname}:3000`;
+    const API_BASE = `${_API_HOST}/api/admin`;
     let allUsers = [];
 
     // ── Toast
