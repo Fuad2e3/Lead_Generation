@@ -607,7 +607,74 @@
       if (btnTxt) btnTxt.addEventListener('click', () => { exportData('txt'); if (modalExport) modalExport.classList.add('hidden'); });
     }
 
+    // Helper: Clean cell text extraction for high-quality export (URL + Extracted Page Text)
+    function cleanCellText(td) {
+      if (!td) return '';
+
+      // Clone node to avoid mutating live DOM
+      const clone = td.cloneNode(true);
+
+      // Strip non-data UI components (buttons, icons, copy triggers)
+      clone.querySelectorAll('button, .btn, .btn-icon, .copy-btn, i.fa-copy, i.fa-clone, script, style').forEach(el => el.remove());
+
+      // Extract all valid URLs from <a> links
+      const links = Array.from(clone.querySelectorAll('a'));
+      const linkUrls = [];
+      links.forEach(a => {
+        const href = (a.getAttribute('href') || a.href || '').trim();
+        if (href && (href.startsWith('http://') || href.startsWith('https://') || href.startsWith('//') || href.includes('.'))) {
+          const cleanUrl = href.replace(/^mailto:/i, '').replace(/^tel:/i, '');
+          if (cleanUrl && !linkUrls.includes(cleanUrl)) {
+            linkUrls.push(cleanUrl);
+          }
+        }
+      });
+
+      // Get full text content of the cell (preserving extracted page text / details)
+      let fullText = clone.innerText || clone.textContent || '';
+      fullText = fullText.replace(/[\r\n]+/g, ' ').replace(/\s+/g, ' ').trim();
+
+      // If cell contains both URL(s) and descriptive page text details
+      if (linkUrls.length > 0) {
+        const joinedUrls = linkUrls.join(', ');
+        // If fullText is empty, or just equals the URL, return clean URL
+        if (!fullText || fullText === joinedUrls || linkUrls.some(u => fullText === u)) {
+          return joinedUrls;
+        }
+
+        // If fullText has extra page text content, combine URL and extracted clean text
+        if (linkUrls.some(u => fullText.includes(u))) {
+          return fullText;
+        } else {
+          return `${joinedUrls} — ${fullText}`;
+        }
+      }
+
+      // Collect item badges/tags/spans if cell contains multiple pills
+      const pills = Array.from(clone.querySelectorAll('.badge, .pill, .tag, .stat-pill, span:not(:empty)'));
+      if (pills.length > 1) {
+        const textItems = pills.map(p => p.innerText.trim()).filter(t => t.length > 0);
+        if (textItems.length > 0) {
+          return Array.from(new Set(textItems)).join(', ');
+        }
+      }
+
+      // Fallback: clean text
+      fullText = fullText.replace(/^[\s,]+|[\s,]+$/g, '');
+      return fullText;
+    }
+
     function getMinedTableData() {
+      // 1. Primary: If JS engine stores raw mined objects globally, use them directly
+      if (Array.isArray(window.minedResults) && window.minedResults.length > 0) {
+        const raw = window.minedResults;
+        const sample = raw[0] || {};
+        const headers = Object.keys(sample);
+        const rows = raw.map(obj => headers.map(h => String(obj[h] || '')));
+        return { headers, rows, objects: raw };
+      }
+
+      // 2. DOM Parsing with clean cell text extractor
       const table = document.getElementById('mined-data-table');
       if (!table) return { headers: [], rows: [], objects: [] };
 
@@ -629,15 +696,14 @@
 
       tbodyRows.forEach(tr => {
         const tds = tr.querySelectorAll('td');
-        if (tds.length <= 1) return;
+        if (tds.length <= 1) return; // Skip placeholder rows
 
         const rowData = [];
         const obj = {};
 
         validColIndices.forEach((colIdx, idx) => {
           const td = tds[colIdx];
-          let val = td ? td.innerText.trim() : '';
-          val = val.replace(/\s+/g, ' ');
+          const val = cleanCellText(td);
           rowData.push(val);
           obj[headers[idx]] = val;
         });
@@ -678,15 +744,28 @@
           return;
         }
         const ws = XLSX.utils.json_to_sheet(objects);
+        
+        // Auto-fit column widths
+        const colWidths = headers.map(h => {
+          let maxLen = h.length;
+          objects.forEach(o => {
+            const valLen = String(o[h] || '').length;
+            if (valLen > maxLen) maxLen = valLen;
+          });
+          return { wch: Math.min(Math.max(maxLen + 3, 14), 60) };
+        });
+        ws['!cols'] = colWidths;
+
         const wb = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(wb, ws, "Extracted Data");
         XLSX.writeFile(wb, `Lead_Generation_Data_${dateStr}.xlsx`);
       } else if (format === 'csv') {
         const csvLines = [];
-        csvLines.push(headers.map(h => `"${h.replace(/"/g, '""')}"`).join(','));
+        csvLines.push(headers.map(h => `"${String(h).replace(/"/g, '""')}"`).join(','));
         rows.forEach(row => {
-          csvLines.push(row.map(cell => `"${cell.replace(/"/g, '""')}"`).join(','));
+          csvLines.push(row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(','));
         });
+        // UTF-8 BOM prefix \uFEFF for seamless opening in Excel & Google Sheets
         const blob = new Blob(['\uFEFF' + csvLines.join('\r\n')], { type: 'text/csv;charset=utf-8;' });
         downloadBlob(blob, `Lead_Generation_Data_${dateStr}.csv`);
       } else if (format === 'pdf') {
@@ -699,14 +778,14 @@
         doc.setFontSize(14);
         doc.text('Lead Generation - Extracted Data Report', 14, 15);
         doc.setFontSize(9);
-        doc.text(`Generated on: ${new Date().toLocaleString()}`, 14, 22);
+        doc.text(`Generated on: ${new Date().toLocaleString()} | Total Records: ${rows.length}`, 14, 22);
 
         if (typeof doc.autoTable === 'function') {
           doc.autoTable({
             head: [headers],
             body: rows,
             startY: 26,
-            styles: { fontSize: 7, cellPadding: 2 },
+            styles: { fontSize: 7, cellPadding: 2, overflow: 'linebreak' },
             headStyles: { fillColor: [108, 99, 255] }
           });
         } else {
@@ -724,9 +803,9 @@
       } else if (format === 'txt') {
         const tsvLines = [headers.join('\t')];
         rows.forEach(row => {
-          tsvLines.push(row.map(c => c.replace(/\t/g, ' ')).join('\t'));
+          tsvLines.push(row.map(c => String(c).replace(/\t/g, ' ')).join('\t'));
         });
-        const blob = new Blob([tsvLines.join('\r\n')], { type: 'text/plain;charset=utf-8;' });
+        const blob = new Blob(['\uFEFF' + tsvLines.join('\r\n')], { type: 'text/plain;charset=utf-8;' });
         downloadBlob(blob, `Lead_Generation_Data_${dateStr}.txt`);
       }
     }
