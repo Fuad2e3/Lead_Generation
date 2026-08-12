@@ -679,30 +679,6 @@
       </div>
     </div>
 
-    <!-- Activity Audit Logs Card -->
-    <div class="table-card" style="margin-top: 28px;">
-      <div class="table-header">
-        <h2><i class="fa-solid fa-clock-rotate-left"></i> System Activity Audit Logs</h2>
-        <button class="btn-refresh" onclick="loadActivityLogs()"><i class="fa-solid fa-rotate-right" id="logs-refresh-icon"></i> Refresh Logs</button>
-      </div>
-      <div class="table-responsive">
-        <table>
-          <thead>
-            <tr>
-              <th><i class="fa-solid fa-hashtag"></i>ID</th>
-              <th><i class="fa-solid fa-user"></i>User Email</th>
-              <th><i class="fa-solid fa-bolt"></i>Action</th>
-              <th><i class="fa-solid fa-file-lines"></i>Details</th>
-              <th><i class="fa-solid fa-clock"></i>Timestamp</th>
-            </tr>
-          </thead>
-          <tbody id="logs-table-body">
-            <tr><td colspan="5" class="text-center" style="padding:30px;color:var(--text-muted);">Loading system activity audit logs...</td></tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-
     <!-- Package Upgrade Requests Card -->
     <div class="table-card" style="margin-top: 28px;">
       <div class="table-header">
@@ -724,6 +700,30 @@
           </thead>
           <tbody id="upgrades-table-body">
             <tr><td colspan="7" class="text-center" style="padding:30px;color:var(--text-muted);">Loading package upgrade requests...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Activity Audit Logs Card -->
+    <div class="table-card" style="margin-top: 28px;">
+      <div class="table-header">
+        <h2><i class="fa-solid fa-clock-rotate-left"></i> System Activity Audit Logs</h2>
+        <button class="btn-refresh" onclick="loadActivityLogs()"><i class="fa-solid fa-rotate-right" id="logs-refresh-icon"></i> Refresh Logs</button>
+      </div>
+      <div class="table-responsive">
+        <table>
+          <thead>
+            <tr>
+              <th><i class="fa-solid fa-hashtag"></i>ID</th>
+              <th><i class="fa-solid fa-user"></i>User Email</th>
+              <th><i class="fa-solid fa-bolt"></i>Action</th>
+              <th><i class="fa-solid fa-file-lines"></i>Details</th>
+              <th><i class="fa-solid fa-clock"></i>Timestamp</th>
+            </tr>
+          </thead>
+          <tbody id="logs-table-body">
+            <tr><td colspan="5" class="text-center" style="padding:30px;color:var(--text-muted);">Loading system activity audit logs...</td></tr>
           </tbody>
         </table>
       </div>
