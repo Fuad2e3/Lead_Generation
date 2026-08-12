@@ -703,6 +703,32 @@
       </div>
     </div>
 
+    <!-- Package Upgrade Requests Card -->
+    <div class="table-card" style="margin-top: 28px;">
+      <div class="table-header">
+        <h2><i class="fa-solid fa-bolt" style="color:#ffb347;"></i> User Package Upgrade Requests</h2>
+        <button class="btn-refresh" onclick="loadUpgradeRequests()"><i class="fa-solid fa-rotate-right" id="upgrades-refresh-icon"></i> Refresh Requests</button>
+      </div>
+      <div class="table-responsive">
+        <table>
+          <thead>
+            <tr>
+              <th><i class="fa-solid fa-hashtag"></i>Req ID</th>
+              <th><i class="fa-solid fa-user"></i>User</th>
+              <th><i class="fa-solid fa-at"></i>Email</th>
+              <th><i class="fa-solid fa-crown"></i>Requested Package</th>
+              <th><i class="fa-solid fa-circle-dot"></i>Status</th>
+              <th><i class="fa-solid fa-calendar-plus"></i>Requested Date</th>
+              <th><i class="fa-solid fa-gears"></i>Action</th>
+            </tr>
+          </thead>
+          <tbody id="upgrades-table-body">
+            <tr><td colspan="7" class="text-center" style="padding:30px;color:var(--text-muted);">Loading package upgrade requests...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
   </main>
 
   <!-- Toast container -->
@@ -1029,6 +1055,77 @@
       }
     }
 
+    // ── Load Package Upgrade Requests
+    async function loadUpgradeRequests() {
+      const icon = document.getElementById('upgrades-refresh-icon');
+      if (icon) icon.classList.add('fa-spin');
+      try {
+        const res = await fetch(`${API_BASE}/upgrade-requests`);
+        const data = await res.json();
+        const tbody = document.getElementById('upgrades-table-body');
+        if (!data.success || !data.requests || data.requests.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="7" class="text-center" style="padding:20px;color:var(--text-muted);">No upgrade requests pending.</td></tr>`;
+          return;
+        }
+        tbody.innerHTML = data.requests.map(r => {
+          const statusBadge = r.status === 'approved' 
+            ? '<span class="status-badge active"><i class="fa-solid fa-circle-check"></i> Approved</span>' 
+            : r.status === 'rejected'
+              ? '<span class="status-badge banned"><i class="fa-solid fa-circle-xmark"></i> Rejected</span>'
+              : '<span class="status-badge" style="background:rgba(245,158,11,0.15);color:#f59e0b;border:1px solid rgba(245,158,11,0.3);"><i class="fa-solid fa-clock"></i> Pending</span>';
+          
+          const pkgBadge = r.requested_package === 'enterprise'
+            ? '<span class="pkg-badge ent">ENTERPRISE (Unlimited)</span>'
+            : '<span class="pkg-badge pro">PRO (1,000 / day)</span>';
+
+          const actionBtns = r.status === 'pending' ? `
+            <div style="display:flex;gap:6px;">
+              <button class="btn-action primary" onclick="handleUpgradeAction(${r.id}, 'approve')" style="background:rgba(34,197,94,0.15);color:#22c55e;border-color:rgba(34,197,94,0.3);"><i class="fa-solid fa-check"></i> Approve</button>
+              <button class="btn-action danger" onclick="handleUpgradeAction(${r.id}, 'reject')"><i class="fa-solid fa-xmark"></i> Reject</button>
+            </div>
+          ` : '<span style="color:var(--text-muted);font-size:12px;">Completed</span>';
+
+          return `
+            <tr>
+              <td class="td-id">#${r.id}</td>
+              <td class="td-name"><strong>${r.user_name || 'User'}</strong></td>
+              <td class="td-email">${r.user_email}</td>
+              <td>${pkgBadge}</td>
+              <td>${statusBadge}</td>
+              <td class="td-datetime">${fmtDate(r.created_at)}</td>
+              <td>${actionBtns}</td>
+            </tr>
+          `;
+        }).join('');
+      } catch(err) {
+        console.error(err);
+      } finally {
+        if (icon) icon.classList.remove('fa-spin');
+      }
+    }
+
+    async function handleUpgradeAction(id, action) {
+      if (!confirm(`Are you sure you want to ${action} this upgrade request?`)) return;
+      try {
+        const res = await fetch(`${API_BASE}/upgrade-requests/${id}/action`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action })
+        });
+        const data = await res.json();
+        if (data.success) {
+          toast(data.message, 'success');
+          loadUpgradeRequests();
+          loadUsers();
+          loadActivityLogs();
+        } else {
+          toast(data.message || 'Action failed', 'error');
+        }
+      } catch(e) {
+        toast('Network error performing upgrade action', 'error');
+      }
+    }
+
     // ── Search / filter
     document.getElementById('search-input').addEventListener('input', function() {
       const q = this.value.trim().toLowerCase();
@@ -1099,13 +1196,14 @@
           applyTheme(next);
         });
       }
+
+      // Init load
+      loadUsers();
+      loadAnnouncement();
+      loadActivityLogs();
+      loadUpgradeRequests();
     })();
-
-    // ── Initial load
-    loadUsers();
-    loadAnnouncement();
-    loadActivityLogs();
   </script>
-
 </body>
+
 </html>

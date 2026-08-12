@@ -12,30 +12,6 @@
 
     if (localStorage.getItem('lgs_auth') !== 'true') {
       window.location.href = 'login.html';
-    } else {
-      (async function() {
-        try {
-          const sessionStr = localStorage.getItem('lgs_session');
-          if (!sessionStr) return;
-          const session = JSON.parse(sessionStr);
-          if (!session || (!session.email && !session.id)) return;
-
-          const res = await fetch('http://localhost:3000/api/auth/check-status', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email: session.email, id: session.id })
-          });
-          const data = await res.json();
-
-          if (!data.success || data.status === 'banned' || data.status === 'deleted' || data.status === 'inactive') {
-            localStorage.removeItem('lgs_auth');
-            localStorage.removeItem('lgs_session');
-            localStorage.removeItem('lgs_token');
-            alert(data.message || 'Your account has been banned or removed by an administrator.');
-            window.location.href = 'login.html';
-          }
-        } catch(e) {}
-      })();
     }
   </script>
   <meta charset="UTF-8">
@@ -90,6 +66,9 @@
         <span id="header-credit-badge" class="action-pill" style="font-weight:700;color:var(--color-primary);border-color:rgba(108,99,255,0.3);">
           <i class="fa-solid fa-coins" style="color:#ffb347;"></i> <span id="lbl-user-credits">Credits: 50 / 50</span>
         </span>
+        <button id="btn-upgrade-plan" class="action-pill" title="Request Package Upgrade" style="font-weight:700;color:#ffb347;border-color:rgba(255,179,71,0.4);background:rgba(255,179,71,0.1);cursor:pointer;display:inline-flex;align-items:center;gap:6px;">
+          <i class="fa-solid fa-bolt" style="color:#ffb347;"></i> <span>Upgrade Plan</span>
+        </button>
         <button id="btn-lang" class="action-pill" title="Switch Language">
           <i class="fa-solid fa-language"></i> <span id="lang-label">English</span>
         </button>
@@ -835,7 +814,7 @@
           if (currentUserCredits.remainingCredits < count) {
             e.stopImmediatePropagation();
             e.preventDefault();
-            alert(`⚠️ Credit limit reached!\n\nYou have ${currentUserCredits.remainingCredits} credit(s) remaining today, but tried to mine ${count} URL(s).\n\nPlease contact Admin or Upgrade to Pro/Enterprise for more credits!`);
+            showToast(`⚠️ Daily credit limit reached! You have ${currentUserCredits.remainingCredits} credit(s) remaining today, but tried to mine ${count} URL(s). Click 'Upgrade Plan' to get more credits!`, 'warning');
             return false;
           }
 
@@ -920,17 +899,119 @@
         else if (mq.addListener) mq.addListener(onOSChange);
       }
 
-      // Button click: manually toggle Light ↔ Dark
-      const btnTheme = document.getElementById('btn-theme');
-      if (btnTheme) {
-        btnTheme.addEventListener('click', function() {
-          const current = document.documentElement.getAttribute('data-theme');
-          const next = (current === 'dark') ? 'light' : 'dark';
-          sessionStorage.setItem('lgs_manual_theme', next); // remember for OS listener
-          applyTheme(next);
-        });
-      }
     })();
+    // ─────────────────────────────────────────────────────────────────────────
+
+    // ── Toast Notification System ─────────────────────────────────────────────
+    function showToast(msg, type = 'info', duration = 3500) {
+      let container = document.getElementById('toast-container');
+      if (!container) {
+        container = document.createElement('div');
+        container.id = 'toast-container';
+        container.style.cssText = 'position:fixed;bottom:24px;right:24px;z-index:99999;display:flex;flex-direction:column;gap:10px;max-width:380px;pointer-events:none;';
+        document.body.appendChild(container);
+      }
+      const el = document.createElement('div');
+      el.className = `toast toast-${type}`;
+      const bg = type === 'success' ? 'rgba(34,197,94,0.15)' : type === 'error' ? 'rgba(239,68,68,0.15)' : type === 'warning' ? 'rgba(245,158,11,0.15)' : 'rgba(99,102,241,0.15)';
+      const border = type === 'success' ? 'rgba(34,197,94,0.4)' : type === 'error' ? 'rgba(239,68,68,0.4)' : type === 'warning' ? 'rgba(245,158,11,0.4)' : 'rgba(99,102,241,0.4)';
+      const color = type === 'success' ? '#22c55e' : type === 'error' ? '#ef4444' : type === 'warning' ? '#f59e0b' : '#6366f1';
+      const icon = type === 'success' ? 'fa-circle-check' : type === 'error' ? 'fa-triangle-exclamation' : type === 'warning' ? 'fa-circle-exclamation' : 'fa-circle-info';
+      
+      el.style.cssText = `background:${bg};border:1px solid ${border};color:var(--text-heading,#fff);backdrop-filter:blur(12px);padding:12px 16px;border-radius:10px;box-shadow:0 10px 25px -5px rgba(0,0,0,0.3);font-size:13px;font-weight:600;display:flex;align-items:center;gap:10px;pointer-events:auto;animation:toastIn 0.3s cubic-bezier(0.16,1,0.3,1);`;
+      el.innerHTML = `<i class="fa-solid ${icon}" style="color:${color};font-size:16px;flex-shrink:0;"></i> <span style="flex:1;">${msg}</span>`;
+      container.appendChild(el);
+
+      setTimeout(() => {
+        el.style.animation = 'toastOut 0.3s ease forwards';
+        setTimeout(() => el.remove(), 300);
+      }, duration);
+    }
+    // Inject Keyframes
+    const toastStyle = document.createElement('style');
+    toastStyle.textContent = `@keyframes toastIn { from { opacity:0; transform:translateY(20px) scale(0.95); } to { opacity:1; transform:translateY(0) scale(1); } } @keyframes toastOut { from { opacity:1; transform:translateY(0) scale(1); } to { opacity:0; transform:translateY(20px) scale(0.95); } }`;
+    document.head.appendChild(toastStyle);
+
+    // ── Package Upgrade Request System ────────────────────────────────────────
+    const btnUpgrade = document.getElementById('btn-upgrade-plan');
+    if (btnUpgrade) {
+      btnUpgrade.addEventListener('click', function() {
+        let modal = document.getElementById('upgrade-plan-modal');
+        if (!modal) {
+          modal = document.createElement('div');
+          modal.id = 'upgrade-plan-modal';
+          modal.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);backdrop-filter:blur(8px);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px;';
+          modal.innerHTML = `
+            <div style="background:var(--bg-card,#111827);border:1px solid rgba(255,255,255,0.12);border-radius:16px;width:100%;max-width:480px;padding:24px;box-shadow:0 25px 50px -12px rgba(0,0,0,0.5);color:var(--text-heading,#fff);">
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+                <h3 style="margin:0;font-size:18px;display:flex;align-items:center;gap:8px;"><i class="fa-solid fa-bolt" style="color:#ffb347;"></i> Request Package Upgrade</h3>
+                <button onclick="document.getElementById('upgrade-plan-modal').style.display='none';" style="background:none;border:none;color:rgba(255,255,255,0.6);font-size:18px;cursor:pointer;"><i class="fa-solid fa-xmark"></i></button>
+              </div>
+              <p style="font-size:13px;color:var(--text-muted,#94a3b8);margin-bottom:20px;">Choose a package below to submit an upgrade request to the Administrator:</p>
+              <div style="display:flex;flex-direction:column;gap:12px;margin-bottom:24px;">
+                <label style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;background:rgba(108,99,255,0.1);border:1px solid rgba(108,99,255,0.3);border-radius:10px;cursor:pointer;">
+                  <div style="display:flex;align-items:center;gap:10px;">
+                    <input type="radio" name="plan-option" value="pro" checked style="accent-color:#6c63ff;">
+                    <div>
+                      <strong style="color:#a78bfa;font-size:14px;">PRO PLAN</strong>
+                      <div style="font-size:12px;color:rgba(255,255,255,0.7);">1,000 Credits / Day</div>
+                    </div>
+                  </div>
+                  <span style="font-size:12px;font-weight:700;background:rgba(108,99,255,0.2);color:#a78bfa;padding:4px 8px;border-radius:6px;">Popular</span>
+                </label>
+                <label style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;background:rgba(255,179,71,0.1);border:1px solid rgba(255,179,71,0.3);border-radius:10px;cursor:pointer;">
+                  <div style="display:flex;align-items:center;gap:10px;">
+                    <input type="radio" name="plan-option" value="enterprise" style="accent-color:#ffb347;">
+                    <div>
+                      <strong style="color:#ffb347;font-size:14px;">ENTERPRISE PLAN</strong>
+                      <div style="font-size:12px;color:rgba(255,255,255,0.7);">Unlimited (999,999 Credits / Day)</div>
+                    </div>
+                  </div>
+                  <span style="font-size:12px;font-weight:700;background:rgba(255,179,71,0.2);color:#ffb347;padding:4px 8px;border-radius:6px;">Unlimited</span>
+                </label>
+              </div>
+              <div style="display:flex;gap:10px;justify-content:flex-end;">
+                <button onclick="document.getElementById('upgrade-plan-modal').style.display='none';" style="padding:10px 16px;border-radius:8px;border:1px solid rgba(255,255,255,0.15);background:none;color:#fff;font-size:13px;font-weight:600;cursor:pointer;">Cancel</button>
+                <button id="btn-submit-upgrade" style="padding:10px 20px;border-radius:8px;border:none;background:linear-gradient(135deg,#6c63ff,#5a52e0);color:#fff;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:8px;">
+                  <i class="fa-solid fa-paper-plane"></i> Submit Request
+                </button>
+              </div>
+            </div>
+          `;
+          document.body.appendChild(modal);
+
+          document.getElementById('btn-submit-upgrade').addEventListener('click', async function() {
+            if (!currentUserSession) return;
+            const selected = modal.querySelector('input[name="plan-option"]:checked')?.value || 'pro';
+            this.disabled = true;
+            this.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Submitting...';
+
+            try {
+              const res = await fetch(`${API_BASE_AUTH}/upgrade-request`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id: currentUserSession.id, email: currentUserSession.email, requestedPackage: selected })
+              });
+              const data = await res.json();
+              modal.style.display = 'none';
+              if (data.success) {
+                showToast(data.message, 'success', 4500);
+              } else {
+                showToast(data.message || 'Failed to submit request', 'error');
+              }
+            } catch(e) {
+              modal.style.display = 'none';
+              showToast('Network error submitting upgrade request.', 'error');
+            } finally {
+              this.disabled = false;
+              this.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Submit Request';
+            }
+          });
+        } else {
+          modal.style.display = 'flex';
+        }
+      });
+    }
     // ─────────────────────────────────────────────────────────────────────────
   </script>
 </body>
