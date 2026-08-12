@@ -574,20 +574,6 @@
           localStorage.setItem('lgs_session', JSON.stringify(userObj));
           if (data.token) localStorage.setItem('lgs_token', data.token);
           window.location.href = 'index.html';
-        } else if (res.status === 500 || data.message === 'Internal server error') {
-          // If server returns 500 DB error, try fallback to local storage
-          const users = getUsers();
-          const found = users.find(u => u.email === email && u.password === password);
-          if (found) {
-            localStorage.setItem('lgs_auth', 'true');
-            localStorage.setItem('lgs_session', JSON.stringify(found));
-            window.location.href = 'index.html';
-            return;
-          }
-          btn.classList.remove('is-loading');
-          showError('Invalid email or password. Please try again.');
-          wrapper.classList.add('shake');
-          setTimeout(() => wrapper.classList.remove('shake'), 500);
         } else {
           btn.classList.remove('is-loading');
           showError(data.message || 'Invalid email or password. Please try again.');
@@ -595,19 +581,11 @@
           setTimeout(() => wrapper.classList.remove('shake'), 500);
         }
       } catch (err) {
-        // Fallback to local storage if API server is offline
-        const users = getUsers();
-        const found = users.find(u => u.email === email && u.password === password);
-        if (found) {
-          localStorage.setItem('lgs_auth', 'true');
-          localStorage.setItem('lgs_session', JSON.stringify(found));
-          window.location.href = 'index.html';
-        } else {
-          btn.classList.remove('is-loading');
-          showError('Invalid email or password. Please try again.');
-          wrapper.classList.add('shake');
-          setTimeout(() => wrapper.classList.remove('shake'), 500);
-        }
+        // API server is offline
+        btn.classList.remove('is-loading');
+        showError('Cannot connect to server. Please make sure the server is running.');
+        wrapper.classList.add('shake');
+        setTimeout(() => wrapper.classList.remove('shake'), 500);
       }
     };
 
@@ -672,10 +650,10 @@
         const data = await res.json();
 
         if (data.success) {
-          // Save to local storage cache as backup
+          // Save to local storage cache as backup (NO plain-text password stored)
           const users = getUsers();
           if (!users.find(u => u.email === email)) {
-            users.push({ fullname: name, email: email, password: password, createdAt: new Date().toISOString() });
+            users.push({ fullname: name, email: email, createdAt: new Date().toISOString() });
             saveUsers(users);
           }
           handleSuccess();
@@ -686,23 +664,11 @@
           setTimeout(() => wrapper.classList.remove('shake'), 500);
         }
       } catch (err) {
-        // Fallback to local storage if API server is offline
-        const users = getUsers();
-        if (users.find(u => u.email === email)) {
-          btn.classList.remove('is-loading');
-          errEl.textContent = 'An account with this email already exists!';
-          return;
-        }
-
-        const newUser = {
-          fullname: name,
-          email: email,
-          password: password,
-          createdAt: new Date().toISOString()
-        };
-        users.push(newUser);
-        saveUsers(users);
-        handleSuccess();
+        // API server is offline — cannot register without server
+        btn.classList.remove('is-loading');
+        errEl.textContent = 'Cannot connect to server. Please make sure the server is running to register.';
+        wrapper.classList.add('shake');
+        setTimeout(() => wrapper.classList.remove('shake'), 500);
       }
     };
 
