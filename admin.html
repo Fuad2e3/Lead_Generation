@@ -15,6 +15,9 @@
   </script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light dark">
+  <meta name="theme-color" content="#070913" media="(prefers-color-scheme: dark)">
+  <meta name="theme-color" content="#F0F4F8" media="(prefers-color-scheme: light)">
   <title>Admin Panel — User Management</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -1068,12 +1071,18 @@
       applyThemeMode(savedMode || 'auto');
 
       if (window.matchMedia) {
-        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function(e) {
+        const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+        const handleOSChange = function(e) {
           const currentSaved = localStorage.getItem('lgs_theme');
           if (!currentSaved || currentSaved === 'auto') {
             applyThemeMode('auto');
           }
-        });
+        };
+        if (mediaQuery.addEventListener) {
+          mediaQuery.addEventListener('change', handleOSChange);
+        } else if (mediaQuery.addListener) {
+          mediaQuery.addListener(handleOSChange);
+        }
       }
 
       const btnTheme = document.getElementById('btn-theme');
