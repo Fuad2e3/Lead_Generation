@@ -1,0 +1,25 @@
+{
+  "name": "lead_generation",
+  "version": "1.0.0",
+  "description": "<div align=\"center\">",
+  "main": "app.js",
+  "scripts": {
+    "build": "node build-protected.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Fuad2e3/Lead_Generation.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/Fuad2e3/Lead_Generation/issues"
+  },
+  "homepage": "https://github.com/Fuad2e3/Lead_Generation#readme",
+  "dependencies": {
+    "javascript-obfuscator": "^5.5.0"
+  }
+}
