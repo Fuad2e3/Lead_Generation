@@ -2,6 +2,16 @@
 <html lang="en" data-theme="dark">
 
 <head>
+  <script>
+    (function() {
+      function getSystemTheme() {
+        return (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
+      }
+      const savedTheme = localStorage.getItem('lgs_theme');
+      const activeTheme = savedTheme ? savedTheme : getSystemTheme();
+      document.documentElement.setAttribute('data-theme', activeTheme);
+    })();
+  </script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Admin Panel — User Management</title>
@@ -27,6 +37,16 @@
       --text-muted:#64748b;
       --radius:    12px;
       --shadow:    0 8px 32px rgba(0,0,0,0.4);
+    }
+
+    [data-theme="light"] {
+      --bg:        #f0f4f8;
+      --bg-card:   #ffffff;
+      --bg-input:  #f8fafc;
+      --border:    rgba(0,0,0,0.1);
+      --text:      #1e293b;
+      --text-muted:#64748b;
+      --shadow:    0 8px 32px rgba(108,99,255,0.1);
     }
 
     body {
@@ -543,6 +563,9 @@
       <button class="btn-refresh" onclick="loadUsers()">
         <i class="fa-solid fa-rotate-right" id="refresh-icon"></i> Refresh
       </button>
+      <button id="btn-theme" title="Toggle Light/Dark Theme" style="background: var(--bg-input); border: 1px solid var(--border); color: var(--text); padding: 8px 14px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600;">
+        <i class="fa-solid fa-moon"></i>
+      </button>
     </div>
   </header>
 
@@ -999,6 +1022,43 @@
       renderTable(filtered);
       document.getElementById('footer-count').textContent = `${filtered.length} of ${allUsers.length} users shown`;
     });
+
+    // Theme Management System
+    function applyTheme(theme) {
+      document.documentElement.setAttribute('data-theme', theme);
+      const btnTheme = document.getElementById('btn-theme');
+      if (btnTheme) {
+        btnTheme.innerHTML = theme === 'light' 
+          ? '<i class="fa-solid fa-sun" style="color: #ffb347;"></i> Light' 
+          : '<i class="fa-solid fa-moon"></i> Dark';
+        btnTheme.title = theme === 'light' ? 'Switch to Dark Theme' : 'Switch to Light Theme';
+      }
+    }
+
+    (function initThemeSystem() {
+      const savedTheme = localStorage.getItem('lgs_theme');
+      const systemTheme = (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
+      const initialTheme = savedTheme || systemTheme;
+      applyTheme(initialTheme);
+
+      if (window.matchMedia) {
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function(e) {
+          if (!localStorage.getItem('lgs_theme')) {
+            applyTheme(e.matches ? 'dark' : 'light');
+          }
+        });
+      }
+
+      const btnTheme = document.getElementById('btn-theme');
+      if (btnTheme) {
+        btnTheme.addEventListener('click', function() {
+          const currentTheme = document.documentElement.getAttribute('data-theme') || 'dark';
+          const nextTheme = currentTheme === 'dark' ? 'light' : 'dark';
+          localStorage.setItem('lgs_theme', nextTheme);
+          applyTheme(nextTheme);
+        });
+      }
+    })();
 
     // ── Initial load
     loadUsers();

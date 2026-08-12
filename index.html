@@ -3,6 +3,16 @@
 
 <head>
   <script>
+    // Automatic system theme detection & stored preference
+    (function() {
+      function getSystemTheme() {
+        return (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
+      }
+      const savedTheme = localStorage.getItem('lgs_theme');
+      const activeTheme = savedTheme ? savedTheme : getSystemTheme();
+      document.documentElement.setAttribute('data-theme', activeTheme);
+    })();
+
     if (localStorage.getItem('lgs_auth') !== 'true') {
       window.location.href = 'login.html';
     } else {
@@ -454,8 +464,252 @@
       }
     }
 
+    // Theme Management System (Auto System Preference + Manual Switch)
+    function applyTheme(theme) {
+      document.documentElement.setAttribute('data-theme', theme);
+      const btnTheme = document.getElementById('btn-theme');
+      if (btnTheme) {
+        btnTheme.innerHTML = theme === 'light' 
+          ? '<i class="fa-solid fa-sun" style="color: #ffb347;"></i>' 
+          : '<i class="fa-solid fa-moon"></i>';
+        btnTheme.title = theme === 'light' ? 'Switch to Dark Theme' : 'Switch to Light Theme';
+      }
+    }
+
+    function initThemeSystem() {
+      const savedTheme = localStorage.getItem('lgs_theme');
+      const systemTheme = (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
+      const initialTheme = savedTheme || systemTheme;
+      applyTheme(initialTheme);
+
+      if (window.matchMedia) {
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function(e) {
+          if (!localStorage.getItem('lgs_theme')) {
+            applyTheme(e.matches ? 'dark' : 'light');
+          }
+        });
+      }
+
+      const btnTheme = document.getElementById('btn-theme');
+      if (btnTheme) {
+        btnTheme.addEventListener('click', function() {
+          const currentTheme = document.documentElement.getAttribute('data-theme') || 'dark';
+          const nextTheme = currentTheme === 'dark' ? 'light' : 'dark';
+          localStorage.setItem('lgs_theme', nextTheme);
+          applyTheme(nextTheme);
+        });
+      }
+    }
+
+    // Language Switching System
+    const i18n = {
+      en: {
+        app_title: "Lead Generation",
+        input_heading: "1. Input Website URLs",
+        dropzone_msg: "Drag & Drop .txt, .csv, or .xlsx file here",
+        browse_btn: "Browse Files",
+        manual_urls_label: "Or Paste URLs/Domains directly:",
+        options_heading: "2. Extraction Parameters",
+        apply_param_btn: "Apply Columns & Parameters",
+        live_tracker_title: "Live Execution Progress"
+      },
+      bn: {
+        app_title: "লিড জেনারেশন",
+        input_heading: "১. ওয়েবসাইট URL প্রদান করুন",
+        dropzone_msg: ".txt, .csv, অথবা .xlsx ফাইল ড্র্যাগ এবং ড্রপ করুন",
+        browse_btn: "ফাইল সিলেক্ট করুন",
+        manual_urls_label: "অথবা সরাসরি URL/ডোমেইন পেস্ট করুন:",
+        options_heading: "২. তথ্য এক্সট্র্যাকশন প্যারামিটার",
+        apply_param_btn: "কলাম ও প্যারামিটার প্রয়োগ করুন",
+        live_tracker_title: "লাইভ অগ্রগতি ট্র্যাকার"
+      }
+    };
+    let currentLang = 'en';
+    function initLanguageSystem() {
+      const btnLang = document.getElementById('btn-lang');
+      const langLabel = document.getElementById('lang-label');
+      if (btnLang) {
+        btnLang.addEventListener('click', function() {
+          currentLang = currentLang === 'en' ? 'bn' : 'en';
+          if (langLabel) langLabel.textContent = currentLang === 'en' ? 'English' : 'বাংলা';
+          document.querySelectorAll('[data-i18n]').forEach(el => {
+            const key = el.getAttribute('data-i18n');
+            if (i18n[currentLang] && i18n[currentLang][key]) {
+              el.textContent = i18n[currentLang][key];
+            }
+          });
+        });
+      }
+    }
+
+    // Export System (Excel, CSV, PDF, JSON, TSV/TXT)
+    function initExportSystem() {
+      const modalExport = document.getElementById('modal-export');
+      const btnExportToolbar = document.getElementById('btn-export-toolbar');
+      const btnCloseExport = document.getElementById('btn-close-export');
+
+      if (btnExportToolbar && modalExport) {
+        btnExportToolbar.addEventListener('click', function() {
+          modalExport.classList.remove('hidden');
+        });
+      }
+
+      if (btnCloseExport && modalExport) {
+        btnCloseExport.addEventListener('click', function() {
+          modalExport.classList.add('hidden');
+        });
+      }
+
+      if (modalExport) {
+        modalExport.addEventListener('click', function(e) {
+          if (e.target === modalExport) {
+            modalExport.classList.add('hidden');
+          }
+        });
+      }
+
+      const btnExcel = document.getElementById('export-excel');
+      const btnCsv = document.getElementById('export-csv');
+      const btnPdf = document.getElementById('export-pdf');
+      const btnJson = document.getElementById('export-json');
+      const btnTxt = document.getElementById('export-txt');
+
+      if (btnExcel) btnExcel.addEventListener('click', () => { exportData('excel'); if (modalExport) modalExport.classList.add('hidden'); });
+      if (btnCsv) btnCsv.addEventListener('click', () => { exportData('csv'); if (modalExport) modalExport.classList.add('hidden'); });
+      if (btnPdf) btnPdf.addEventListener('click', () => { exportData('pdf'); if (modalExport) modalExport.classList.add('hidden'); });
+      if (btnJson) btnJson.addEventListener('click', () => { exportData('json'); if (modalExport) modalExport.classList.add('hidden'); });
+      if (btnTxt) btnTxt.addEventListener('click', () => { exportData('txt'); if (modalExport) modalExport.classList.add('hidden'); });
+    }
+
+    function getMinedTableData() {
+      const table = document.getElementById('mined-data-table');
+      if (!table) return { headers: [], rows: [], objects: [] };
+
+      const ths = Array.from(table.querySelectorAll('thead th'));
+      const headers = [];
+      const validColIndices = [];
+
+      ths.forEach((th, index) => {
+        const text = th.textContent.trim();
+        if (text !== '#' && text !== 'Action' && text !== '') {
+          headers.push(text);
+          validColIndices.push(index);
+        }
+      });
+
+      const tbodyRows = Array.from(table.querySelectorAll('#table-body tr'));
+      const rows = [];
+      const objects = [];
+
+      tbodyRows.forEach(tr => {
+        const tds = tr.querySelectorAll('td');
+        if (tds.length <= 1) return;
+
+        const rowData = [];
+        const obj = {};
+
+        validColIndices.forEach((colIdx, idx) => {
+          const td = tds[colIdx];
+          let val = td ? td.innerText.trim() : '';
+          val = val.replace(/\s+/g, ' ');
+          rowData.push(val);
+          obj[headers[idx]] = val;
+        });
+
+        if (rowData.some(cell => cell.length > 0)) {
+          rows.push(rowData);
+          objects.push(obj);
+        }
+      });
+
+      return { headers, rows, objects };
+    }
+
+    function downloadBlob(blob, filename) {
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+
+    function exportData(format) {
+      const { headers, rows, objects } = getMinedTableData();
+
+      if (rows.length === 0) {
+        alert('No mined data available to export. Please run a mining session first!');
+        return;
+      }
+
+      const dateStr = new Date().toISOString().slice(0, 10);
+
+      if (format === 'excel') {
+        if (typeof XLSX === 'undefined') {
+          alert('Excel library is loading. Please try again in a moment.');
+          return;
+        }
+        const ws = XLSX.utils.json_to_sheet(objects);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "Extracted Data");
+        XLSX.writeFile(wb, `Lead_Generation_Data_${dateStr}.xlsx`);
+      } else if (format === 'csv') {
+        const csvLines = [];
+        csvLines.push(headers.map(h => `"${h.replace(/"/g, '""')}"`).join(','));
+        rows.forEach(row => {
+          csvLines.push(row.map(cell => `"${cell.replace(/"/g, '""')}"`).join(','));
+        });
+        const blob = new Blob(['\uFEFF' + csvLines.join('\r\n')], { type: 'text/csv;charset=utf-8;' });
+        downloadBlob(blob, `Lead_Generation_Data_${dateStr}.csv`);
+      } else if (format === 'pdf') {
+        const jspdf = window.jspdf || window.jsPDF;
+        if (!jspdf) {
+          alert('PDF library is loading. Please try again in a moment.');
+          return;
+        }
+        const doc = new (jspdf.jsPDF || jspdf)({ orientation: 'landscape' });
+        doc.setFontSize(14);
+        doc.text('Lead Generation - Extracted Data Report', 14, 15);
+        doc.setFontSize(9);
+        doc.text(`Generated on: ${new Date().toLocaleString()}`, 14, 22);
+
+        if (typeof doc.autoTable === 'function') {
+          doc.autoTable({
+            head: [headers],
+            body: rows,
+            startY: 26,
+            styles: { fontSize: 7, cellPadding: 2 },
+            headStyles: { fillColor: [108, 99, 255] }
+          });
+        } else {
+          let y = 30;
+          rows.forEach(r => {
+            doc.text(r.join(' | '), 14, y);
+            y += 7;
+          });
+        }
+        doc.save(`Lead_Generation_Report_${dateStr}.pdf`);
+      } else if (format === 'json') {
+        const jsonContent = JSON.stringify(objects, null, 2);
+        const blob = new Blob([jsonContent], { type: 'application/json' });
+        downloadBlob(blob, `Lead_Generation_Data_${dateStr}.json`);
+      } else if (format === 'txt') {
+        const tsvLines = [headers.join('\t')];
+        rows.forEach(row => {
+          tsvLines.push(row.map(c => c.replace(/\t/g, ' ')).join('\t'));
+        });
+        const blob = new Blob([tsvLines.join('\r\n')], { type: 'text/plain;charset=utf-8;' });
+        downloadBlob(blob, `Lead_Generation_Data_${dateStr}.txt`);
+      }
+    }
+
     // Intercept Launch Mining Session (#btn-restart) to check & deduct credits
     document.addEventListener('DOMContentLoaded', function() {
+      initThemeSystem();
+      initLanguageSystem();
+      initExportSystem();
       syncUserStatusAndCredits();
 
       const btnRestart = document.getElementById('btn-restart');
@@ -494,14 +748,17 @@
       }
     });
 
-    document.getElementById('btn-logout').addEventListener('click', function() {
-      if (confirm('Are you sure you want to logout?')) {
-        localStorage.removeItem('lgs_auth');
-        localStorage.removeItem('lgs_session');
-        localStorage.removeItem('lgs_token');
-        window.location.href = 'login.html';
-      }
-    });
+    const btnLogout = document.getElementById('btn-logout');
+    if (btnLogout) {
+      btnLogout.addEventListener('click', function() {
+        if (confirm('Are you sure you want to logout?')) {
+          localStorage.removeItem('lgs_auth');
+          localStorage.removeItem('lgs_session');
+          localStorage.removeItem('lgs_token');
+          window.location.href = 'login.html';
+        }
+      });
+    }
   </script>
 </body>
 

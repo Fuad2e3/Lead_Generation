@@ -2,6 +2,16 @@
 <html lang="en" data-theme="dark">
 
 <head>
+  <script>
+    (function() {
+      function getSystemTheme() {
+        return (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
+      }
+      const savedTheme = localStorage.getItem('lgs_theme');
+      const activeTheme = savedTheme ? savedTheme : getSystemTheme();
+      document.documentElement.setAttribute('data-theme', activeTheme);
+    })();
+  </script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Login - Lead Generation</title>
@@ -378,6 +388,7 @@
 </head>
 
 <body>
+  <button id="btn-theme" title="Toggle Light/Dark Theme" style="position: fixed; top: 20px; right: 20px; z-index: 1000; width: 42px; height: 42px; border-radius: 50%; border: 1px solid var(--border-card); background: var(--bg-card); color: var(--text-main); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 16px; backdrop-filter: blur(10px); box-shadow: var(--shadow-glass);"><i class="fa-solid fa-moon"></i></button>
   <div class="bg-blobs">
     <div class="blob blob-1"></div>
     <div class="blob blob-2"></div>
@@ -551,6 +562,20 @@
           localStorage.setItem('lgs_session', JSON.stringify(userObj));
           if (data.token) localStorage.setItem('lgs_token', data.token);
           window.location.href = 'index.html';
+        } else if (res.status === 500 || data.message === 'Internal server error') {
+          // If server returns 500 DB error, try fallback to local storage
+          const users = getUsers();
+          const found = users.find(u => u.email === email && u.password === password);
+          if (found) {
+            localStorage.setItem('lgs_auth', 'true');
+            localStorage.setItem('lgs_session', JSON.stringify(found));
+            window.location.href = 'index.html';
+            return;
+          }
+          btn.classList.remove('is-loading');
+          showError('Invalid email or password. Please try again.');
+          wrapper.classList.add('shake');
+          setTimeout(() => wrapper.classList.remove('shake'), 500);
         } else {
           btn.classList.remove('is-loading');
           showError(data.message || 'Invalid email or password. Please try again.');
@@ -691,6 +716,43 @@
         }
       };
     });
+
+    // Theme Management System
+    function applyTheme(theme) {
+      document.documentElement.setAttribute('data-theme', theme);
+      const btnTheme = document.getElementById('btn-theme');
+      if (btnTheme) {
+        btnTheme.innerHTML = theme === 'light' 
+          ? '<i class="fa-solid fa-sun" style="color: #ffb347;"></i>' 
+          : '<i class="fa-solid fa-moon"></i>';
+        btnTheme.title = theme === 'light' ? 'Switch to Dark Theme' : 'Switch to Light Theme';
+      }
+    }
+
+    (function initThemeSystem() {
+      const savedTheme = localStorage.getItem('lgs_theme');
+      const systemTheme = (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
+      const initialTheme = savedTheme || systemTheme;
+      applyTheme(initialTheme);
+
+      if (window.matchMedia) {
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function(e) {
+          if (!localStorage.getItem('lgs_theme')) {
+            applyTheme(e.matches ? 'dark' : 'light');
+          }
+        });
+      }
+
+      const btnTheme = document.getElementById('btn-theme');
+      if (btnTheme) {
+        btnTheme.addEventListener('click', function() {
+          const currentTheme = document.documentElement.getAttribute('data-theme') || 'dark';
+          const nextTheme = currentTheme === 'dark' ? 'light' : 'dark';
+          localStorage.setItem('lgs_theme', nextTheme);
+          applyTheme(nextTheme);
+        });
+      }
+    })();
   </script>
 </body>
 </html>
