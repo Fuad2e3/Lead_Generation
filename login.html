@@ -3,14 +3,14 @@
 
 <head>
   <script>
-    // Automatic Laptop OS Theme Detection (Day / Night Sync)
+    // Automatic OS Theme Detection (Day / Night Sync)
     (function() {
-      const savedTheme = localStorage.getItem('lgs_theme');
-      if (savedTheme === 'light' || savedTheme === 'dark') {
-        document.documentElement.setAttribute('data-theme', savedTheme);
-      } else {
-        document.documentElement.removeAttribute('data-theme');
+      function getSystemTheme() {
+        return (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
       }
+      const savedTheme = localStorage.getItem('lgs_theme');
+      const activeTheme = (savedTheme === 'light' || savedTheme === 'dark') ? savedTheme : getSystemTheme();
+      document.documentElement.setAttribute('data-theme', activeTheme);
     })();
   </script>
   <meta charset="UTF-8">
@@ -721,30 +721,31 @@
       };
     });
 
-    // Theme Management System
+    // Theme Management System (Universal OS Day/Night Auto Sync)
     function applyThemeMode(mode) {
+      const getSystemTheme = () => (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
       const btnTheme = document.getElementById('btn-theme');
-      if (mode === 'light') {
-        document.documentElement.setAttribute('data-theme', 'light');
-        localStorage.setItem('lgs_theme', 'light');
-        if (btnTheme) {
+      
+      let activeTheme = mode;
+      if (mode !== 'light' && mode !== 'dark') {
+        activeTheme = getSystemTheme();
+        localStorage.removeItem('lgs_theme');
+      } else {
+        localStorage.setItem('lgs_theme', mode);
+      }
+
+      document.documentElement.setAttribute('data-theme', activeTheme);
+
+      if (btnTheme) {
+        if (mode === 'light') {
           btnTheme.innerHTML = '<i class="fa-solid fa-sun" style="color: #ffb347;"></i>';
           btnTheme.title = 'Light Mode (Click for Dark)';
-        }
-      } else if (mode === 'dark') {
-        document.documentElement.setAttribute('data-theme', 'dark');
-        localStorage.setItem('lgs_theme', 'dark');
-        if (btnTheme) {
+        } else if (mode === 'dark') {
           btnTheme.innerHTML = '<i class="fa-solid fa-moon"></i>';
-          btnTheme.title = 'Dark Mode (Click for Auto Laptop OS Sync)';
-        }
-      } else {
-        document.documentElement.removeAttribute('data-theme');
-        localStorage.removeItem('lgs_theme');
-        const isDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-        if (btnTheme) {
-          btnTheme.innerHTML = isDark ? '<i class="fa-solid fa-desktop"></i>' : '<i class="fa-solid fa-desktop" style="color: #6c63ff;"></i>';
-          btnTheme.title = 'Auto (Laptop OS Sync)';
+          btnTheme.title = 'Dark Mode (Click for Auto OS Sync)';
+        } else {
+          btnTheme.innerHTML = activeTheme === 'dark' ? '<i class="fa-solid fa-desktop"></i>' : '<i class="fa-solid fa-desktop" style="color: #6c63ff;"></i>';
+          btnTheme.title = `Auto OS Sync (${activeTheme.toUpperCase()})`;
         }
       }
     }
