@@ -713,28 +713,18 @@
         console.warn('[Login Server Error] API fetch failed:', err);
       }
 
+      btn.classList.remove('is-loading');
+      wrapper.classList.add('shake');
+      setTimeout(() => wrapper.classList.remove('shake'), 500);
+
       // Check if API_HOST is unconfigured on GitHub Pages
       if (window.location.hostname.endsWith('github.io') && API_HOST.includes('localhost')) {
-        btn.classList.remove('is-loading');
-        showError('Backend Server link not set! Click "Server:" below to enter your Cloudflare Tunnel URL.');
+        showError('⛔ Backend Server is OFF or URL not set! Click "Server:" below to enter your Tunnel URL.');
         return;
       }
 
-      // LocalStorage Fallback for Mobile / Static Deployments / Offline API
-      const users = getUsers();
-      const found = users.find(u => u && u.email && u.email.toLowerCase() === email && (u.password === password || !u.password));
-
-      if (found) {
-        const userObj = { fullname: found.fullname || email.split('@')[0], email: found.email, id: found.id || Date.now() };
-        completeLogin(userObj, null);
-        return;
-      }
-
-      // If user not registered yet in LocalStorage either, create instant account and log in
-      const newUserObj = { fullname: email.split('@')[0], email: email, password: password, createdAt: new Date().toISOString() };
-      users.push(newUserObj);
-      saveUsers(users);
-      completeLogin(newUserObj, null);
+      showError('⛔ Backend Server is OFF! Login is currently disabled. Please start your backend server.');
+      return;
     };
 
     // ── SIGNUP FORM
@@ -823,26 +813,18 @@
         console.warn('[Signup Server Error] API fetch failed:', err);
       }
 
+      btn.classList.remove('is-loading');
+      wrapper.classList.add('shake');
+      setTimeout(() => wrapper.classList.remove('shake'), 500);
+
       // Check if API_HOST is unconfigured on GitHub Pages
       if (window.location.hostname.endsWith('github.io') && API_HOST.includes('localhost')) {
-        btn.classList.remove('is-loading');
-        errEl.textContent = 'Backend Server link not set! Click "Server:" below to enter your Cloudflare Tunnel URL.';
+        errEl.textContent = '⛔ Backend Server is OFF or URL not set! Click "Server:" below to enter your Tunnel URL.';
         return;
       }
 
-      // LocalStorage Fallback for Mobile / Static Deployments / Offline API
-      const users = getUsers();
-      const existing = users.find(u => u && u.email && u.email.toLowerCase() === email);
-      if (existing) {
-        btn.classList.remove('is-loading');
-        errEl.textContent = 'An account with this email address already exists!';
-        wrapper.classList.add('shake');
-        setTimeout(() => wrapper.classList.remove('shake'), 500);
-        return;
-      }
-
-      users.push({ fullname: name, email: email, password: password, createdAt: new Date().toISOString() });
-      saveUsers(users);
+      errEl.textContent = '⛔ Backend Server is OFF! Account creation is currently disabled. Please start your backend server.';
+      return;
       handleSuccess();
     };
 
