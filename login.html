@@ -560,11 +560,7 @@
         </form>
       </div>
 
-      <div style="margin-top: 15px; text-align: center;">
-        <button id="btn-api-config" style="background: rgba(255,255,255,0.05); border: 1px solid var(--border-input); padding: 5px 12px; border-radius: 20px; color: var(--text-muted); font-size: 11px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s;">
-          <i class="fa-solid fa-server" style="color: var(--color-primary);"></i> <span id="api-status-label">Backend API Server Settings</span>
-        </button>
-      </div>
+
     </div>
   </div>
 
@@ -606,31 +602,7 @@
     const API_BASE = `${API_HOST}/api/auth`;
     // ─────────────────────────────────────────────────────────────────────────
 
-    // API Server Config Modal Trigger
-    document.addEventListener('DOMContentLoaded', () => {
-      const btnApi = document.getElementById('btn-api-config');
-      const labelApi = document.getElementById('api-status-label');
-      if (labelApi) {
-        labelApi.textContent = `Server: ${API_HOST}`;
-      }
-      if (btnApi) {
-        btnApi.onclick = () => {
-          const current = localStorage.getItem('lgs_api_url') || (window.LGS_CONFIG && window.LGS_CONFIG.API_URL) || API_HOST;
-          const updated = prompt('Enter your Backend API / Tunnel URL:\n(e.g., https://swift-lion-45.loca.lt or https://xxx.trycloudflare.com)', current);
-          if (updated !== null) {
-            const cleanUrl = updated.trim().replace(/\/+$/, '').replace(/\/api$/, '');
-            if (cleanUrl) {
-              localStorage.setItem('lgs_api_url', cleanUrl);
-              alert(`API Server URL saved successfully:\n${cleanUrl}\n\nThe page will now refresh.`);
-            } else {
-              localStorage.removeItem('lgs_api_url');
-              alert('Reset to default API URL. The page will now refresh.');
-            }
-            window.location.reload();
-          }
-        };
-      }
-    });
+
 
     // ── Helpers: User Storage
     function getUsers() {
