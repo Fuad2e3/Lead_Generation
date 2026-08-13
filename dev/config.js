@@ -10,5 +10,5 @@
  *   API_URL: "https://swift-lion-45.loca.lt"
  */
 window.LGS_CONFIG = {
-  API_URL: "https://forward-hygiene-barry-abstract.trycloudflare.com" // Active Cloudflare Tunnel URL
+  API_URL: "https://pcs-directory-species-systems.trycloudflare.com" // Active Cloudflare Tunnel URL
 };
