@@ -753,6 +753,7 @@
       return (window.location.protocol === 'file:' || !window.location.origin || window.location.origin === 'null') ? 'http://localhost:3000' : window.location.origin;
     }
     const _API_HOST = getApiHost();
+    window.API_HOST = _API_HOST;
     const API_BASE = `${_API_HOST}/api/admin`;
     // ─────────────────────────────────────────────────────────────────────────
     let allUsers = [];

@@ -397,8 +397,6 @@
   </div>
 
 
-  <script src="app.js"></script>
-  <script>
     // ── Server URL Config ────────────────────────────────────────────────────
     function getApiHost() {
       const custom = (localStorage.getItem('lgs_api_url') || '').trim().replace(/\/+$/, '').replace(/\/api$/, '');
@@ -416,8 +414,12 @@
       return (window.location.protocol === 'file:' || !window.location.origin || window.location.origin === 'null') ? 'http://localhost:3000' : window.location.origin;
     }
     const _API_HOST = getApiHost();
+    window.API_HOST = _API_HOST; // Global for app.js compatibility
     const API_BASE_AUTH = `${_API_HOST}/api/auth`;
     // ─────────────────────────────────────────────────────────────────────────
+  </script>
+  <script src="app.js"></script>
+  <script>
     let currentUserSession = null;
     let currentUserCredits = { dailyCredits: 50, usedCreditsToday: 0, remainingCredits: 50 };
 
@@ -874,6 +876,9 @@
       initLanguageSystem();
       initExportSystem();
       syncUserStatusAndCredits();
+
+      // Auto-sync credits every 15 seconds to keep UI up to date with server/admin changes
+      setInterval(syncUserStatusAndCredits, 15000);
     });
 
     const btnLogout = document.getElementById('btn-logout');
