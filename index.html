@@ -450,16 +450,21 @@
         const userBadge = document.getElementById('header-user-badge');
         if (userBadge && data.user) {
           const pkg = (data.user.package || 'free').toUpperCase();
-          userBadge.textContent = '\u{1F464} ' + (data.user.name || currentUserSession.fullname || 'User') + ' [' + pkg + ']';
+          const name = data.user.name || data.user.fullname || currentUserSession.fullname || 'User';
+          userBadge.textContent = '\u{1F464} ' + name + ' [' + pkg + ']';
           userBadge.style.background = pkg === 'ENTERPRISE' ? 'rgba(255,179,71,0.2)' : pkg === 'PRO' ? 'rgba(108,99,255,0.2)' : 'rgba(100,116,139,0.2)';
         }
 
         // Render Credit Badge & Live Progress Bar
         if (data.user) {
+          const daily = data.user.dailyCredits || data.user.daily_credits || 50;
+          const used = data.user.usedCreditsToday || data.user.used_credits_today || 0;
+          const remaining = data.user.remainingCredits !== undefined ? data.user.remainingCredits : (daily - used);
+
           currentUserCredits = {
-            dailyCredits: data.user.dailyCredits || 50,
-            usedCreditsToday: data.user.usedCreditsToday || 0,
-            remainingCredits: data.user.remainingCredits !== undefined ? data.user.remainingCredits : 50
+            dailyCredits: daily,
+            usedCreditsToday: used,
+            remainingCredits: remaining
           };
           updateCreditUI(currentUserCredits.remainingCredits, currentUserCredits.dailyCredits);
         }

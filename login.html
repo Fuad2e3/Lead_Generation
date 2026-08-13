@@ -599,6 +599,7 @@
       return (window.location.protocol === 'file:' || !window.location.origin || window.location.origin === 'null') ? 'http://localhost:3000' : window.location.origin;
     }
     const API_HOST = getApiHost();
+    window.API_HOST = API_HOST;
     const API_BASE = `${API_HOST}/api/auth`;
     // ─────────────────────────────────────────────────────────────────────────
 
