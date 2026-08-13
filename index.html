@@ -454,12 +454,12 @@
 
         // Render Credit Badge & Live Progress Bar
         if (data.user) {
-          currentUserCredits = {
+          window.currentUserCredits = {
             dailyCredits: data.user.dailyCredits || 50,
             usedCreditsToday: data.user.usedCreditsToday || 0,
             remainingCredits: data.user.remainingCredits !== undefined ? data.user.remainingCredits : 50
           };
-          updateCreditUI(currentUserCredits.remainingCredits, currentUserCredits.dailyCredits);
+          updateCreditUI(window.currentUserCredits.remainingCredits, window.currentUserCredits.dailyCredits);
         }
 
         // Render System Announcement Banner

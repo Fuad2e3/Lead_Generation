@@ -280,6 +280,7 @@ exports.deductCredits = (req, res) => {
       const newUsed = user.used_credits_today + deductCount;
       const newRemaining = Math.max(0, user.daily_credits - newUsed);
 
+      console.log(`[Credit Sync] User #${user.id} (${user.email}) - Deducted: ${deductCount}, Remaining: ${newRemaining}`);
       logActivity(user.id, user.email, 'MINING_SESSION', `Mined ${deductCount} URL(s). Credits used today: ${newUsed}/${user.daily_credits}`);
 
       res.json({

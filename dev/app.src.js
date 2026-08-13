@@ -1127,21 +1127,32 @@
             body: JSON.stringify({ email: currentUser.email, id: currentUser.id, count: nonDuplicateCount })
           });
 
-          if (res.ok) {
-            const creditRes = await res.json();
-            if (creditRes && creditRes.success === false) {
-              alert(creditRes.message || 'Insufficient credits for this mining session!');
-              return;
-            } else if (creditRes && creditRes.success) {
-              addLog(`💳 API Credits Deducted: ${nonDuplicateCount} URL(s). Remaining today: ${creditRes.remainingCredits}`, 'system');
-              if (window.updateCreditUI) {
-                const totalDaily = (window.currentUserCredits && window.currentUserCredits.dailyCredits) || 50;
-                window.updateCreditUI(creditRes.remainingCredits, totalDaily);
-              }
+          const creditRes = await res.json();
+          if (!res.ok || (creditRes && creditRes.success === false)) {
+            const errorMsg = creditRes.message || 'Insufficient credits or API error for this mining session!';
+            alert(`⛔ Credit Error: ${errorMsg}`);
+            addLog(`⛔ Credit Error: ${errorMsg}`, 'error');
+            return; // 🛑 CRITICAL: Stop mining if deduction fails
+          }
+
+          if (creditRes && creditRes.success) {
+            addLog(`💳 API Credits Deducted: ${nonDuplicateCount} URL(s). Remaining today: ${creditRes.remainingCredits}`, 'system');
+
+            // Sync with Global UI State
+            if (window.currentUserCredits) {
+              window.currentUserCredits.remainingCredits = creditRes.remainingCredits;
+              window.currentUserCredits.usedCreditsToday = creditRes.usedCreditsToday;
+            }
+
+            if (window.updateCreditUI) {
+              const totalDaily = (window.currentUserCredits && window.currentUserCredits.dailyCredits) || 50;
+              window.updateCreditUI(creditRes.remainingCredits, totalDaily);
             }
           }
         } catch (err) {
-          console.warn('[Credit Deduction Error] API credit deduction failed:', err);
+          console.error('[Credit Deduction Error] API request failed:', err);
+          alert('⛔ Network Error: Could not connect to API for credit verification.');
+          return; // 🛑 Stop mining on network failure
         }
       }
     }
