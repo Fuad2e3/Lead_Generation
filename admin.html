@@ -747,6 +747,9 @@
       const isIp = /^(\d{1,3}\.){3}\d{1,3}$/.test(h);
       if (isLocal) return 'http://localhost:3000';
       if (isIp) return `http://${h}:3000`;
+      if (h.endsWith('github.io') || h.endsWith('netlify.app') || h.endsWith('vercel.app')) {
+        return 'http://localhost:3000';
+      }
       return (window.location.protocol === 'file:' || !window.location.origin || window.location.origin === 'null') ? 'http://localhost:3000' : window.location.origin;
     }
     const _API_HOST = getApiHost();
