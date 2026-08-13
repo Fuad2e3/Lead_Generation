@@ -1091,3 +1091,49 @@ input[type="text"]:focus {
 .color-pdf { color: var(--color-pdf); }
 .color-json { color: var(--color-json); }
 .color-txt { color: var(--color-txt); }
+
+/* ==========================================================================
+   RESPONSIVE DESIGN & MOBILE OPTIMIZATIONS (320px - 768px)
+   ========================================================================== */
+@media (max-width: 768px) {
+  .app-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+    padding: 12px 16px;
+  }
+
+  .grid-2-cols, .grid-3-cols {
+    grid-template-columns: 1fr !important;
+  }
+
+  .stats-counters-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+
+  .data-table-container {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .modal-card {
+    width: 95% !important;
+    max-width: 100% !important;
+    margin: 10px;
+    padding: 16px !important;
+  }
+
+  .export-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .stats-counters-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .export-grid {
+    grid-template-columns: 1fr;
+  }
+}
