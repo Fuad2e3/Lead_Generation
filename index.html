@@ -14,6 +14,7 @@
       window.location.href = 'login.html';
     }
   </script>
+  <script src="config.js"></script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="color-scheme" content="light dark">
@@ -415,11 +416,22 @@
   <script src="app.js"></script>
   <script>
     // ── Server URL Config ────────────────────────────────────────────────────
-    const _FALLBACK_SERVER = 'http://192.168.0.108:3000'; // Server machine LAN IP
-    const _h = window.location.hostname;
-    const _isLocal = _h === 'localhost' || _h === '127.0.0.1';
-    const _isIp = /^(\d{1,3}\.){3}\d{1,3}$/.test(_h);
-    const _API_HOST = _isLocal ? 'http://localhost:3000' : (_isIp ? `http://${_h}:3000` : _FALLBACK_SERVER);
+    function getApiHost() {
+      const custom = (localStorage.getItem('lgs_api_url') || '').trim().replace(/\/+$/, '').replace(/\/api$/, '');
+      if (custom) return custom;
+      const globalCfg = (window.LGS_CONFIG && window.LGS_CONFIG.API_URL) ? window.LGS_CONFIG.API_URL.trim().replace(/\/+$/, '').replace(/\/api$/, '') : '';
+      if (globalCfg) return globalCfg;
+      const h = window.location.hostname;
+      const isLocal = h === 'localhost' || h === '127.0.0.1';
+      const isIp = /^(\d{1,3}\.){3}\d{1,3}$/.test(h);
+      if (isLocal) return 'http://localhost:3000';
+      if (isIp) return `http://${h}:3000`;
+      if (h.endsWith('github.io') || h.endsWith('netlify.app') || h.endsWith('vercel.app')) {
+        return 'http://localhost:3000';
+      }
+      return (window.location.protocol === 'file:' || !window.location.origin || window.location.origin === 'null') ? 'http://localhost:3000' : window.location.origin;
+    }
+    const _API_HOST = getApiHost();
     const API_BASE_AUTH = `${_API_HOST}/api/auth`;
     // ─────────────────────────────────────────────────────────────────────────
     let currentUserSession = null;

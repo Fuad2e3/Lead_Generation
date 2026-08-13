@@ -10,6 +10,7 @@
       localStorage.removeItem('lgs_theme'); // clear any old manual override
     })();
   </script>
+  <script src="config.js"></script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="color-scheme" content="light dark">
@@ -558,6 +559,12 @@
           </button>
         </form>
       </div>
+
+      <div style="margin-top: 15px; text-align: center;">
+        <button id="btn-api-config" style="background: rgba(255,255,255,0.05); border: 1px solid var(--border-input); padding: 5px 12px; border-radius: 20px; color: var(--text-muted); font-size: 11px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s;">
+          <i class="fa-solid fa-server" style="color: var(--color-primary);"></i> <span id="api-status-label">Backend API Server Settings</span>
+        </button>
+      </div>
     </div>
   </div>
 
@@ -580,12 +587,50 @@
     };
 
     // ── Server URL Config ────────────────────────────────────────────────────
-    const _h = window.location.hostname;
-    const _isLocal = _h === 'localhost' || _h === '127.0.0.1';
-    const _isIp = /^(\d{1,3}\.){3}\d{1,3}$/.test(_h);
-    const API_HOST = _isLocal ? 'http://localhost:3000' : (_isIp ? `http://${_h}:3000` : window.location.origin);
+    function getApiHost() {
+      const custom = (localStorage.getItem('lgs_api_url') || '').trim().replace(/\/+$/, '').replace(/\/api$/, '');
+      if (custom) return custom;
+      const globalCfg = (window.LGS_CONFIG && window.LGS_CONFIG.API_URL) ? window.LGS_CONFIG.API_URL.trim().replace(/\/+$/, '').replace(/\/api$/, '') : '';
+      if (globalCfg) return globalCfg;
+      const h = window.location.hostname;
+      const isLocal = h === 'localhost' || h === '127.0.0.1';
+      const isIp = /^(\d{1,3}\.){3}\d{1,3}$/.test(h);
+      if (isLocal) return 'http://localhost:3000';
+      if (isIp) return `http://${h}:3000`;
+      if (h.endsWith('github.io') || h.endsWith('netlify.app') || h.endsWith('vercel.app')) {
+        return 'http://localhost:3000';
+      }
+      return (window.location.protocol === 'file:' || !window.location.origin || window.location.origin === 'null') ? 'http://localhost:3000' : window.location.origin;
+    }
+    const API_HOST = getApiHost();
     const API_BASE = `${API_HOST}/api/auth`;
     // ─────────────────────────────────────────────────────────────────────────
+
+    // API Server Config Modal Trigger
+    document.addEventListener('DOMContentLoaded', () => {
+      const btnApi = document.getElementById('btn-api-config');
+      const labelApi = document.getElementById('api-status-label');
+      if (labelApi) {
+        labelApi.textContent = `Server: ${API_HOST}`;
+      }
+      if (btnApi) {
+        btnApi.onclick = () => {
+          const current = localStorage.getItem('lgs_api_url') || (window.LGS_CONFIG && window.LGS_CONFIG.API_URL) || API_HOST;
+          const updated = prompt('Enter your Backend API / Tunnel URL:\n(e.g., https://swift-lion-45.loca.lt or https://xxx.trycloudflare.com)', current);
+          if (updated !== null) {
+            const cleanUrl = updated.trim().replace(/\/+$/, '').replace(/\/api$/, '');
+            if (cleanUrl) {
+              localStorage.setItem('lgs_api_url', cleanUrl);
+              alert(`API Server URL saved successfully:\n${cleanUrl}\n\nThe page will now refresh.`);
+            } else {
+              localStorage.removeItem('lgs_api_url');
+              alert('Reset to default API URL. The page will now refresh.');
+            }
+            window.location.reload();
+          }
+        };
+      }
+    });
 
     // ── Helpers: User Storage
     function getUsers() {
@@ -640,7 +685,7 @@
 
       try {
         const controller = new AbortController();
-        const timer = setTimeout(() => controller.abort(), 3000); // 3s timeout for fast mobile fallback
+        const timer = setTimeout(() => controller.abort(), 10000); // 10s timeout for mobile connections
 
         const res = await fetch(`${API_BASE}/login`, {
           method: 'POST',
@@ -665,7 +710,14 @@
           }
         }
       } catch (err) {
-        console.warn('[Login Mobile Fallback] API fetch failed or timed out:', err);
+        console.warn('[Login Server Error] API fetch failed:', err);
+      }
+
+      // Check if API_HOST is unconfigured on GitHub Pages
+      if (window.location.hostname.endsWith('github.io') && API_HOST.includes('localhost')) {
+        btn.classList.remove('is-loading');
+        showError('Backend Server link not set! Click "Server:" below to enter your Cloudflare Tunnel URL.');
+        return;
       }
 
       // LocalStorage Fallback for Mobile / Static Deployments / Offline API
@@ -727,7 +779,7 @@
       const handleSuccess = () => {
         btn.classList.remove('is-loading');
         document.getElementById('email').value = email;
-        successEl.innerHTML = '<i class="fa-solid fa-circle-check"></i> Registration successful! Switching to Sign In...';
+        successEl.innerHTML = '<i class="fa-solid fa-circle-check"></i> Registration successful! Saved to MySQL DB. Switching to Sign In...';
         document.getElementById('signup-form').reset();
 
         setTimeout(() => {
@@ -739,7 +791,7 @@
 
       try {
         const controller = new AbortController();
-        const timer = setTimeout(() => controller.abort(), 3000); // 3s timeout for fast mobile fallback
+        const timer = setTimeout(() => controller.abort(), 10000); // 10s timeout for mobile connections
 
         const res = await fetch(`${API_BASE}/register`, {
           method: 'POST',
@@ -768,7 +820,14 @@
           }
         }
       } catch (err) {
-        console.warn('[Signup Mobile Fallback] API fetch failed or timed out:', err);
+        console.warn('[Signup Server Error] API fetch failed:', err);
+      }
+
+      // Check if API_HOST is unconfigured on GitHub Pages
+      if (window.location.hostname.endsWith('github.io') && API_HOST.includes('localhost')) {
+        btn.classList.remove('is-loading');
+        errEl.textContent = 'Backend Server link not set! Click "Server:" below to enter your Cloudflare Tunnel URL.';
+        return;
       }
 
       // LocalStorage Fallback for Mobile / Static Deployments / Offline API
