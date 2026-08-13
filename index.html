@@ -397,6 +397,8 @@
   </div>
 
 
+  <script src="app.js"></script>
+  <script>
     // ── Server URL Config ────────────────────────────────────────────────────
     function getApiHost() {
       const custom = (localStorage.getItem('lgs_api_url') || '').trim().replace(/\/+$/, '').replace(/\/api$/, '');
@@ -414,12 +416,8 @@
       return (window.location.protocol === 'file:' || !window.location.origin || window.location.origin === 'null') ? 'http://localhost:3000' : window.location.origin;
     }
     const _API_HOST = getApiHost();
-    window.API_HOST = _API_HOST; // Global for app.js compatibility
     const API_BASE_AUTH = `${_API_HOST}/api/auth`;
     // ─────────────────────────────────────────────────────────────────────────
-  </script>
-  <script src="app.js"></script>
-  <script>
     let currentUserSession = null;
     let currentUserCredits = { dailyCredits: 50, usedCreditsToday: 0, remainingCredits: 50 };
 
@@ -450,21 +448,16 @@
         const userBadge = document.getElementById('header-user-badge');
         if (userBadge && data.user) {
           const pkg = (data.user.package || 'free').toUpperCase();
-          const name = data.user.name || data.user.fullname || currentUserSession.fullname || 'User';
-          userBadge.textContent = '\u{1F464} ' + name + ' [' + pkg + ']';
+          userBadge.textContent = '\u{1F464} ' + (data.user.name || currentUserSession.fullname || 'User') + ' [' + pkg + ']';
           userBadge.style.background = pkg === 'ENTERPRISE' ? 'rgba(255,179,71,0.2)' : pkg === 'PRO' ? 'rgba(108,99,255,0.2)' : 'rgba(100,116,139,0.2)';
         }
 
         // Render Credit Badge & Live Progress Bar
         if (data.user) {
-          const daily = data.user.dailyCredits || data.user.daily_credits || 50;
-          const used = data.user.usedCreditsToday || data.user.used_credits_today || 0;
-          const remaining = data.user.remainingCredits !== undefined ? data.user.remainingCredits : (daily - used);
-
           currentUserCredits = {
-            dailyCredits: daily,
-            usedCreditsToday: used,
-            remainingCredits: remaining
+            dailyCredits: data.user.dailyCredits || 50,
+            usedCreditsToday: data.user.usedCreditsToday || 0,
+            remainingCredits: data.user.remainingCredits !== undefined ? data.user.remainingCredits : 50
           };
           updateCreditUI(currentUserCredits.remainingCredits, currentUserCredits.dailyCredits);
         }
@@ -633,21 +626,8 @@
       // Clone node to avoid mutating live DOM
       const clone = td.cloneNode(true);
 
-      // Strip non-data UI components (buttons, icons, copy triggers, scripts, styles)
+      // Strip non-data UI components (buttons, icons, copy triggers)
       clone.querySelectorAll('button, .btn, .btn-icon, .copy-btn, i.fa-copy, i.fa-clone, script, style').forEach(el => el.remove());
-
-      // Helper to retrieve the most complete text from an element (checking title and data- attributes first)
-      function getBestElementText(el) {
-        if (!el) return '';
-        const titleAttr = (el.getAttribute('title') || el.getAttribute('data-fulltext') || el.getAttribute('data-title') || el.getAttribute('data-original') || el.getAttribute('data-value') || '').trim();
-        const textContent = (el.innerText || el.textContent || '').trim();
-        
-        // If title attribute exists, is longer, and doesn't end with ellipsis, prefer title attribute
-        if (titleAttr && (titleAttr.length >= textContent.length || textContent.endsWith('...') || textContent.endsWith('…'))) {
-          return titleAttr;
-        }
-        return textContent;
-      }
 
       // Extract all valid URLs from <a> links
       const links = Array.from(clone.querySelectorAll('a'));
@@ -662,82 +642,48 @@
         }
       });
 
-      // Check cell-level title or data attributes
-      const cellTitle = (td.getAttribute('title') || td.getAttribute('data-fulltext') || td.getAttribute('data-title') || td.getAttribute('data-original') || td.getAttribute('data-url') || '').trim();
-
-      // Get full text content of the cell
-      let fullText = getBestElementText(clone);
+      // Get full text content of the cell (preserving extracted page text / details)
+      let fullText = clone.innerText || clone.textContent || '';
       fullText = fullText.replace(/[\r\n]+/g, ' ').replace(/\s+/g, ' ').trim();
 
-      // If cell contains URL(s)
+      // If cell contains both URL(s) and descriptive page text details
       if (linkUrls.length > 0) {
         const joinedUrls = linkUrls.join(', ');
-        const cleanFullText = fullText.replace(/\s*\.{2,}\s*$/g, '').replace(/\s*…\s*$/g, '').trim();
-
-        // Check if fullText is empty, matches joinedUrls, or is just a truncated version of the URL
-        const isUrlTruncated = linkUrls.some(u => {
-          if (!cleanFullText) return true;
-          if (u === cleanFullText) return true;
-          const uNoProto = u.replace(/^https?:\/\//i, '');
-          const textNoProto = cleanFullText.replace(/^https?:\/\//i, '');
-          return u.startsWith(textNoProto) || uNoProto.startsWith(textNoProto);
-        });
-
-        if (isUrlTruncated || !cleanFullText || cleanFullText === joinedUrls) {
+        // If fullText is empty, or just equals the URL, return clean URL
+        if (!fullText || fullText === joinedUrls || linkUrls.some(u => fullText === u)) {
           return joinedUrls;
         }
 
-        // If fullText has extra descriptive text content
+        // If fullText has extra page text content, combine URL and extracted clean text
         if (linkUrls.some(u => fullText.includes(u))) {
-          return fullText.replace(/\s*\.{2,}\s*$/g, '').replace(/\s*…\s*$/g, '');
+          return fullText;
         } else {
-          const descText = cleanFullText.replace(/^https?:\/\/[^\s]+/i, '').trim();
-          if (descText && descText !== '—' && descText !== '-') {
-            return `${joinedUrls} — ${descText.replace(/^[\s—\-]+|[\s—\-]+$/g, '')}`;
-          }
-          return joinedUrls;
+          return `${joinedUrls} — ${fullText}`;
         }
       }
 
       // Collect item badges/tags/spans if cell contains multiple pills
       const pills = Array.from(clone.querySelectorAll('.badge, .pill, .tag, .stat-pill, span:not(:empty)'));
       if (pills.length > 1) {
-        const textItems = pills.map(p => {
-          const txt = getBestElementText(p);
-          return txt.replace(/\s*\.{2,}\s*$/g, '').replace(/\s*…\s*$/g, '').trim();
-        }).filter(t => t.length > 0);
-        
+        const textItems = pills.map(p => p.innerText.trim()).filter(t => t.length > 0);
         if (textItems.length > 0) {
           return Array.from(new Set(textItems)).join(', ');
         }
       }
 
-      // If cellTitle is provided and longer than fullText (or fullText has ellipsis), prefer cellTitle
-      if (cellTitle && (cellTitle.length > fullText.length || fullText.includes('...')) && !cellTitle.endsWith('...')) {
-        return cellTitle;
-      }
-
-      // Fallback clean text: strip trailing ellipsis
-      fullText = fullText.replace(/\s*\.{2,}\s*$/g, '').replace(/\s*…\s*$/g, '');
+      // Fallback: clean text
       fullText = fullText.replace(/^[\s,]+|[\s,]+$/g, '');
-
       return fullText;
     }
 
     function getMinedTableData() {
       // 1. Primary: If JS engine stores raw mined objects globally, use them directly
-      const globalStores = [window.minedResults, window.minedData, window.leadResults, window.extractedData, window.results];
-      for (const store of globalStores) {
-        if (Array.isArray(store) && store.length > 0) {
-          const raw = store;
-          const sample = raw[0] || {};
-          const headers = Object.keys(sample);
-          const rows = raw.map(obj => headers.map(h => {
-            const val = String(obj[h] || '');
-            return val.replace(/\s*\.{2,}\s*$/g, '').replace(/\s*…\s*$/g, '');
-          }));
-          return { headers, rows, objects: raw };
-        }
+      if (Array.isArray(window.minedResults) && window.minedResults.length > 0) {
+        const raw = window.minedResults;
+        const sample = raw[0] || {};
+        const headers = Object.keys(sample);
+        const rows = raw.map(obj => headers.map(h => String(obj[h] || '')));
+        return { headers, rows, objects: raw };
       }
 
       // 2. DOM Parsing with clean cell text extractor
@@ -818,7 +764,7 @@
             const valLen = String(o[h] || '').length;
             if (valLen > maxLen) maxLen = valLen;
           });
-          return { wch: Math.min(Math.max(maxLen + 3, 14), 100) };
+          return { wch: Math.min(Math.max(maxLen + 3, 14), 60) };
         });
         ws['!cols'] = colWidths;
 
@@ -881,9 +827,6 @@
       initLanguageSystem();
       initExportSystem();
       syncUserStatusAndCredits();
-
-      // Auto-sync credits every 15 seconds to keep UI up to date with server/admin changes
-      setInterval(syncUserStatusAndCredits, 15000);
     });
 
     const btnLogout = document.getElementById('btn-logout');

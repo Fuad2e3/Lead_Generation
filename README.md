@@ -1,6 +1,6 @@
 <div align="center">
 
-# 🕸️ Lead Generation - Web Edition
+# 🕸️ Website Data Miner - Web Edition
 ### **"Automation Made Simple - Extract Emails, Phones & Data at Scale"**
 
 [![GitHub Pages Deployment](https://img.shields.io/badge/GitHub%20Pages-Live%20Web%20App-brightgreen?style=for-the-badge&logo=github)](https://Fuad2e3.github.io/Lead_Generation/)
