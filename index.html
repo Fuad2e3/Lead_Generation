@@ -330,12 +330,39 @@
   <div id="modal-export" class="modal-backdrop hidden">
     <div class="modal-box">
       <div class="modal-header">
-        <h3><i class="fa-solid fa-file-export color-primary"></i> Choose Export Format</h3>
+        <h3><i class="fa-solid fa-file-export color-primary"></i> Choose Export & Quick Copy</h3>
         <button class="btn-close" id="btn-close-export"><i class="fa-solid fa-xmark"></i></button>
       </div>
       <div class="modal-body">
-        <p>Export all extracted website details into your preferred file format:</p>
-        <div class="export-grid margin-top-md">
+        
+        <!-- Quick Copy Tools -->
+        <div style="background: rgba(108, 99, 255, 0.08); border: 1px solid rgba(108, 99, 255, 0.25); border-radius: 10px; padding: 12px 14px; margin-bottom: 16px;">
+          <h4 style="font-size: 12px; font-weight: 700; color: var(--text-heading); margin-bottom: 8px; display: flex; align-items: center; gap: 6px;">
+            <i class="fa-solid fa-copy color-accent"></i> One-Click Quick Clipboard Copy
+          </h4>
+          <div style="display: flex; gap: 10px;">
+            <button id="btn-copy-emails" class="btn btn-secondary btn-xs" style="flex: 1; padding: 8px 12px; display: flex; align-items: center; justify-content: center; gap: 6px; font-weight: 600;">
+              <i class="fa-solid fa-envelope color-primary"></i> Copy All Emails
+            </button>
+            <button id="btn-copy-phones" class="btn btn-secondary btn-xs" style="flex: 1; padding: 8px 12px; display: flex; align-items: center; justify-content: center; gap: 6px; font-weight: 600;">
+              <i class="fa-solid fa-phone color-accent"></i> Copy All Phones
+            </button>
+          </div>
+        </div>
+
+        <!-- Scope Option -->
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; background: var(--bg-input); padding: 8px 12px; border-radius: 8px; border: 1px solid var(--border-input);">
+          <label for="export-scope-select" style="font-size: 12px; font-weight: 600; color: var(--text-heading); display: flex; align-items: center; gap: 6px;">
+            <i class="fa-solid fa-filter color-warning"></i> Export Scope:
+          </label>
+          <select id="export-scope-select" class="input-sm" style="font-size: 12px; padding: 4px 8px; border-radius: 6px; background: var(--bg-card); color: var(--text-main); border: 1px solid var(--border-card);">
+            <option value="all" selected>All Extracted Rows</option>
+            <option value="search">Active Search Filter Results Only</option>
+          </select>
+        </div>
+
+        <p style="font-size: 12px; color: var(--text-muted);">Export extracted website details into your preferred file format:</p>
+        <div class="export-grid margin-top-sm">
           <button class="export-card" id="export-excel">
             <i class="fa-solid fa-file-excel color-excel"></i>
             <strong>Excel (.xlsx)</strong>
@@ -799,46 +826,11 @@
       }
     }
 
-    // Intercept Launch Mining Session (#btn-restart) to check & deduct credits
     document.addEventListener('DOMContentLoaded', function() {
       initThemeSystem();
       initLanguageSystem();
       initExportSystem();
       syncUserStatusAndCredits();
-
-      const btnRestart = document.getElementById('btn-restart');
-      if (btnRestart) {
-        btnRestart.addEventListener('click', async function(e) {
-          if (!currentUserSession) return;
-          const urlText = (document.getElementById('url-textarea')?.value || '').trim();
-          const lines = urlText ? urlText.split('\n').filter(l => l.trim().length > 0) : [];
-          const count = lines.length || 1;
-
-          if (currentUserCredits.remainingCredits < count) {
-            e.stopImmediatePropagation();
-            e.preventDefault();
-            showToast(`⚠️ Daily credit limit reached! You have ${currentUserCredits.remainingCredits} credit(s) remaining today, but tried to mine ${count} URL(s). Click 'Upgrade Plan' to get more credits!`, 'warning');
-            return false;
-          }
-
-          // Deduct credits via API
-          try {
-            const res = await fetch(`${API_BASE_AUTH}/deduct-credits`, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ email: currentUserSession.email, id: currentUserSession.id, count: count })
-            });
-            const data = await res.json();
-            if (data.success) {
-              currentUserCredits.remainingCredits = data.remainingCredits;
-              currentUserCredits.usedCreditsToday = data.usedCreditsToday;
-              updateCreditUI(data.remainingCredits, currentUserCredits.dailyCredits);
-            }
-          } catch(err) {
-            console.error('Credit deduction network error:', err);
-          }
-        }, true);
-      }
     });
 
     const btnLogout = document.getElementById('btn-logout');

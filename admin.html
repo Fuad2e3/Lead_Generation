@@ -745,6 +745,8 @@
     // ─────────────────────────────────────────────────────────────────────────
     let allUsers = [];
 
+    const ADMIN_HEADERS = { 'Content-Type': 'application/json', 'x-admin-secret': 'admin_secret_123' };
+
     // ── Toast
     function toast(msg, type = 'info') {
       const container = document.getElementById('toast-container');
@@ -848,7 +850,7 @@
       const startTime = Date.now();
 
       try {
-        const res = await fetch(`${API_BASE}/users`);
+        const res = await fetch(`${API_BASE}/users`, { headers: ADMIN_HEADERS });
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const data = await res.json();
 
@@ -891,13 +893,13 @@
       try {
         let res = await fetch(`${API_BASE}/users/${id}/status`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: ADMIN_HEADERS,
           body: JSON.stringify({ status })
         });
         if (!res.ok) {
           res = await fetch(`${API_BASE}/users/${id}/status`, {
             method: 'PATCH',
-            headers: { 'Content-Type': 'application/json' },
+            headers: ADMIN_HEADERS,
             body: JSON.stringify({ status })
           });
         }
@@ -916,9 +918,9 @@
     // ── Reset violations
     async function resetViolations(id) {
       try {
-        let res = await fetch(`${API_BASE}/users/${id}/reset`, { method: 'POST' });
+        let res = await fetch(`${API_BASE}/users/${id}/reset`, { method: 'POST', headers: ADMIN_HEADERS });
         if (!res.ok) {
-          res = await fetch(`${API_BASE}/users/${id}/reset`, { method: 'PATCH' });
+          res = await fetch(`${API_BASE}/users/${id}/reset`, { method: 'PATCH', headers: ADMIN_HEADERS });
         }
         const data = await res.json();
         if (data.success) {
@@ -936,9 +938,9 @@
     async function deleteUser(id, name) {
       if (!confirm(`Delete user "${name}" (#${id})? This cannot be undone.`)) return;
       try {
-        let res = await fetch(`${API_BASE}/users/${id}/delete`, { method: 'POST' });
+        let res = await fetch(`${API_BASE}/users/${id}/delete`, { method: 'POST', headers: ADMIN_HEADERS });
         if (!res.ok) {
-          res = await fetch(`${API_BASE}/users/${id}`, { method: 'DELETE' });
+          res = await fetch(`${API_BASE}/users/${id}`, { method: 'DELETE', headers: ADMIN_HEADERS });
         }
         const data = await res.json();
         if (data.success) {
@@ -972,13 +974,13 @@
       try {
         let res = await fetch(`${API_BASE}/users/${id}/package`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: ADMIN_HEADERS,
           body: JSON.stringify({ package: pkgLower, customCredits })
         });
         if (!res.ok) {
           res = await fetch(`${API_BASE}/users/${id}/package`, {
             method: 'PATCH',
-            headers: { 'Content-Type': 'application/json' },
+            headers: ADMIN_HEADERS,
             body: JSON.stringify({ package: pkgLower, customCredits })
           });
         }
@@ -1010,7 +1012,7 @@
       try {
         const res = await fetch(`${API_BASE}/announcement`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: ADMIN_HEADERS,
           body: JSON.stringify({ message: msg })
         });
         const data = await res.json();
@@ -1032,7 +1034,7 @@
       const icon = document.getElementById('logs-refresh-icon');
       if (icon) icon.classList.add('fa-spin');
       try {
-        const res = await fetch(`${API_BASE}/activity-logs`);
+        const res = await fetch(`${API_BASE}/activity-logs`, { headers: ADMIN_HEADERS });
         const data = await res.json();
         const tbody = document.getElementById('logs-table-body');
         if (!data.success || !data.logs || data.logs.length === 0) {
@@ -1060,7 +1062,7 @@
       const icon = document.getElementById('upgrades-refresh-icon');
       if (icon) icon.classList.add('fa-spin');
       try {
-        const res = await fetch(`${API_BASE}/upgrade-requests`);
+        const res = await fetch(`${API_BASE}/upgrade-requests`, { headers: ADMIN_HEADERS });
         const data = await res.json();
         const tbody = document.getElementById('upgrades-table-body');
         if (!data.success || !data.requests || data.requests.length === 0) {
@@ -1109,7 +1111,7 @@
       try {
         const res = await fetch(`${API_BASE}/upgrade-requests/${id}/action`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: ADMIN_HEADERS,
           body: JSON.stringify({ action })
         });
         const data = await res.json();

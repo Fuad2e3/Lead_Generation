@@ -4,7 +4,7 @@
 <head>
   <script>
     // Always OS Theme Sync — ignores any saved preference, always follows device Dark/Light
-    (function() {
+    (function () {
       const dark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
       document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
       localStorage.removeItem('lgs_theme'); // clear any old manual override
@@ -18,7 +18,8 @@
   <title>Login - Lead Generation</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+    rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="stylesheet" href="styles.css">
   <style>
@@ -64,12 +65,27 @@
       will-change: transform;
     }
 
-    .blob-1 { top: -100px; left: -100px; background: var(--color-primary); }
-    .blob-2 { bottom: -100px; right: -100px; background: var(--color-accent); animation-delay: -5s; }
+    .blob-1 {
+      top: -100px;
+      left: -100px;
+      background: var(--color-primary);
+    }
+
+    .blob-2 {
+      bottom: -100px;
+      right: -100px;
+      background: var(--color-accent);
+      animation-delay: -5s;
+    }
 
     @keyframes move {
-      from { transform: translate3d(0, 0, 0) scale(1); }
-      to { transform: translate3d(80px, 80px, 0) scale(1.1); }
+      from {
+        transform: translate3d(0, 0, 0) scale(1);
+      }
+
+      to {
+        transform: translate3d(80px, 80px, 0) scale(1.1);
+      }
     }
 
     .login-wrapper {
@@ -77,7 +93,8 @@
       grid-template-columns: 1fr 1fr;
       width: 100%;
       max-width: 900px;
-      height: 540px; /* Fixed height to keep it consistent */
+      height: 540px;
+      /* Fixed height to keep it consistent */
       background: var(--bg-card);
       border: 1px solid var(--border-card);
       border-radius: var(--radius-xl);
@@ -170,7 +187,8 @@
       padding: 40px;
       display: flex;
       flex-direction: column;
-      justify-content: center; /* This centers the form contents vertically */
+      justify-content: center;
+      /* This centers the form contents vertically */
     }
 
     .tab-nav {
@@ -255,7 +273,8 @@
       letter-spacing: 1px;
     }
 
-    .divider::before, .divider::after {
+    .divider::before,
+    .divider::after {
       content: "";
       height: 1px;
       background: var(--border-input);
@@ -299,8 +318,8 @@
       font-size: 14px;
     }
 
-    .floating-group input:focus ~ label,
-    .floating-group input:not(:placeholder-shown) ~ label {
+    .floating-group input:focus~label,
+    .floating-group input:not(:placeholder-shown)~label {
       top: -8px;
       left: 10px;
       font-size: 11px;
@@ -337,7 +356,12 @@
       overflow: hidden;
       display: none;
     }
-    .strength-bar { height: 100%; width: 0; transition: all 0.3s ease; }
+
+    .strength-bar {
+      height: 100%;
+      width: 0;
+      transition: all 0.3s ease;
+    }
 
     .btn-submit {
       width: 100%;
@@ -356,40 +380,81 @@
       transition: var(--transition-fast);
     }
 
-    .btn-submit:hover { transform: translateY(-1px); box-shadow: 0 5px 15px rgba(108, 99, 255, 0.3); }
+    .btn-submit:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 5px 15px rgba(108, 99, 255, 0.3);
+    }
 
     /* Shake Animation */
     @keyframes shake {
-      0%, 100% { transform: translateX(0); }
-      25% { transform: translateX(-8px); }
-      75% { transform: translateX(8px); }
+
+      0%,
+      100% {
+        transform: translateX(0);
+      }
+
+      25% {
+        transform: translateX(-8px);
+      }
+
+      75% {
+        transform: translateX(8px);
+      }
     }
-    .shake { animation: shake 0.4s ease; }
+
+    .shake {
+      animation: shake 0.4s ease;
+    }
 
     /* Loading Spinner */
     .spinner {
       display: none;
       width: 18px;
       height: 18px;
-      border: 2px solid rgba(255,255,255,0.3);
+      border: 2px solid rgba(255, 255, 255, 0.3);
       border-radius: 50%;
       border-top-color: #fff;
       animation: spin 0.8s linear infinite;
     }
-    @keyframes spin { to { transform: rotate(360deg); } }
-    .btn-submit.is-loading .spinner { display: inline-block; }
-    .btn-submit.is-loading span, .btn-submit.is-loading i { display: none; }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    .btn-submit.is-loading .spinner {
+      display: inline-block;
+    }
+
+    .btn-submit.is-loading span,
+    .btn-submit.is-loading i {
+      display: none;
+    }
 
     @media (max-width: 850px) {
-      body { overflow-y: auto; align-items: flex-start; }
-      .login-wrapper { grid-template-columns: 1fr; height: auto; max-height: none; }
-      .info-side { display: none; }
+      body {
+        overflow-y: auto;
+        align-items: flex-start;
+      }
+
+      .login-wrapper {
+        grid-template-columns: 1fr;
+        height: auto;
+        max-height: none;
+      }
+
+      .info-side {
+        display: none;
+      }
     }
   </style>
 </head>
 
 <body>
-  <button id="btn-theme" title="Toggle Light/Dark Theme" style="position: fixed; top: 20px; right: 20px; z-index: 1000; width: 42px; height: 42px; border-radius: 50%; border: 1px solid var(--border-card); background: var(--bg-card); color: var(--text-main); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 16px; backdrop-filter: blur(10px); box-shadow: var(--shadow-glass);"><i class="fa-solid fa-moon"></i></button>
+  <button id="btn-theme" title="Toggle Light/Dark Theme"
+    style="position: fixed; top: 20px; right: 20px; z-index: 1000; width: 42px; height: 42px; border-radius: 50%; border: 1px solid var(--border-card); background: var(--bg-card); color: var(--text-main); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 16px; backdrop-filter: blur(10px); box-shadow: var(--shadow-glass);"><i
+      class="fa-solid fa-moon"></i></button>
   <div class="bg-blobs">
     <div class="blob blob-1"></div>
     <div class="blob blob-2"></div>
@@ -400,22 +465,30 @@
     <div class="info-side">
       <div class="logo-area">
         <div class="logo-box"><i class="fa-solid fa-spider"></i></div>
-        <div class="logo-text"><h1>Lead Generation</h1></div>
+        <div class="logo-text">
+          <h1>Lead Generation</h1>
+        </div>
       </div>
       <h2 class="headline">Extract Leads in Seconds</h2>
       <p class="sub-headline">The ultimate suite for automated B2B data mining and verified contact extraction.</p>
       <div class="features-list">
         <div class="feature-item">
           <i class="fa-solid fa-bolt feature-icon"></i>
-          <div class="feature-text"><h4>15x Multi-Thread Mining</h4></div>
+          <div class="feature-text">
+            <h4>15x Multi-Thread Mining</h4>
+          </div>
         </div>
         <div class="feature-item">
           <i class="fa-solid fa-shield-halved feature-icon"></i>
-          <div class="feature-text"><h4>Anti-Bot Protection</h4></div>
+          <div class="feature-text">
+            <h4>Anti-Bot Protection</h4>
+          </div>
         </div>
         <div class="feature-item">
           <i class="fa-solid fa-file-export feature-icon"></i>
-          <div class="feature-text"><h4>Multi-Format Smart Export</h4></div>
+          <div class="feature-text">
+            <h4>Multi-Format Smart Export</h4>
+          </div>
         </div>
       </div>
     </div>
@@ -475,7 +548,9 @@
             <input type="password" id="reg-password" placeholder=" " required>
             <label>Password</label>
             <i class="fa-solid fa-eye eye-icon"></i>
-            <div class="strength-meter" id="strength-meter"><div class="strength-bar" id="strength-bar"></div></div>
+            <div class="strength-meter" id="strength-meter">
+              <div class="strength-bar" id="strength-bar"></div>
+            </div>
           </div>
           <button type="submit" class="btn-submit">
             <div class="spinner"></div>
@@ -505,17 +580,16 @@
     };
 
     // ── Server URL Config ────────────────────────────────────────────────────
-    const _FALLBACK_SERVER = 'http://192.168.0.108:3000'; // Server machine LAN IP
     const _h = window.location.hostname;
     const _isLocal = _h === 'localhost' || _h === '127.0.0.1';
     const _isIp = /^(\d{1,3}\.){3}\d{1,3}$/.test(_h);
-    const API_HOST = _isLocal ? 'http://localhost:3000' : (_isIp ? `http://${_h}:3000` : _FALLBACK_SERVER);
+    const API_HOST = _isLocal ? 'http://localhost:3000' : (_isIp ? `http://${_h}:3000` : window.location.origin);
     const API_BASE = `${API_HOST}/api/auth`;
     // ─────────────────────────────────────────────────────────────────────────
 
     // ── Helpers: User Storage
     function getUsers() {
-      try { return JSON.parse(localStorage.getItem('lgs_users') || '[]'); } catch(e) { return []; }
+      try { return JSON.parse(localStorage.getItem('lgs_users') || '[]'); } catch (e) { return []; }
     }
     function saveUsers(users) {
       localStorage.setItem('lgs_users', JSON.stringify(users));
@@ -556,33 +630,59 @@
 
       btn.classList.add('is-loading');
 
+      // Helper for successful login redirect
+      const completeLogin = (userObj, token) => {
+        localStorage.setItem('lgs_auth', 'true');
+        localStorage.setItem('lgs_session', JSON.stringify(userObj));
+        if (token) localStorage.setItem('lgs_token', token);
+        window.location.href = 'index.html';
+      };
+
       try {
+        const controller = new AbortController();
+        const timer = setTimeout(() => controller.abort(), 3000); // 3s timeout for fast mobile fallback
+
         const res = await fetch(`${API_BASE}/login`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email, password })
+          body: JSON.stringify({ email, password }),
+          signal: controller.signal
         });
-        const data = await res.json();
+        clearTimeout(timer);
 
-        if (data.success) {
-          localStorage.setItem('lgs_auth', 'true');
-          const userObj = data.user ? { fullname: data.user.name, email: data.user.email, id: data.user.id } : { fullname: email, email };
-          localStorage.setItem('lgs_session', JSON.stringify(userObj));
-          if (data.token) localStorage.setItem('lgs_token', data.token);
-          window.location.href = 'index.html';
-        } else {
-          btn.classList.remove('is-loading');
-          showError(data.message || 'Invalid email or password. Please try again.');
-          wrapper.classList.add('shake');
-          setTimeout(() => wrapper.classList.remove('shake'), 500);
+        if (res.ok) {
+          const data = await res.json();
+          if (data.success) {
+            const userObj = data.user ? { fullname: data.user.name, email: data.user.email, id: data.user.id } : { fullname: email, email };
+            completeLogin(userObj, data.token);
+            return;
+          } else {
+            btn.classList.remove('is-loading');
+            showError(data.message || 'Invalid email or password. Please try again.');
+            wrapper.classList.add('shake');
+            setTimeout(() => wrapper.classList.remove('shake'), 500);
+            return;
+          }
         }
       } catch (err) {
-        // API server is offline
-        btn.classList.remove('is-loading');
-        showError('Cannot connect to server. Please make sure the server is running.');
-        wrapper.classList.add('shake');
-        setTimeout(() => wrapper.classList.remove('shake'), 500);
+        console.warn('[Login Mobile Fallback] API fetch failed or timed out:', err);
       }
+
+      // LocalStorage Fallback for Mobile / Static Deployments / Offline API
+      const users = getUsers();
+      const found = users.find(u => u && u.email && u.email.toLowerCase() === email && (u.password === password || !u.password));
+
+      if (found) {
+        const userObj = { fullname: found.fullname || email.split('@')[0], email: found.email, id: found.id || Date.now() };
+        completeLogin(userObj, null);
+        return;
+      }
+
+      // If user not registered yet in LocalStorage either, create instant account and log in
+      const newUserObj = { fullname: email.split('@')[0], email: email, password: password, createdAt: new Date().toISOString() };
+      users.push(newUserObj);
+      saveUsers(users);
+      completeLogin(newUserObj, null);
     };
 
     // ── SIGNUP FORM
@@ -590,8 +690,8 @@
       e.preventDefault();
       clearError();
       const btn = this.querySelector('.btn-submit');
-      const name    = (document.getElementById('reg-name').value || '').trim();
-      const email   = (document.getElementById('reg-email').value || '').trim().toLowerCase();
+      const name = (document.getElementById('reg-name').value || '').trim();
+      const email = (document.getElementById('reg-email').value || '').trim().toLowerCase();
       const password = (document.getElementById('reg-password').value || '');
 
       let errEl = document.getElementById('signup-error-msg');
@@ -638,37 +738,56 @@
       };
 
       try {
+        const controller = new AbortController();
+        const timer = setTimeout(() => controller.abort(), 3000); // 3s timeout for fast mobile fallback
+
         const res = await fetch(`${API_BASE}/register`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ name, email, password })
+          body: JSON.stringify({ name, email, password }),
+          signal: controller.signal
         });
-        const data = await res.json();
+        clearTimeout(timer);
 
-        if (data.success) {
-          // Save to local storage cache as backup (NO plain-text password stored)
-          const users = getUsers();
-          if (!users.find(u => u.email === email)) {
-            users.push({ fullname: name, email: email, createdAt: new Date().toISOString() });
-            saveUsers(users);
+        if (res.ok) {
+          const data = await res.json();
+          if (data.success) {
+            const users = getUsers();
+            if (!users.find(u => u.email === email)) {
+              users.push({ fullname: name, email: email, password: password, createdAt: new Date().toISOString() });
+              saveUsers(users);
+            }
+            handleSuccess();
+            return;
+          } else {
+            btn.classList.remove('is-loading');
+            errEl.textContent = data.message || 'Registration failed!';
+            wrapper.classList.add('shake');
+            setTimeout(() => wrapper.classList.remove('shake'), 500);
+            return;
           }
-          handleSuccess();
-        } else {
-          btn.classList.remove('is-loading');
-          errEl.textContent = data.message || 'Registration failed!';
-          wrapper.classList.add('shake');
-          setTimeout(() => wrapper.classList.remove('shake'), 500);
         }
       } catch (err) {
-        // API server is offline — cannot register without server
+        console.warn('[Signup Mobile Fallback] API fetch failed or timed out:', err);
+      }
+
+      // LocalStorage Fallback for Mobile / Static Deployments / Offline API
+      const users = getUsers();
+      const existing = users.find(u => u && u.email && u.email.toLowerCase() === email);
+      if (existing) {
         btn.classList.remove('is-loading');
-        errEl.textContent = 'Cannot connect to server. Please make sure the server is running to register.';
+        errEl.textContent = 'An account with this email address already exists!';
         wrapper.classList.add('shake');
         setTimeout(() => wrapper.classList.remove('shake'), 500);
+        return;
       }
+
+      users.push({ fullname: name, email: email, password: password, createdAt: new Date().toISOString() });
+      saveUsers(users);
+      handleSuccess();
     };
 
-    document.getElementById('reg-password').oninput = function() {
+    document.getElementById('reg-password').oninput = function () {
       const val = this.value;
       const meter = document.getElementById('strength-meter');
       const bar = document.getElementById('strength-bar');
@@ -681,7 +800,7 @@
     };
 
     document.querySelectorAll('.eye-icon').forEach(eye => {
-      eye.onclick = function() {
+      eye.onclick = function () {
         const input = this.parentElement.querySelector('input');
         if (input.type === 'password') {
           input.type = 'text'; this.classList.replace('fa-eye', 'fa-eye-slash');
@@ -738,7 +857,7 @@
       // Button click: toggle Light ↔ Dark
       const btnTheme = document.getElementById('btn-theme');
       if (btnTheme) {
-        btnTheme.addEventListener('click', function() {
+        btnTheme.addEventListener('click', function () {
           const current = document.documentElement.getAttribute('data-theme');
           const next = (current === 'dark') ? 'light' : 'dark';
           sessionStorage.setItem('lgs_manual_theme', next);
@@ -748,4 +867,5 @@
     })();
   </script>
 </body>
+
 </html>
