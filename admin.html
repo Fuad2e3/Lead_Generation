@@ -2183,8 +2183,8 @@
           if (dashboardContainer) dashboardContainer.style.display = 'none';
           if (authOverlay) authOverlay.style.display = 'flex';
 
-          showAuthError(errMsg || '⚠️ Server is OFF!');
-          toast('⚠️ Server is Offline!', 'error');
+          showAuthError(errMsg || 'Server is OFF!');
+          toast('Server is OFF!', 'error');
         }
 
         window.forceAdminLogoutDueToServerOffline = forceAdminLogoutDueToServerOffline;
@@ -2205,13 +2205,13 @@
 
             if (!res.ok) {
               if (res.status === 401 || res.status === 403 || res.status >= 500) {
-                forceAdminLogoutDueToServerOffline('⚠️ Backend Server error or session expired. Admin logged out.');
+                forceAdminLogoutDueToServerOffline('Server is OFF!');
               }
             }
           } catch (err) {
             clearTimeout(timer);
             console.warn('[Admin Heartbeat] Server unreachable / offline:', err.message);
-            forceAdminLogoutDueToServerOffline('⚠️ Backend Server is Offline! Admin automatically logged out.');
+            forceAdminLogoutDueToServerOffline('Server is OFF!');
           }
         }
 
@@ -2244,7 +2244,7 @@
             })
             .catch(err => {
               console.error('Initial admin auth check failed:', err);
-              forceAdminLogoutDueToServerOffline('⚠️ Cannot connect to backend server. Admin logged out.');
+              forceAdminLogoutDueToServerOffline('Server is OFF!');
             });
         } else {
           if (authOverlay) authOverlay.style.display = 'flex';

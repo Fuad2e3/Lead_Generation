@@ -617,7 +617,7 @@
       // Check if redirected due to server shutdown
       const urlParams = new URLSearchParams(window.location.search);
       if (urlParams.get('reason') === 'server_offline') {
-        showError('⚠️ Server is Offline!');
+        showError('⛔ Server is OFF!');
       }
 
       // Live Server Ping Checker
