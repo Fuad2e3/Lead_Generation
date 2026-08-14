@@ -1124,16 +1124,19 @@
           </div>
         </div>
 
-        <!-- Account Status & Health Chart -->
+        <!-- Today's Active Users & Mining Activity Card -->
         <div class="table-card" style="padding: 20px; margin: 0; display: flex; flex-direction: column;">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
             <h3 style="font-size: 14px; font-weight: 700; display: flex; align-items: center; gap: 8px; margin: 0;">
-              <i class="fa-solid fa-chart-bar" style="color: #22c55e;"></i> Account Health & Status
+              <i class="fa-solid fa-users-rays" style="color: #22c55e;"></i> Today's Active Users & Mining
             </h3>
-            <span id="status-chart-health" style="font-size: 11px; padding: 2px 8px; border-radius: 10px; background: rgba(34, 197, 94, 0.12); color: #22c55e; font-weight: 600;">100% Active</span>
+            <span id="daily-active-badge" style="font-size: 11px; padding: 2px 8px; border-radius: 10px; background: rgba(34, 197, 94, 0.12); color: #22c55e; font-weight: 600;">0 Active Today</span>
           </div>
-          <div style="position: relative; height: 220px; display: flex; justify-content: center; align-items: center;">
-            <canvas id="statusChart"></canvas>
+          <div id="daily-users-container" style="height: 220px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; padding-right: 4px;">
+            <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:100%; color:var(--text-muted); text-align:center; font-size:12px;">
+              <i class="fa-solid fa-spinner fa-spin" style="font-size:20px; margin-bottom:8px;"></i>
+              <p>Loading today's active users...</p>
+            </div>
           </div>
         </div>
       </div>
@@ -1504,52 +1507,65 @@
         });
       }
 
-      // 2. Account Status & Health
-      const activeCount = users.filter(u => (u.status || 'active') === 'active').length;
-      const bannedCount = users.filter(u => u.status === 'banned').length;
-      const inactiveCount = users.filter(u => u.status === 'inactive').length;
-
-      const healthBadge = document.getElementById('status-chart-health');
-      if (healthBadge) {
-        const healthPct = users.length > 0 ? Math.round((activeCount / users.length) * 100) : 100;
-        healthBadge.textContent = `${healthPct}% Active`;
-        healthBadge.style.color = healthPct > 80 ? '#22c55e' : (healthPct > 50 ? '#f59e0b' : '#ef4444');
+      // 2. Today's Active Users & Mining Activity
+      function isDateToday(dateStr) {
+        if (!dateStr) return false;
+        const d = new Date(dateStr);
+        if (isNaN(d.getTime())) return false;
+        const now = new Date();
+        return d.getDate() === now.getDate() &&
+               d.getMonth() === now.getMonth() &&
+               d.getFullYear() === now.getFullYear();
       }
 
-      const statusCanvas = document.getElementById('statusChart');
-      if (statusCanvas) {
-        if (statusChartInstance) statusChartInstance.destroy();
-        statusChartInstance = new Chart(statusCanvas, {
-          type: 'bar',
-          data: {
-            labels: ['Active', 'Banned', 'Inactive'],
-            datasets: [{
-              label: 'Users',
-              data: [activeCount, bannedCount, inactiveCount],
-              backgroundColor: ['#22c55e', '#ef4444', '#f97316'],
-              borderRadius: 6,
-              barThickness: 28
-            }]
-          },
-          options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-              legend: { display: false }
-            },
-            scales: {
-              x: {
-                ticks: { color: textColor, font: { family: 'Inter', size: 11 } },
-                grid: { display: false }
-              },
-              y: {
-                beginAtZero: true,
-                ticks: { color: textColor, stepSize: 1, font: { family: 'Inter', size: 11 } },
-                grid: { color: gridColor }
-              }
-            }
-          }
-        });
+      const todayUsers = users.filter(u => ((u.used_credits_today || 0) > 0) || isDateToday(u.last_login));
+      // Sort: highest credits used today first, then most recent login
+      todayUsers.sort((a, b) => (b.used_credits_today || 0) - (a.used_credits_today || 0));
+
+      const dailyBadge = document.getElementById('daily-active-badge');
+      const dailyContainer = document.getElementById('daily-users-container');
+
+      if (dailyBadge) {
+        const totalCreditsToday = todayUsers.reduce((sum, u) => sum + (u.used_credits_today || 0), 0);
+        dailyBadge.textContent = `${todayUsers.length} Active (${totalCreditsToday} Credits Mined Today)`;
+      }
+
+      if (dailyContainer) {
+        if (todayUsers.length === 0) {
+          dailyContainer.innerHTML = `
+            <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:100%; color:var(--text-muted); text-align:center; font-size:12px; padding:20px 10px;">
+              <i class="fa-solid fa-clock-rotate-left" style="font-size:26px; margin-bottom:8px; opacity:0.4;"></i>
+              <p style="margin:0; font-weight:600;">No user activity recorded yet today.</p>
+              <span style="font-size:11px; opacity:0.7; margin-top:2px;">User logins and active lead mining will show here live.</span>
+            </div>
+          `;
+        } else {
+          dailyContainer.innerHTML = todayUsers.map(u => {
+            const used = u.used_credits_today || 0;
+            const maxCr = u.daily_credits || 50;
+            const lastTime = u.last_login ? new Date(u.last_login).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Today';
+            const initials = (u.name || u.email || 'U').substring(0, 2).toUpperCase();
+            const pkgColor = u.package === 'enterprise' ? '#f59e0b' : (u.package === 'pro' ? '#6366f1' : '#64748b');
+
+            return `
+              <div style="background:var(--bg-input); border:1px solid var(--border); border-radius:8px; padding:8px 12px; display:flex; align-items:center; justify-content:space-between; gap:10px; transition:var(--transition-fast);">
+                <div style="display:flex; align-items:center; gap:10px; min-width:0;">
+                  <div style="width:30px; height:30px; border-radius:50%; background:linear-gradient(135deg, ${pkgColor}, #3b82f6); color:#fff; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:11px; flex-shrink:0;">
+                    ${initials}
+                  </div>
+                  <div style="min-width:0; overflow:hidden;">
+                    <div style="font-size:12px; font-weight:600; color:var(--text-heading); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${u.name || 'User'}</div>
+                    <div style="font-size:10px; color:var(--text-muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${u.email}</div>
+                  </div>
+                </div>
+                <div style="text-align:right; flex-shrink:0;">
+                  <div style="font-size:11px; font-weight:700; color:#22c55e;"><i class="fa-solid fa-bolt"></i> ${used} <span style="font-size:10px; color:var(--text-muted); font-weight:400;">/ ${maxCr} cr</span></div>
+                  <div style="font-size:10px; color:var(--text-muted);"><i class="fa-solid fa-clock"></i> ${lastTime}</div>
+                </div>
+              </div>
+            `;
+          }).join('');
+        }
       }
     }
 
