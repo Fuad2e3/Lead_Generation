@@ -1667,6 +1667,8 @@
 
       if (btnLogout) {
         btnLogout.addEventListener('click', () => {
+          localStorage.removeItem('lgs_admin_auth');
+          localStorage.removeItem('lgs_admin_secret');
           sessionStorage.removeItem('lgs_admin_auth');
           sessionStorage.removeItem('lgs_admin_secret');
           toast('Admin logged out successfully.', 'info');
@@ -1704,8 +1706,10 @@
             const data = await res.json();
 
             if (res.ok && data.success) {
+              localStorage.setItem('lgs_admin_auth', 'true');
               sessionStorage.setItem('lgs_admin_auth', 'true');
               if (data.adminToken) {
+                localStorage.setItem('lgs_admin_secret', data.adminToken);
                 sessionStorage.setItem('lgs_admin_secret', data.adminToken);
                 ADMIN_HEADERS['x-admin-secret'] = data.adminToken;
               }
@@ -1733,10 +1737,10 @@
         });
       }
 
-      // Check existing session
-      const isAuth = sessionStorage.getItem('lgs_admin_auth') === 'true';
+      // Check existing persistent session from browser storage
+      const isAuth = localStorage.getItem('lgs_admin_auth') === 'true' || sessionStorage.getItem('lgs_admin_auth') === 'true';
       if (isAuth) {
-        const savedSecret = sessionStorage.getItem('lgs_admin_secret');
+        const savedSecret = localStorage.getItem('lgs_admin_secret') || sessionStorage.getItem('lgs_admin_secret');
         if (savedSecret) ADMIN_HEADERS['x-admin-secret'] = savedSecret;
 
         if (authOverlay) authOverlay.style.display = 'none';
