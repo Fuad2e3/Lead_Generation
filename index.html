@@ -4,7 +4,7 @@
 <head>
   <script>
     // Always OS Theme Sync — ignores any saved preference, always follows device Dark/Light
-    (function() {
+    (function () {
       const dark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
       document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
       localStorage.removeItem('lgs_theme'); // clear any old manual override
@@ -64,16 +64,24 @@
 
 
       <div class="header-actions">
-        <div id="header-credit-badge" class="action-pill" style="font-weight:700;color:var(--text-main);border-color:rgba(108,99,255,0.3);display:inline-flex;flex-direction:column;gap:3px;padding:6px 12px;min-width:155px;justify-content:center;">
-          <div style="display:flex;align-items:center;justify-content:space-between;gap:6px;width:100%;line-height:1.2;">
-            <span style="display:flex;align-items:center;gap:5px;font-size:12px;color:var(--text-main);"><i class="fa-solid fa-coins" style="color:#ffb347;"></i> <span id="lbl-user-credits">Credits: 50 / 50</span></span>
-            <span id="lbl-user-credit-pct" style="font-size:10px;font-weight:800;color:#ffb347;background:rgba(255,179,71,0.15);padding:1px 5px;border-radius:6px;border:1px solid rgba(255,179,71,0.3);">100%</span>
+        <div id="header-credit-badge" class="action-pill"
+          style="font-weight:700;color:var(--text-main);border-color:rgba(108,99,255,0.3);display:inline-flex;flex-direction:column;gap:3px;padding:6px 12px;min-width:155px;justify-content:center;">
+          <div
+            style="display:flex;align-items:center;justify-content:space-between;gap:6px;width:100%;line-height:1.2;">
+            <span style="display:flex;align-items:center;gap:5px;font-size:12px;color:var(--text-main);"><i
+                class="fa-solid fa-coins" style="color:#ffb347;"></i> <span id="lbl-user-credits">Credits: 50 /
+                50</span></span>
+            <span id="lbl-user-credit-pct"
+              style="font-size:10px;font-weight:800;color:#ffb347;background:rgba(255,179,71,0.15);padding:1px 5px;border-radius:6px;border:1px solid rgba(255,179,71,0.3);">100%</span>
           </div>
           <div style="width:100%;height:5px;background:var(--border-input);border-radius:10px;overflow:hidden;">
-            <div id="credit-progress-fill" style="width:100%;height:100%;background:linear-gradient(90deg, #6c63ff, #00d2ff);border-radius:10px;transition:width 0.4s ease, background 0.4s ease;"></div>
+            <div id="credit-progress-fill"
+              style="width:100%;height:100%;background:linear-gradient(90deg, #6c63ff, #00d2ff);border-radius:10px;transition:width 0.4s ease, background 0.4s ease;">
+            </div>
           </div>
         </div>
-        <button id="btn-upgrade-plan" class="action-pill" title="Request Package Upgrade" style="font-weight:700;color:#ffb347;border-color:rgba(255,179,71,0.4);background:rgba(255,179,71,0.1);cursor:pointer;display:inline-flex;align-items:center;gap:6px;">
+        <button id="btn-upgrade-plan" class="action-pill" title="Request Package Upgrade"
+          style="font-weight:700;color:#ffb347;border-color:rgba(255,179,71,0.4);background:rgba(255,179,71,0.1);cursor:pointer;display:inline-flex;align-items:center;gap:6px;">
           <i class="fa-solid fa-bolt" style="color:#ffb347;"></i> <span>Upgrade Plan</span>
         </button>
         <button id="btn-lang" class="action-pill" title="Switch Language">
@@ -82,7 +90,8 @@
         <button id="btn-theme" class="action-pill" title="Toggle Light/Dark Theme">
           <i class="fa-solid fa-moon"></i>
         </button>
-        <button id="btn-logout" class="action-pill" title="Logout" style="color: #ff4d4d; border-color: rgba(255, 77, 77, 0.3);">
+        <button id="btn-logout" class="action-pill" title="Logout"
+          style="color: #ff4d4d; border-color: rgba(255, 77, 77, 0.3);">
           <i class="fa-solid fa-right-from-bracket"></i>
         </button>
       </div>
@@ -92,12 +101,15 @@
     <main class="app-main">
 
       <!-- Live System Announcement Banner -->
-      <div id="system-announcement-banner" class="quick-status-banner" style="display: none; background: linear-gradient(135deg, rgba(255, 179, 71, 0.15), rgba(108, 99, 255, 0.15)); border: 1px solid rgba(255, 179, 71, 0.4); padding: 10px 18px; border-radius: 10px; color: var(--text-heading); font-size: 13px; font-weight: 600; margin-bottom: 16px; align-items: center; justify-content: space-between;">
+      <div id="system-announcement-banner" class="quick-status-banner"
+        style="display: none; background: linear-gradient(135deg, rgba(255, 179, 71, 0.15), rgba(108, 99, 255, 0.15)); border: 1px solid rgba(255, 179, 71, 0.4); padding: 10px 18px; border-radius: 10px; color: var(--text-heading); font-size: 13px; font-weight: 600; margin-bottom: 16px; align-items: center; justify-content: space-between;">
         <div style="display: flex; align-items: center; gap: 10px;">
           <i class="fa-solid fa-bullhorn" style="color: var(--color-warning); font-size: 16px;"></i>
           <span id="announcement-banner-text">Welcome to Lead Generation!</span>
         </div>
-        <button onclick="document.getElementById('system-announcement-banner').style.display='none';" style="background: transparent; border: none; color: rgba(255,255,255,0.6); cursor: pointer; font-size: 14px;"><i class="fa-solid fa-xmark"></i></button>
+        <button onclick="document.getElementById('system-announcement-banner').style.display='none';"
+          style="background: transparent; border: none; color: rgba(255,255,255,0.6); cursor: pointer; font-size: 14px;"><i
+            class="fa-solid fa-xmark"></i></button>
       </div>
 
       <div class="top-dashboard-section">
@@ -106,33 +118,47 @@
 
           <div class="card glass-card">
             <div class="card-header flex-between" style="padding: 12px 20px;">
-              <h3><i class="fa-solid fa-file-import"></i> <span data-i18n="input_heading">1. Input Website URLs</span></h3>
+              <h3><i class="fa-solid fa-file-import"></i> <span data-i18n="input_heading">1. Input Website URLs</span>
+              </h3>
               <div class="input-stats-pills" style="display: flex; gap: 8px;">
-                <span class="stat-pill"><i class="fa-solid fa-globe"></i> <span id="detected-urls-count">0</span> URLs</span>
-                <span id="duplicate-warning" class="stat-pill warning hidden" style="background: rgba(255, 179, 71, 0.15); color: var(--color-warning); border: 1px solid rgba(255, 179, 71, 0.3); padding: 2px 8px; border-radius: 12px; font-size: 11px;"><i class="fa-solid fa-clone"></i> <span id="duplicates-count">0</span> Dups</span>
+                <span class="stat-pill"><i class="fa-solid fa-globe"></i> <span id="detected-urls-count">0</span>
+                  URLs</span>
+                <span id="duplicate-warning" class="stat-pill warning hidden"
+                  style="background: rgba(255, 179, 71, 0.15); color: var(--color-warning); border: 1px solid rgba(255, 179, 71, 0.3); padding: 2px 8px; border-radius: 12px; font-size: 11px;"><i
+                    class="fa-solid fa-clone"></i> <span id="duplicates-count">0</span> Dups</span>
               </div>
             </div>
 
             <div class="card-body" style="padding: 14px 20px;">
-              <div class="dropzone" id="file-dropzone" style="position: relative; padding: 16px 14px; text-align: center; overflow: hidden; cursor: pointer;">
-                <input type="file" id="file-input" accept=".txt,.csv,.xlsx,.xls,.tsv" onchange="if(this.files && this.files.length && window.handleFileSelectGlobal) window.handleFileSelectGlobal(this.files[0]);" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; z-index: 5;">
+              <div class="dropzone" id="file-dropzone"
+                style="position: relative; padding: 16px 14px; text-align: center; overflow: hidden; cursor: pointer;">
+                <input type="file" id="file-input" accept=".txt,.csv,.xlsx,.xls,.tsv"
+                  onchange="if(this.files && this.files.length && window.handleFileSelectGlobal) window.handleFileSelectGlobal(this.files[0]);"
+                  style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; z-index: 5;">
                 <div style="position: relative; z-index: 1; pointer-events: none;">
                   <i class="fa-solid fa-cloud-arrow-up dropzone-icon" style="font-size: 26px; margin-bottom: 4px;"></i>
-                  <p class="dropzone-text" style="font-size: 12px; margin-bottom: 4px;" data-i18n="dropzone_msg">Drag & Drop <strong>.txt</strong>, <strong>.csv</strong>, or <strong>.xlsx</strong> file here</p>
+                  <p class="dropzone-text" style="font-size: 12px; margin-bottom: 4px;" data-i18n="dropzone_msg">Drag &
+                    Drop <strong>.txt</strong>, <strong>.csv</strong>, or <strong>.xlsx</strong> file here</p>
                   <span class="dropzone-or" style="margin: 2px 0; display: block;">or</span>
-                  <div class="btn btn-secondary btn-xs" style="display: inline-flex; align-items: center; gap: 6px; margin-top: 2px;">
+                  <div class="btn btn-secondary btn-xs"
+                    style="display: inline-flex; align-items: center; gap: 6px; margin-top: 2px;">
                     <i class="fa-solid fa-folder-open"></i> <span data-i18n="browse_btn">Browse Files</span>
                   </div>
                 </div>
-                <div id="file-info" class="file-info-badge hidden" style="position: relative; z-index: 10; margin-top: 6px; padding: 4px 10px; font-size: 11px;">
+                <div id="file-info" class="file-info-badge hidden"
+                  style="position: relative; z-index: 10; margin-top: 6px; padding: 4px 10px; font-size: 11px;">
                   <i class="fa-solid fa-file-csv"></i> <span id="file-name">filename.csv</span>
-                  <button id="btn-remove-file" type="button" class="btn-icon" style="cursor: pointer;"><i class="fa-solid fa-xmark"></i></button>
+                  <button id="btn-remove-file" type="button" class="btn-icon" style="cursor: pointer;"><i
+                      class="fa-solid fa-xmark"></i></button>
                 </div>
               </div>
 
               <div class="form-group margin-top-sm">
-                <label for="url-textarea" style="margin-bottom: 4px; font-size: 12px;"><i class="fa-solid fa-list-check"></i> <span data-i18n="manual_urls_label">Or Paste URLs/Domains directly:</span></label>
-                <textarea id="url-textarea" placeholder="https://example.com&#10;mycompany.org&#10;agency.net" rows="4" style="height: 80px; padding: 8px 12px; font-size: 12px;"></textarea>
+                <label for="url-textarea" style="margin-bottom: 4px; font-size: 12px;"><i
+                    class="fa-solid fa-list-check"></i> <span data-i18n="manual_urls_label">Or Paste URLs/Domains
+                    directly:</span></label>
+                <textarea id="url-textarea" placeholder="https://example.com&#10;mycompany.org&#10;agency.net" rows="4"
+                  style="height: 80px; padding: 8px 12px; font-size: 12px;"></textarea>
               </div>
             </div>
           </div>
@@ -140,11 +166,13 @@
 
           <div class="card glass-card">
             <div class="card-header" style="padding: 12px 20px;">
-              <h3><i class="fa-solid fa-square-check"></i> <span data-i18n="options_heading">2. Extraction Parameters</span></h3>
+              <h3><i class="fa-solid fa-square-check"></i> <span data-i18n="options_heading">2. Extraction
+                  Parameters</span></h3>
             </div>
             <div class="card-body" style="padding: 14px 20px;">
               <div class="options-section">
-                <h4 class="section-title" style="font-size: 12px; margin-bottom: 6px;"><i class="fa-solid fa-file-lines"></i> Page Text Sections</h4>
+                <h4 class="section-title" style="font-size: 12px; margin-bottom: 6px;"><i
+                    class="fa-solid fa-file-lines"></i> Page Text Sections</h4>
                 <div class="checkbox-grid" style="grid-template-columns: repeat(2, 1fr); gap: 6px;">
                   <label class="custom-checkbox" style="padding: 6px 10px; font-size: 12px;">
                     <input type="checkbox" id="chk-home" checked>
@@ -170,7 +198,8 @@
               </div>
 
               <div class="options-section margin-top-sm">
-                <h4 class="section-title" style="font-size: 12px; margin-bottom: 6px;"><i class="fa-solid fa-address-card"></i> Contact & Media Details</h4>
+                <h4 class="section-title" style="font-size: 12px; margin-bottom: 6px;"><i
+                    class="fa-solid fa-address-card"></i> Contact & Media Details</h4>
                 <div class="checkbox-grid" style="grid-template-columns: repeat(2, 1fr); gap: 6px;">
                   <label class="custom-checkbox" style="padding: 6px 10px; font-size: 12px;">
                     <input type="checkbox" id="chk-phone" checked>
@@ -196,13 +225,16 @@
               </div>
 
               <div class="form-group margin-top-sm">
-                <label for="custom-keywords-input" style="margin-bottom: 2px; font-size: 12px;"><i class="fa-solid fa-tags"></i> Custom Target Keywords:</label>
-                <input type="text" id="custom-keywords-input" placeholder="e.g. Careers, Pricing, Team, FAQ" style="padding: 6px 10px; font-size: 12px;">
+                <label for="custom-keywords-input" style="margin-bottom: 2px; font-size: 12px;"><i
+                    class="fa-solid fa-tags"></i> Custom Target Keywords:</label>
+                <input type="text" id="custom-keywords-input" placeholder="e.g. Careers, Pricing, Team, FAQ"
+                  style="padding: 6px 10px; font-size: 12px;">
               </div>
 
               <div class="margin-top-sm">
                 <button id="btn-apply-parameters" class="btn btn-secondary btn-block btn-xs" style="padding: 6px 12px;">
-                  <i class="fa-solid fa-square-plus"></i> <span data-i18n="apply_param_btn">Apply Columns & Parameters</span>
+                  <i class="fa-solid fa-square-plus"></i> <span data-i18n="apply_param_btn">Apply Columns &
+                    Parameters</span>
                 </button>
               </div>
             </div>
@@ -214,35 +246,50 @@
         <div class="card glass-card margin-top-sm">
           <div class="automation-top-bar" style="padding: 10px 18px;">
             <div class="session-info">
-              <h2 style="font-size: 14px;"><i class="fa-solid fa-bolt color-warning"></i> <span data-i18n="live_tracker_title">Live Execution Progress</span></h2>
+              <h2 style="font-size: 14px;"><i class="fa-solid fa-bolt color-warning"></i> <span
+                  data-i18n="live_tracker_title">Live Execution Progress</span></h2>
               <span id="session-status-badge" class="badge badge-idle">Idle</span>
             </div>
 
             <div class="session-controls" style="display: flex; gap: 6px;">
-              <button id="btn-pause" class="btn btn-warning btn-xs hidden" onclick="window.pauseMining && window.pauseMining();"><i class="fa-solid fa-pause"></i> Pause</button>
-              <button id="btn-resume" class="btn btn-success btn-xs hidden" onclick="window.resumeMining && window.resumeMining();"><i class="fa-solid fa-play"></i> Resume</button>
-              <button id="btn-stop" class="btn btn-danger btn-xs hidden" onclick="window.stopMining && window.stopMining();"><i class="fa-solid fa-stop"></i> Stop</button>
-              <button id="btn-retry-failed" class="btn btn-warning btn-xs hidden" onclick="window.retryFailedSites && window.retryFailedSites();"><i class="fa-solid fa-rotate-right"></i> Retry Failed & N/A</button>
-              <button id="btn-restart" class="btn btn-primary btn-xs" onclick="window.startMiningSession && window.startMiningSession();" style="padding: 6px 14px; cursor: pointer;"><i class="fa-solid fa-play"></i> Launch Mining Session</button>
-              <button id="btn-export-toolbar" class="btn btn-export-primary btn-xs" style="padding: 7px 16px; background: linear-gradient(135deg, #107C41, #009688); color: #ffffff; border: none; font-weight: 700; box-shadow: 0 4px 14px rgba(16, 124, 65, 0.35); cursor: pointer;"><i class="fa-solid fa-file-export"></i> Export Data</button>
+              <button id="btn-pause" class="btn btn-warning btn-xs hidden"
+                onclick="window.pauseMining && window.pauseMining();"><i class="fa-solid fa-pause"></i> Pause</button>
+              <button id="btn-resume" class="btn btn-success btn-xs hidden"
+                onclick="window.resumeMining && window.resumeMining();"><i class="fa-solid fa-play"></i> Resume</button>
+              <button id="btn-stop" class="btn btn-danger btn-xs hidden"
+                onclick="window.stopMining && window.stopMining();"><i class="fa-solid fa-stop"></i> Stop</button>
+              <button id="btn-retry-failed" class="btn btn-warning btn-xs hidden"
+                onclick="window.retryFailedSites && window.retryFailedSites();"><i class="fa-solid fa-rotate-right"></i>
+                Retry Failed & N/A</button>
+              <button id="btn-restart" class="btn btn-primary btn-xs"
+                onclick="window.startMiningSession && window.startMiningSession();"
+                style="padding: 6px 14px; cursor: pointer;"><i class="fa-solid fa-play"></i> Launch Mining
+                Session</button>
+              <button id="btn-export-toolbar" class="btn btn-export-primary btn-xs"
+                style="padding: 7px 16px; background: linear-gradient(135deg, #107C41, #009688); color: #ffffff; border: none; font-weight: 700; box-shadow: 0 4px 14px rgba(16, 124, 65, 0.35); cursor: pointer;"><i
+                  class="fa-solid fa-file-export"></i> Export Data</button>
             </div>
           </div>
 
           <div class="card-body" style="padding: 10px 18px;">
-            <div id="quick-status" class="quick-status-banner hidden" style="background: rgba(108, 99, 255, 0.1); border: 1px solid rgba(108, 99, 255, 0.3); padding: 6px 14px; border-radius: 6px; color: var(--color-primary); font-size: 12px; font-weight: 500; margin-bottom: 8px;">
-            <span id="quick-status-icon"><i class="fa-solid fa-spinner fa-spin"></i></span> <span id="lbl-status-text">Mining in progress...</span>
-          </div>
+            <div id="quick-status" class="quick-status-banner hidden"
+              style="background: rgba(108, 99, 255, 0.1); border: 1px solid rgba(108, 99, 255, 0.3); padding: 6px 14px; border-radius: 6px; color: var(--color-primary); font-size: 12px; font-weight: 500; margin-bottom: 8px;">
+              <span id="quick-status-icon"><i class="fa-solid fa-spinner fa-spin"></i></span> <span
+                id="lbl-status-text">Mining in progress...</span>
+            </div>
 
             <div class="progress-container" style="padding: 8px 14px;">
               <div class="progress-metrics" style="font-size: 11px; margin-bottom: 4px;">
-                <span class="metric-text"><span id="lbl-processed-sites">0</span> / <span id="lbl-total-sites">0</span> Websites Processed</span>
+                <span class="metric-text"><span id="lbl-processed-sites">0</span> / <span id="lbl-total-sites">0</span>
+                  Websites Processed</span>
                 <span id="lbl-percentage" class="metric-percentage" style="font-size: 13px;">0.0%</span>
               </div>
               <div class="progress-bar-bg" style="height: 6px;">
                 <div id="progress-bar-fill" class="progress-bar-fill" style="width: 0%;"></div>
               </div>
               <div class="progress-subtext" style="font-size: 10px; margin-top: 4px;">
-                <span><i class="fa-solid fa-stopwatch"></i> Elapsed: <strong id="lbl-elapsed-time">00:00:00</strong></span>
+                <span><i class="fa-solid fa-stopwatch"></i> Elapsed: <strong
+                    id="lbl-elapsed-time">00:00:00</strong></span>
               </div>
             </div>
 
@@ -338,17 +385,21 @@
       <div class="modal-body">
 
         <!-- Scope Option -->
-        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; background: var(--bg-input); padding: 8px 12px; border-radius: 8px; border: 1px solid var(--border-input);">
-          <label for="export-scope-select" style="font-size: 12px; font-weight: 600; color: var(--text-heading); display: flex; align-items: center; gap: 6px;">
+        <div
+          style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; background: var(--bg-input); padding: 8px 12px; border-radius: 8px; border: 1px solid var(--border-input);">
+          <label for="export-scope-select"
+            style="font-size: 12px; font-weight: 600; color: var(--text-heading); display: flex; align-items: center; gap: 6px;">
             <i class="fa-solid fa-filter color-warning"></i> Export Scope:
           </label>
-          <select id="export-scope-select" class="input-sm" style="font-size: 12px; padding: 4px 8px; border-radius: 6px; background: var(--bg-card); color: var(--text-main); border: 1px solid var(--border-card);">
+          <select id="export-scope-select" class="input-sm"
+            style="font-size: 12px; padding: 4px 8px; border-radius: 6px; background: var(--bg-card); color: var(--text-main); border: 1px solid var(--border-card);">
             <option value="all" selected>All Extracted Rows</option>
             <option value="search">Active Search Filter Results Only</option>
           </select>
         </div>
 
-        <p style="font-size: 12px; color: var(--text-muted);">Export extracted website details into your preferred file format:</p>
+        <p style="font-size: 12px; color: var(--text-muted);">Export extracted website details into your preferred file
+          format:</p>
         <div class="export-grid margin-top-sm">
           <button class="export-card" id="export-excel">
             <i class="fa-solid fa-file-excel color-excel"></i>
@@ -385,13 +436,16 @@
     <div class="modal-box modal-lg">
       <div class="modal-header">
         <h3><i class="fa-solid fa-globe color-accent"></i> <span id="detail-modal-title">Website Details</span></h3>
-        <button class="btn-close" id="btn-close-detail" onclick="document.getElementById('modal-detail').classList.add('hidden'); document.body.style.overflow='';"><i class="fa-solid fa-xmark"></i></button>
+        <button class="btn-close" id="btn-close-detail"
+          onclick="document.getElementById('modal-detail').classList.add('hidden'); document.body.style.overflow='';"><i
+            class="fa-solid fa-xmark"></i></button>
       </div>
       <div class="modal-body" id="detail-modal-body">
 
       </div>
       <div class="modal-footer">
-        <button id="btn-back-detail" class="btn btn-primary btn-md" onclick="document.getElementById('modal-detail').classList.add('hidden'); document.body.style.overflow='';">
+        <button id="btn-back-detail" class="btn btn-primary btn-md"
+          onclick="document.getElementById('modal-detail').classList.add('hidden'); document.body.style.overflow='';">
           <i class="fa-solid fa-arrow-left"></i> Back to Results Table
         </button>
       </div>
@@ -399,7 +453,7 @@
   </div>
 
 
-  <script src="app.js?v=20260814_1925"></script>
+  <script src="app.js?v=20260814_1910"></script>
   <script>
     // ── Server URL Config ────────────────────────────────────────────────────
     function getApiHost() {
@@ -474,7 +528,7 @@
             banner.style.display = 'flex';
           }
         }
-      } catch(e) {
+      } catch (e) {
         console.error('Credit/Status Sync Error:', e);
       }
     }
@@ -483,7 +537,7 @@
     function applyThemeMode(mode) {
       const getSystemTheme = () => (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
       const btnTheme = document.getElementById('btn-theme');
-      
+
       let activeTheme = mode;
       if (mode !== 'light' && mode !== 'dark') {
         activeTheme = getSystemTheme();
@@ -514,7 +568,7 @@
 
       if (window.matchMedia) {
         const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-        const handleOSChange = function(e) {
+        const handleOSChange = function (e) {
           const currentSaved = localStorage.getItem('lgs_theme');
           if (!currentSaved || currentSaved === 'auto') {
             applyThemeMode('auto');
@@ -529,7 +583,7 @@
 
       const btnTheme = document.getElementById('btn-theme');
       if (btnTheme) {
-        btnTheme.addEventListener('click', function() {
+        btnTheme.addEventListener('click', function () {
           const savedMode = localStorage.getItem('lgs_theme');
           if (!savedMode || savedMode === 'auto') {
             applyThemeMode('light');
@@ -570,7 +624,7 @@
       const btnLang = document.getElementById('btn-lang');
       const langLabel = document.getElementById('lang-label');
       if (btnLang) {
-        btnLang.addEventListener('click', function() {
+        btnLang.addEventListener('click', function () {
           currentLang = currentLang === 'en' ? 'bn' : 'en';
           if (langLabel) langLabel.textContent = currentLang === 'en' ? 'English' : 'বাংলা';
           document.querySelectorAll('[data-i18n]').forEach(el => {
@@ -590,19 +644,19 @@
       const btnCloseExport = document.getElementById('btn-close-export');
 
       if (btnExportToolbar && modalExport) {
-        btnExportToolbar.addEventListener('click', function() {
+        btnExportToolbar.addEventListener('click', function () {
           modalExport.classList.remove('hidden');
         });
       }
 
       if (btnCloseExport && modalExport) {
-        btnCloseExport.addEventListener('click', function() {
+        btnCloseExport.addEventListener('click', function () {
           modalExport.classList.add('hidden');
         });
       }
 
       if (modalExport) {
-        modalExport.addEventListener('click', function(e) {
+        modalExport.addEventListener('click', function (e) {
           if (e.target === modalExport) {
             modalExport.classList.add('hidden');
           }
@@ -759,7 +813,7 @@
           return;
         }
         const ws = XLSX.utils.json_to_sheet(objects);
-        
+
         // Auto-fit column widths
         const colWidths = headers.map(h => {
           let maxLen = h.length;
@@ -825,7 +879,7 @@
       }
     }
 
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function () {
       initThemeSystem();
       initLanguageSystem();
       initExportSystem();
@@ -834,7 +888,7 @@
 
     const btnLogout = document.getElementById('btn-logout');
     if (btnLogout) {
-      btnLogout.addEventListener('click', function() {
+      btnLogout.addEventListener('click', function () {
         if (confirm('Are you sure you want to logout?')) {
           localStorage.removeItem('lgs_auth');
           localStorage.removeItem('lgs_session');
@@ -932,7 +986,7 @@
       const border = type === 'success' ? 'rgba(34,197,94,0.4)' : type === 'error' ? 'rgba(239,68,68,0.4)' : type === 'warning' ? 'rgba(245,158,11,0.4)' : 'rgba(99,102,241,0.4)';
       const color = type === 'success' ? '#22c55e' : type === 'error' ? '#ef4444' : type === 'warning' ? '#f59e0b' : '#6366f1';
       const icon = type === 'success' ? 'fa-circle-check' : type === 'error' ? 'fa-triangle-exclamation' : type === 'warning' ? 'fa-circle-exclamation' : 'fa-circle-info';
-      
+
       el.style.cssText = `background:${bg};border:1px solid ${border};color:var(--text-heading,#fff);backdrop-filter:blur(12px);padding:12px 16px;border-radius:10px;box-shadow:0 10px 25px -5px rgba(0,0,0,0.3);font-size:13px;font-weight:600;display:flex;align-items:center;gap:10px;pointer-events:auto;animation:toastIn 0.3s cubic-bezier(0.16,1,0.3,1);`;
       el.innerHTML = `<i class="fa-solid ${icon}" style="color:${color};font-size:16px;flex-shrink:0;"></i> <span style="flex:1;">${msg}</span>`;
       container.appendChild(el);
@@ -950,7 +1004,7 @@
     // ── Package Upgrade Request System ────────────────────────────────────────
     const btnUpgrade = document.getElementById('btn-upgrade-plan');
     if (btnUpgrade) {
-      btnUpgrade.addEventListener('click', function() {
+      btnUpgrade.addEventListener('click', function () {
         let modal = document.getElementById('upgrade-plan-modal');
         if (!modal) {
           modal = document.createElement('div');
@@ -995,7 +1049,7 @@
           `;
           document.body.appendChild(modal);
 
-          document.getElementById('btn-submit-upgrade').addEventListener('click', async function() {
+          document.getElementById('btn-submit-upgrade').addEventListener('click', async function () {
             if (!currentUserSession) return;
             const selected = modal.querySelector('input[name="plan-option"]:checked')?.value || 'pro';
             this.disabled = true;
@@ -1014,7 +1068,7 @@
               } else {
                 showToast(data.message || 'Failed to submit request', 'error');
               }
-            } catch(e) {
+            } catch (e) {
               modal.style.display = 'none';
               showToast('Network error submitting upgrade request.', 'error');
             } finally {
