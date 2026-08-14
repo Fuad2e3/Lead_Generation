@@ -1180,3 +1180,46 @@ input[type="text"]:focus {
     grid-template-columns: 1fr;
   }
 }
+
+/* ── See More / Show All Pagination Controls ── */
+.btn-see-more {
+  background: rgba(108, 99, 255, 0.12);
+  border: 1px solid rgba(108, 99, 255, 0.35);
+  color: var(--color-primary, #6C63FF);
+  padding: 6px 14px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.btn-see-more:hover {
+  background: rgba(108, 99, 255, 0.25);
+  border-color: var(--color-primary, #6C63FF);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(108, 99, 255, 0.2);
+}
+
+.btn-see-less {
+  background: rgba(100, 116, 139, 0.12);
+  border: 1px solid rgba(100, 116, 139, 0.3);
+  color: var(--text-muted, #94A3B8);
+  padding: 6px 14px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.btn-see-less:hover {
+  background: rgba(100, 116, 139, 0.22);
+  transform: translateY(-1px);
+}
