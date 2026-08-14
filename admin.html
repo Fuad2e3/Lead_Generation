@@ -1068,6 +1068,44 @@
     const _API_HOST = getApiHost();
     const API_BASE = `${_API_HOST}/api/admin`;
     // ─────────────────────────────────────────────────────────────────────────
+    const ADMIN_HEADERS = { 
+      'Content-Type': 'application/json', 
+      'x-admin-secret': localStorage.getItem('lgs_admin_secret') || sessionStorage.getItem('lgs_admin_secret') || 'admin_secret_123' 
+    };
+
+    // ── Toast
+    function toast(msg, type = 'info') {
+      const container = document.getElementById('toast-container');
+      if (!container) return;
+      const el = document.createElement('div');
+      el.className = `toast ${type}`;
+      const icon = type === 'success' ? 'fa-circle-check' : type === 'error' ? 'fa-triangle-exclamation' : 'fa-circle-info';
+      el.innerHTML = `<i class="fa-solid ${icon}"></i><span>${msg}</span>`;
+      container.appendChild(el);
+      setTimeout(() => el.remove(), 3500);
+    }
+
+    // ── Format date
+    function fmtDate(d) {
+      if (!d) return '<span style="color:var(--text-muted);font-style:italic;">Never</span>';
+      const dt = new Date(d);
+      if (isNaN(dt)) return d;
+      return dt.toLocaleString('en-GB', { day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' });
+    }
+
+    // ── Avatar initials
+    function initials(name) {
+      if (!name) return '?';
+      return name.split(' ').map(w => w[0]).join('').substring(0, 2).toUpperCase();
+    }
+
+    // ── Violations color class
+    function violationClass(v) {
+      if (v === 0) return 'violations-0';
+      if (v < 3)  return 'violations-low';
+      return 'violations-high';
+    }
+
     // ── Pagination & Display Limits (Default 10 items) ────────────────────────
     let allUsers = [];
     let currentFilteredUsers = [];
