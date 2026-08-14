@@ -63,6 +63,171 @@
       --shadow:    0 8px 32px rgba(108,99,255,0.1);
     }
 
+    /* ── Admin Login Gateway Overlay */
+    .admin-auth-overlay {
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(circle at center, #131b2e 0%, #070913 100%);
+      z-index: 99999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      backdrop-filter: blur(16px);
+    }
+
+    .admin-auth-card {
+      background: rgba(17, 24, 39, 0.96);
+      border: 1px solid rgba(108, 99, 255, 0.35);
+      border-radius: 20px;
+      padding: 40px 36px;
+      max-width: 440px;
+      width: 100%;
+      box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.85), 0 0 30px rgba(108, 99, 255, 0.25);
+      text-align: center;
+      animation: authCardIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    @keyframes authCardIn {
+      from { opacity: 0; transform: scale(0.92) translateY(20px); }
+      to { opacity: 1; transform: scale(1) translateY(0); }
+    }
+
+    .admin-auth-icon {
+      width: 64px;
+      height: 64px;
+      background: linear-gradient(135deg, #6c63ff, #00d2ff);
+      border-radius: 16px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      color: #fff;
+      margin-bottom: 20px;
+      box-shadow: 0 8px 25px rgba(108, 99, 255, 0.4);
+    }
+
+    .admin-auth-title {
+      font-size: 22px;
+      font-weight: 800;
+      margin-bottom: 8px;
+      background: linear-gradient(135deg, #ffffff, #cbd5e1);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .admin-auth-subtitle {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-bottom: 26px;
+      line-height: 1.5;
+    }
+
+    .admin-input-group {
+      margin-bottom: 18px;
+      text-align: left;
+    }
+
+    .admin-input-group label {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      color: #94a3b8;
+      margin-bottom: 7px;
+    }
+
+    .admin-input-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .admin-input-wrapper i.prefix-icon {
+      position: absolute;
+      left: 14px;
+      color: #64748b;
+      font-size: 14px;
+    }
+
+    .admin-input-wrapper input {
+      width: 100%;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 10px;
+      padding: 12px 40px 12px 40px;
+      color: #fff;
+      font-size: 14px;
+      font-family: inherit;
+      outline: none;
+      transition: all 0.2s;
+    }
+
+    .admin-input-wrapper input:focus {
+      border-color: #6c63ff;
+      background: rgba(108, 99, 255, 0.08);
+      box-shadow: 0 0 0 3px rgba(108, 99, 255, 0.2);
+    }
+
+    .admin-input-wrapper .toggle-pass {
+      position: absolute;
+      right: 14px;
+      color: #64748b;
+      cursor: pointer;
+      font-size: 14px;
+      transition: color 0.2s;
+    }
+    .admin-input-wrapper .toggle-pass:hover { color: #fff; }
+
+    .btn-admin-submit {
+      width: 100%;
+      background: linear-gradient(135deg, #6c63ff, #4f46e5);
+      border: none;
+      border-radius: 10px;
+      padding: 13px;
+      color: #fff;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 9px;
+      transition: all 0.2s;
+      box-shadow: 0 6px 20px rgba(108, 99, 255, 0.35);
+      margin-top: 10px;
+    }
+
+    .btn-admin-submit:hover {
+      background: linear-gradient(135deg, #7c74ff, #5b52f5);
+      transform: translateY(-1px);
+      box-shadow: 0 8px 25px rgba(108, 99, 255, 0.5);
+    }
+
+    .admin-error-box {
+      background: rgba(239, 68, 68, 0.15);
+      border: 1px solid rgba(239, 68, 68, 0.35);
+      color: #fca5a5;
+      font-size: 12.5px;
+      font-weight: 600;
+      padding: 10px 14px;
+      border-radius: 8px;
+      margin-bottom: 18px;
+      display: none;
+      align-items: center;
+      gap: 8px;
+      text-align: left;
+    }
+
+    .shake-anim {
+      animation: authShake 0.4s ease-in-out;
+    }
+
+    @keyframes authShake {
+      0%, 100% { transform: translateX(0); }
+      20%, 60% { transform: translateX(-8px); }
+      40%, 80% { transform: translateX(8px); }
+    }
+
     body {
       font-family: 'Inter', sans-serif;
       background: var(--bg);
@@ -560,28 +725,71 @@
 
 <body>
 
-  <!-- Header -->
-  <header class="admin-header">
-    <div class="header-brand">
-      <div class="brand-icon"><i class="fa-solid fa-shield-halved"></i></div>
-      <div class="brand-text">
-        <h1>Admin Panel</h1>
-        <span>User Management Dashboard</span>
+  <!-- 🔒 Super Admin Login Gateway Overlay -->
+  <div id="admin-auth-overlay" class="admin-auth-overlay">
+    <div class="admin-auth-card" id="admin-auth-card">
+      <div class="admin-auth-icon">
+        <i class="fa-solid fa-shield-halved"></i>
       </div>
-    </div>
-    <div class="header-right">
-      <div class="api-status" id="api-status-badge">
-        <div class="dot"></div>
-        <span id="api-status-text">Connecting...</span>
+      <h2 class="admin-auth-title">Super Admin Portal</h2>
+      <p class="admin-auth-subtitle">Restricted Access. Enter administrator credentials to manage users, packages, credits, and system settings.</p>
+
+      <div id="admin-auth-error" class="admin-error-box">
+        <i class="fa-solid fa-triangle-exclamation"></i>
+        <span id="admin-auth-error-text">Invalid Admin Email or Password!</span>
       </div>
-      <button class="btn-refresh" onclick="loadUsers()">
-        <i class="fa-solid fa-rotate-right" id="refresh-icon"></i> Refresh
-      </button>
-      <button id="btn-theme" title="Toggle Light/Dark Theme" style="background: var(--bg-input); border: 1px solid var(--border); color: var(--text); padding: 8px 14px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600;">
-        <i class="fa-solid fa-moon"></i>
-      </button>
+
+      <form id="admin-login-form">
+        <div class="admin-input-group">
+          <label>Admin Email Address</label>
+          <div class="admin-input-wrapper">
+            <i class="fa-solid fa-envelope prefix-icon"></i>
+            <input type="email" id="admin-login-email" required placeholder="admin@leadgen.com" autocomplete="username">
+          </div>
+        </div>
+
+        <div class="admin-input-group">
+          <label>Admin Secret Password</label>
+          <div class="admin-input-wrapper">
+            <i class="fa-solid fa-lock prefix-icon"></i>
+            <input type="password" id="admin-login-password" required placeholder="••••••••" autocomplete="current-password">
+            <i class="fa-solid fa-eye toggle-pass" id="btn-toggle-admin-pass"></i>
+          </div>
+        </div>
+
+        <button type="submit" class="btn-admin-submit" id="btn-admin-submit">
+          <i class="fa-solid fa-unlock-keyhole"></i> <span>Unlock Admin Panel</span>
+        </button>
+      </form>
     </div>
-  </header>
+  </div>
+
+  <div id="admin-dashboard-container" style="display: none;">
+    <!-- Header -->
+    <header class="admin-header">
+      <div class="header-brand">
+        <div class="brand-icon"><i class="fa-solid fa-shield-halved"></i></div>
+        <div class="brand-text">
+          <h1>Admin Panel</h1>
+          <span>User Management Dashboard</span>
+        </div>
+      </div>
+      <div class="header-right">
+        <div class="api-status" id="api-status-badge">
+          <div class="dot"></div>
+          <span id="api-status-text">Connecting...</span>
+        </div>
+        <button class="btn-refresh" onclick="loadUsers()">
+          <i class="fa-solid fa-rotate-right" id="refresh-icon"></i> Refresh
+        </button>
+        <button id="btn-theme" title="Toggle Light/Dark Theme" style="background: var(--bg-input); border: 1px solid var(--border); color: var(--text); padding: 8px 14px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600;">
+          <i class="fa-solid fa-moon"></i>
+        </button>
+        <button id="btn-admin-logout" class="btn-refresh" style="color: #ef4444; border-color: rgba(239,68,68,0.3); background: rgba(239,68,68,0.08);" title="Logout from Admin Panel">
+          <i class="fa-solid fa-arrow-right-from-bracket"></i> <span>Logout</span>
+        </button>
+      </div>
+    </header>
 
   <!-- Main -->
   <main class="admin-main">
@@ -731,6 +939,7 @@
     </div>
 
   </main>
+  </div> <!-- /admin-dashboard-container -->
 
   <!-- Toast container -->
   <div id="toast-container"></div>
@@ -1212,11 +1421,131 @@
         });
       }
 
-      // Init load
-      loadUsers();
-      loadAnnouncement();
-      loadActivityLogs();
-      loadUpgradeRequests();
+    // ── Admin Authentication Controller ─────────────────────────────────────
+    function initAdminAuth() {
+      const authOverlay = document.getElementById('admin-auth-overlay');
+      const dashboardContainer = document.getElementById('admin-dashboard-container');
+      const loginForm = document.getElementById('admin-login-form');
+      const emailInput = document.getElementById('admin-login-email');
+      const passInput = document.getElementById('admin-login-password');
+      const btnTogglePass = document.getElementById('btn-toggle-admin-pass');
+      const btnSubmit = document.getElementById('btn-admin-submit');
+      const errorBox = document.getElementById('admin-auth-error');
+      const errorText = document.getElementById('admin-auth-error-text');
+      const authCard = document.getElementById('admin-auth-card');
+      const btnLogout = document.getElementById('btn-admin-logout');
+
+      function showAuthError(msg) {
+        if (errorText) errorText.textContent = msg || 'Invalid Admin Email or Password!';
+        if (errorBox) errorBox.style.display = 'flex';
+        if (authCard) {
+          authCard.classList.remove('shake-anim');
+          void authCard.offsetWidth;
+          authCard.classList.add('shake-anim');
+        }
+      }
+
+      function hideAuthError() {
+        if (errorBox) errorBox.style.display = 'none';
+      }
+
+      if (btnTogglePass && passInput) {
+        btnTogglePass.addEventListener('click', () => {
+          const type = passInput.getAttribute('type') === 'password' ? 'text' : 'password';
+          passInput.setAttribute('type', type);
+          btnTogglePass.className = type === 'password' ? 'fa-solid fa-eye toggle-pass' : 'fa-solid fa-eye-slash toggle-pass';
+        });
+      }
+
+      if (btnLogout) {
+        btnLogout.addEventListener('click', () => {
+          sessionStorage.removeItem('lgs_admin_auth');
+          sessionStorage.removeItem('lgs_admin_secret');
+          toast('Admin logged out successfully.', 'info');
+          if (dashboardContainer) dashboardContainer.style.display = 'none';
+          if (authOverlay) authOverlay.style.display = 'flex';
+          if (passInput) passInput.value = '';
+          hideAuthError();
+        });
+      }
+
+      if (loginForm) {
+        loginForm.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          hideAuthError();
+
+          const email = (emailInput ? emailInput.value : '').trim().toLowerCase();
+          const password = passInput ? passInput.value : '';
+
+          if (!email || !password) {
+            return showAuthError('Please enter both Admin Email and Password.');
+          }
+
+          if (btnSubmit) {
+            btnSubmit.disabled = true;
+            btnSubmit.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> <span>Verifying...</span>';
+          }
+
+          try {
+            const res = await fetch(`${API_BASE}/login`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ email, password })
+            });
+
+            const data = await res.json();
+
+            if (res.ok && data.success) {
+              sessionStorage.setItem('lgs_admin_auth', 'true');
+              if (data.adminToken) {
+                sessionStorage.setItem('lgs_admin_secret', data.adminToken);
+                ADMIN_HEADERS['x-admin-secret'] = data.adminToken;
+              }
+
+              toast('Super Admin Authentication Verified! Welcome.', 'success');
+              if (authOverlay) authOverlay.style.display = 'none';
+              if (dashboardContainer) dashboardContainer.style.display = 'block';
+
+              loadUsers();
+              loadAnnouncement();
+              loadActivityLogs();
+              loadUpgradeRequests();
+            } else {
+              showAuthError(data.message || 'Invalid Admin Email or Password!');
+            }
+          } catch (err) {
+            console.error('Admin Login Error:', err);
+            showAuthError(`Server connection error: ${err.message}. Is backend running?`);
+          } finally {
+            if (btnSubmit) {
+              btnSubmit.disabled = false;
+              btnSubmit.innerHTML = '<i class="fa-solid fa-unlock-keyhole"></i> <span>Unlock Admin Panel</span>';
+            }
+          }
+        });
+      }
+
+      // Check existing session
+      const isAuth = sessionStorage.getItem('lgs_admin_auth') === 'true';
+      if (isAuth) {
+        const savedSecret = sessionStorage.getItem('lgs_admin_secret');
+        if (savedSecret) ADMIN_HEADERS['x-admin-secret'] = savedSecret;
+
+        if (authOverlay) authOverlay.style.display = 'none';
+        if (dashboardContainer) dashboardContainer.style.display = 'block';
+
+        loadUsers();
+        loadAnnouncement();
+        loadActivityLogs();
+        loadUpgradeRequests();
+      } else {
+        if (authOverlay) authOverlay.style.display = 'flex';
+        if (dashboardContainer) dashboardContainer.style.display = 'none';
+      }
+    }
+
+    // Init Admin Auth Controller on load
+    initAdminAuth();
     })();
   </script>
 </body>
