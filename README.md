@@ -1,13 +1,13 @@
 <div align="center">
 
-# 🕸️ Website Data Miner - Web Edition
+# 🕸️ Lead Generation - Web Edition
 ### **"Automation Made Simple - Extract Emails, Phones & Data at Scale"**
 
 [![GitHub Pages Deployment](https://img.shields.io/badge/GitHub%20Pages-Live%20Web%20App-brightgreen?style=for-the-badge&logo=github)](https://Fuad2e3.github.io/Lead_Generation/)
 [![Platform](https://img.shields.io/badge/Platform-Web%20%7C%20HTML5%20%7C%20JS-blue?style=for-the-badge&logo=javascript)](https://developer.mozilla.org/)
 [![License](https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge)](LICENSE)
 
-**An advanced Web & Automation tool for mining website data, contact details, and subpage content with Ultra-Fast Native Fetch.**
+**An advanced Lead Generation & Automation tool for mining website data, contact details, and subpage content with Ultra-Fast Native Fetch.**
 
 </div>
 
