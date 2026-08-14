@@ -114,13 +114,13 @@
             </div>
 
             <div class="card-body" style="padding: 14px 20px;">
-              <div class="dropzone" id="file-dropzone" style="padding: 12px 14px;">
-                <i class="fa-solid fa-cloud-arrow-up dropzone-icon" style="font-size: 24px; margin-bottom: 4px;"></i>
-                <p class="dropzone-text" style="font-size: 12px; margin-bottom: 4px;" data-i18n="dropzone_msg">Drag & Drop <strong>.txt</strong>, <strong>.csv</strong>, or <strong>.xlsx</strong> file here</p>
-                <span class="dropzone-or" style="margin: 2px 0;">or</span>
-                <label for="file-input" class="btn btn-secondary btn-xs">
+              <div class="dropzone" id="file-dropzone" style="padding: 12px 14px; cursor: pointer;">
+                <i class="fa-solid fa-cloud-arrow-up dropzone-icon" style="font-size: 24px; margin-bottom: 4px; pointer-events: none;"></i>
+                <p class="dropzone-text" style="font-size: 12px; margin-bottom: 4px; pointer-events: none;" data-i18n="dropzone_msg">Drag & Drop <strong>.txt</strong>, <strong>.csv</strong>, or <strong>.xlsx</strong> file here</p>
+                <span class="dropzone-or" style="margin: 2px 0; pointer-events: none;">or</span>
+                <div class="btn btn-secondary btn-xs" style="pointer-events: none; display: inline-flex; align-items: center; gap: 6px; margin-top: 2px;">
                   <i class="fa-solid fa-folder-open"></i> <span data-i18n="browse_btn">Browse Files</span>
-                </label>
+                </div>
                 <input type="file" id="file-input" accept=".txt,.csv,.xlsx,.xls" hidden>
                 <div id="file-info" class="file-info-badge hidden" style="margin-top: 4px; padding: 4px 10px; font-size: 11px;">
                   <i class="fa-solid fa-file-csv"></i> <span id="file-name">filename.csv</span>
