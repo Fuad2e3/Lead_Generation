@@ -74,6 +74,11 @@
       justify-content: center;
       padding: 20px;
       backdrop-filter: blur(16px);
+      transition: background 0.3s;
+    }
+
+    [data-theme="light"] .admin-auth-overlay {
+      background: radial-gradient(circle at center, #f1f5f9 0%, #cbd5e1 100%);
     }
 
     .admin-auth-card {
@@ -86,6 +91,44 @@
       box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.85), 0 0 30px rgba(108, 99, 255, 0.25);
       text-align: center;
       animation: authCardIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+      transition: all 0.3s;
+    }
+
+    [data-theme="light"] .admin-auth-card {
+      background: rgba(255, 255, 255, 0.96);
+      border: 1px solid rgba(108, 99, 255, 0.25);
+      box-shadow: 0 20px 50px -10px rgba(0, 0, 0, 0.12), 0 0 30px rgba(108, 99, 255, 0.08);
+    }
+
+    [data-theme="light"] .admin-auth-title {
+      background: linear-gradient(135deg, #0f172a, #334155);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    [data-theme="light"] .admin-auth-subtitle {
+      color: #64748b;
+    }
+
+    [data-theme="light"] .admin-input-group label {
+      color: #334155;
+    }
+
+    [data-theme="light"] .admin-input-wrapper input {
+      background: #f8fafc;
+      border: 1px solid #cbd5e1;
+      color: #0f172a;
+    }
+
+    [data-theme="light"] .admin-input-wrapper input:focus {
+      background: #ffffff;
+      border-color: #6c63ff;
+      box-shadow: 0 0 0 3px rgba(108, 99, 255, 0.15);
+    }
+
+    [data-theme="light"] .admin-input-wrapper i.prefix-icon,
+    [data-theme="light"] .admin-input-wrapper .toggle-pass {
+      color: #94a3b8;
     }
 
     @keyframes authCardIn {
@@ -727,6 +770,13 @@
 
   <!-- 🔒 Super Admin Login Gateway Overlay -->
   <div id="admin-auth-overlay" class="admin-auth-overlay">
+    <!-- Top-Right Theme Toggle on Login Screen -->
+    <div style="position: absolute; top: 20px; right: 20px;">
+      <button id="btn-auth-theme" class="btn-refresh" title="Toggle Light/Dark Theme" style="padding: 7px 14px; border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.15);">
+        <i class="fa-solid fa-moon"></i> <span>Theme</span>
+      </button>
+    </div>
+
     <div class="admin-auth-card" id="admin-auth-card">
       <div class="admin-auth-icon">
         <i class="fa-solid fa-shield-halved"></i>
@@ -744,7 +794,7 @@
           <label>Admin Email Address</label>
           <div class="admin-input-wrapper">
             <i class="fa-solid fa-envelope prefix-icon"></i>
-            <input type="email" id="admin-login-email" required placeholder="admin@leadgen.com" autocomplete="username">
+            <input type="email" id="admin-login-email" required placeholder="Enter admin email" autocomplete="username">
           </div>
         </div>
 
@@ -752,7 +802,7 @@
           <label>Admin Secret Password</label>
           <div class="admin-input-wrapper">
             <i class="fa-solid fa-lock prefix-icon"></i>
-            <input type="password" id="admin-login-password" required placeholder="••••••••" autocomplete="current-password">
+            <input type="password" id="admin-login-password" required placeholder="Enter secret password" autocomplete="current-password">
             <i class="fa-solid fa-eye toggle-pass" id="btn-toggle-admin-pass"></i>
           </div>
         </div>
@@ -1371,26 +1421,30 @@
       function applyTheme(theme) {
         document.documentElement.setAttribute('data-theme', theme);
         const btnTheme = document.getElementById('btn-theme');
-        if (!btnTheme) return;
-        if (theme === 'dark') {
-          // 🌙 Dark Mode — cool indigo/purple glow
-          btnTheme.innerHTML = '<i class="fa-solid fa-moon" style="color:#a78bfa;"></i> Dark';
-          btnTheme.title = 'Dark Mode — Click for Light';
-          btnTheme.style.background = 'rgba(109,90,255,0.22)';
-          btnTheme.style.border = '1.5px solid rgba(167,139,250,0.6)';
-          btnTheme.style.color = '#a78bfa';
-          btnTheme.style.boxShadow = '0 0 14px rgba(109,90,255,0.45)';
-        } else {
-          // ☀️ Light Mode — warm amber/orange glow
-          btnTheme.innerHTML = '<i class="fa-solid fa-sun" style="color:#f59e0b;"></i> Light';
-          btnTheme.title = 'Light Mode — Click for Dark';
-          btnTheme.style.background = 'rgba(251,191,36,0.18)';
-          btnTheme.style.border = '1.5px solid rgba(251,191,36,0.7)';
-          btnTheme.style.color = '#f59e0b';
-          btnTheme.style.boxShadow = '0 0 14px rgba(251,191,36,0.4)';
-        }
-        btnTheme.style.cursor = 'pointer';
-        btnTheme.style.pointerEvents = 'auto';
+        const btnAuthTheme = document.getElementById('btn-auth-theme');
+
+        [btnTheme, btnAuthTheme].forEach(btn => {
+          if (!btn) return;
+          if (theme === 'dark') {
+            // 🌙 Dark Mode — cool indigo/purple glow
+            btn.innerHTML = '<i class="fa-solid fa-moon" style="color:#a78bfa;"></i> Dark';
+            btn.title = 'Dark Mode — Click for Light';
+            btn.style.background = 'rgba(109,90,255,0.22)';
+            btn.style.border = '1.5px solid rgba(167,139,250,0.6)';
+            btn.style.color = '#a78bfa';
+            btn.style.boxShadow = '0 0 14px rgba(109,90,255,0.45)';
+          } else {
+            // ☀️ Light Mode — warm amber/orange glow
+            btn.innerHTML = '<i class="fa-solid fa-sun" style="color:#f59e0b;"></i> Light';
+            btn.title = 'Light Mode — Click for Dark';
+            btn.style.background = 'rgba(251,191,36,0.18)';
+            btn.style.border = '1.5px solid rgba(251,191,36,0.7)';
+            btn.style.color = '#f59e0b';
+            btn.style.boxShadow = '0 0 14px rgba(251,191,36,0.4)';
+          }
+          btn.style.cursor = 'pointer';
+          btn.style.pointerEvents = 'auto';
+        });
       }
 
       // Page load: always follow OS, clear any saved preference
@@ -1411,15 +1465,17 @@
       }
 
       // Button click: manually toggle Light ↔ Dark
+      const toggleTheme = () => {
+        const current = document.documentElement.getAttribute('data-theme');
+        const next = (current === 'dark') ? 'light' : 'dark';
+        sessionStorage.setItem('lgs_manual_theme', next); // remember for OS listener
+        applyTheme(next);
+      };
+
       const btnTheme = document.getElementById('btn-theme');
-      if (btnTheme) {
-        btnTheme.addEventListener('click', function() {
-          const current = document.documentElement.getAttribute('data-theme');
-          const next = (current === 'dark') ? 'light' : 'dark';
-          sessionStorage.setItem('lgs_manual_theme', next); // remember for OS listener
-          applyTheme(next);
-        });
-      }
+      const btnAuthTheme = document.getElementById('btn-auth-theme');
+      if (btnTheme) btnTheme.addEventListener('click', toggleTheme);
+      if (btnAuthTheme) btnAuthTheme.addEventListener('click', toggleTheme);
 
     // ── Admin Authentication Controller ─────────────────────────────────────
     function initAdminAuth() {
