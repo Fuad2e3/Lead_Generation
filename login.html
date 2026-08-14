@@ -10,7 +10,7 @@
       localStorage.removeItem('lgs_theme'); // clear any old manual override
     })();
   </script>
-  <script src="dev/config.js"></script>
+  <script src="config.js"></script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="color-scheme" content="light dark">
@@ -560,7 +560,7 @@
         </form>
       </div>
 
-      <div style="margin-top: 15px; text-align: center;">
+      <div style="display: none; margin-top: 15px; text-align: center;">
         <button id="btn-api-config" style="background: rgba(255,255,255,0.05); border: 1px solid var(--border-input); padding: 5px 12px; border-radius: 20px; color: var(--text-muted); font-size: 11px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s;">
           <i class="fa-solid fa-server" style="color: var(--color-primary);"></i> <span id="api-status-label">Backend API Server Settings</span>
         </button>
@@ -598,9 +598,9 @@
       if (isLocal) return 'http://localhost:3000';
       if (isIp) return `http://${h}:3000`;
       if (h.endsWith('github.io') || h.endsWith('netlify.app') || h.endsWith('vercel.app')) {
-        return 'http://localhost:3000';
+        return 'https://parties-hosting-genre-student.trycloudflare.com';
       }
-      return (window.location.protocol === 'file:' || !window.location.origin || window.location.origin === 'null') ? 'http://localhost:3000' : window.location.origin;
+      return (window.location.protocol === 'file:' || !window.location.origin || window.location.origin === 'null') ? 'https://parties-hosting-genre-student.trycloudflare.com' : window.location.origin;
     }
     const API_HOST = getApiHost();
     const API_BASE = `${API_HOST}/api/auth`;

@@ -14,7 +14,7 @@
       window.location.href = 'login.html';
     }
   </script>
-  <script src="dev/config.js"></script>
+  <script src="config.js"></script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="color-scheme" content="light dark">
@@ -411,9 +411,9 @@
       if (isLocal) return 'http://localhost:3000';
       if (isIp) return `http://${h}:3000`;
       if (h.endsWith('github.io') || h.endsWith('netlify.app') || h.endsWith('vercel.app')) {
-        return 'http://localhost:3000';
+        return 'https://parties-hosting-genre-student.trycloudflare.com';
       }
-      return (window.location.protocol === 'file:' || !window.location.origin || window.location.origin === 'null') ? 'http://localhost:3000' : window.location.origin;
+      return (window.location.protocol === 'file:' || !window.location.origin || window.location.origin === 'null') ? 'https://parties-hosting-genre-student.trycloudflare.com' : window.location.origin;
     }
     const _API_HOST = getApiHost();
     const API_BASE_AUTH = `${_API_HOST}/api/auth`;
