@@ -609,13 +609,38 @@
     const API_BASE = `${API_HOST}/api/auth`;
     // ─────────────────────────────────────────────────────────────────────────
 
-    // API Server Config Modal Trigger
+    // API Server Config Modal Trigger & Server Status Monitor
     document.addEventListener('DOMContentLoaded', () => {
       const btnApi = document.getElementById('btn-api-config');
       const labelApi = document.getElementById('api-status-label');
-      if (labelApi) {
-        labelApi.textContent = `Server: ${API_HOST}`;
+
+      // Check if redirected due to server shutdown
+      const urlParams = new URLSearchParams(window.location.search);
+      if (urlParams.get('reason') === 'server_offline') {
+        showError('⚠️ Server is Offline! You have been automatically logged out for security.');
       }
+
+      // Live Server Ping Checker
+      async function pingServerStatus() {
+        if (!labelApi) return;
+        try {
+          const controller = new AbortController();
+          const timer = setTimeout(() => controller.abort(), 3000);
+          const res = await fetch(`${API_HOST}/health`, { signal: controller.signal });
+          clearTimeout(timer);
+          if (res.ok) {
+            labelApi.innerHTML = `<span style="color:#22c55e;">●</span> Server Online (${API_HOST.replace(/^https?:\/\//i, '')})`;
+          } else {
+            labelApi.innerHTML = `<span style="color:#ef4444;">●</span> Server Offline`;
+          }
+        } catch (_) {
+          labelApi.innerHTML = `<span style="color:#ef4444;">●</span> Server Offline`;
+        }
+      }
+
+      pingServerStatus();
+      setInterval(pingServerStatus, 5000);
+
       if (btnApi) {
         btnApi.onclick = () => {
           const current = localStorage.getItem('lgs_api_url') || (window.LGS_CONFIG && window.LGS_CONFIG.API_URL) || API_HOST;
@@ -722,11 +747,11 @@
 
       // Check if API_HOST is unconfigured on GitHub Pages
       if (window.location.hostname.endsWith('github.io') && API_HOST.includes('localhost')) {
-        showError('⛔ Backend Server is OFF!');
+        showError('⛔ Server is OFF!');
         return;
       }
 
-      showError('⛔ Backend Server is OFF!');
+      showError('⛔ Server is OFF!');
       return;
     };
 
@@ -822,11 +847,11 @@
 
       // Check if API_HOST is unconfigured on GitHub Pages
       if (window.location.hostname.endsWith('github.io') && API_HOST.includes('localhost')) {
-        errEl.textContent = '⛔ Backend Server is OFF!';
+        errEl.textContent = '⛔ Server is OFF!';
         return;
       }
 
-      errEl.textContent = '⛔ Backend Server is OFF!';
+      errEl.textContent = '⛔ Server is OFF!';
       return;
       handleSuccess();
     };

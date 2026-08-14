@@ -1804,19 +1804,90 @@
         });
       }
 
+      // ── Server Health & Admin Session Heartbeat (Every 4 seconds) ─────────
+      function forceAdminLogoutDueToServerOffline(errMsg) {
+        localStorage.removeItem('lgs_admin_auth');
+        localStorage.removeItem('lgs_admin_secret');
+        sessionStorage.removeItem('lgs_admin_auth');
+        sessionStorage.removeItem('lgs_admin_secret');
+
+        allUsers = [];
+        allActivityLogs = [];
+        allUpgradeRequests = [];
+
+        const tbody = document.getElementById('table-body');
+        if (tbody) tbody.innerHTML = '';
+        const logsTbody = document.getElementById('logs-table-body');
+        if (logsTbody) logsTbody.innerHTML = '';
+        const upgTbody = document.getElementById('upgrades-table-body');
+        if (upgTbody) upgTbody.innerHTML = '';
+
+        if (dashboardContainer) dashboardContainer.style.display = 'none';
+        if (authOverlay) authOverlay.style.display = 'flex';
+
+        showAuthError(errMsg || '⚠️ Backend Server is OFF! Admin automatically logged out for security.');
+        toast('⚠️ Server is Offline! Admin logged out.', 'error');
+      }
+
+      window.forceAdminLogoutDueToServerOffline = forceAdminLogoutDueToServerOffline;
+
+      async function checkAdminServerHeartbeat() {
+        const isCurrentlyAuth = localStorage.getItem('lgs_admin_auth') === 'true' || sessionStorage.getItem('lgs_admin_auth') === 'true';
+        if (!isCurrentlyAuth) return;
+
+        const controller = new AbortController();
+        const timer = setTimeout(() => controller.abort(), 3000);
+
+        try {
+          const res = await fetch(`${API_BASE}/users?admin_secret=admin_secret_123`, {
+            headers: ADMIN_HEADERS,
+            signal: controller.signal
+          });
+          clearTimeout(timer);
+
+          if (!res.ok) {
+            if (res.status === 401 || res.status === 403 || res.status >= 500) {
+              forceAdminLogoutDueToServerOffline('⚠️ Backend Server error or session expired. Admin logged out.');
+            }
+          }
+        } catch (err) {
+          clearTimeout(timer);
+          console.warn('[Admin Heartbeat] Server unreachable / offline:', err.message);
+          forceAdminLogoutDueToServerOffline('⚠️ Backend Server is Offline! Admin automatically logged out.');
+        }
+      }
+
+      // Check server health every 4 seconds
+      setInterval(checkAdminServerHeartbeat, 4000);
+
       // Check existing persistent session from browser storage
       const isAuth = localStorage.getItem('lgs_admin_auth') === 'true' || sessionStorage.getItem('lgs_admin_auth') === 'true';
       if (isAuth) {
         const savedSecret = localStorage.getItem('lgs_admin_secret') || sessionStorage.getItem('lgs_admin_secret');
         if (savedSecret) ADMIN_HEADERS['x-admin-secret'] = savedSecret;
 
-        if (authOverlay) authOverlay.style.display = 'none';
-        if (dashboardContainer) dashboardContainer.style.display = 'block';
+        // Perform initial verification check before showing dashboard
+        fetch(`${API_BASE}/users?admin_secret=admin_secret_123`, { headers: ADMIN_HEADERS })
+          .then(res => {
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+            return res.json();
+          })
+          .then(data => {
+            if (authOverlay) authOverlay.style.display = 'none';
+            if (dashboardContainer) dashboardContainer.style.display = 'block';
 
-        loadUsers();
-        loadAnnouncement();
-        loadActivityLogs();
-        loadUpgradeRequests();
+            allUsers = data.users || [];
+            currentFilteredUsers = allUsers;
+            renderTable(allUsers);
+            updateStats(allUsers);
+            loadAnnouncement();
+            loadActivityLogs();
+            loadUpgradeRequests();
+          })
+          .catch(err => {
+            console.error('Initial admin auth check failed:', err);
+            forceAdminLogoutDueToServerOffline('⚠️ Cannot connect to backend server. Admin logged out.');
+          });
       } else {
         if (authOverlay) authOverlay.style.display = 'flex';
         if (dashboardContainer) dashboardContainer.style.display = 'none';
