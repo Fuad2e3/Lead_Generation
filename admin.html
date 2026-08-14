@@ -942,9 +942,23 @@
     <div class="table-card">
       <div class="table-header">
         <h2><i class="fa-solid fa-table-list"></i> Users Table</h2>
-        <div class="search-wrapper">
-          <i class="fa-solid fa-magnifying-glass"></i>
-          <input type="text" class="table-search" id="search-input" placeholder="Search name, email, status, package...">
+        <div style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center;">
+          <select id="filter-status" class="table-search" style="width: auto; padding: 7px 12px; cursor: pointer;">
+            <option value="">All Statuses</option>
+            <option value="active">Active</option>
+            <option value="banned">Banned</option>
+            <option value="inactive">Inactive</option>
+          </select>
+          <select id="filter-package" class="table-search" style="width: auto; padding: 7px 12px; cursor: pointer;">
+            <option value="">All Packages</option>
+            <option value="free">Free</option>
+            <option value="pro">Pro</option>
+            <option value="enterprise">Enterprise</option>
+          </select>
+          <div class="search-wrapper">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input type="text" class="table-search" id="search-input" placeholder="Search name, email, id...">
+          </div>
         </div>
       </div>
 
@@ -1590,19 +1604,34 @@
       }
     }
 
-    // ── Search / filter
-    document.getElementById('search-input').addEventListener('input', function() {
-      const q = this.value.trim().toLowerCase();
-      usersDisplayLimit = 10; // reset to 10 on new search
-      if (!q) { renderTable(allUsers); return; }
-      const filtered = allUsers.filter(u =>
-        (u.name   || '').toLowerCase().includes(q) ||
-        (u.email  || '').toLowerCase().includes(q) ||
-        (u.status || '').toLowerCase().includes(q) ||
-        (u.package|| '').toLowerCase().includes(q)
-      );
+    // ── Search & Multi-Filter Controller
+    function applyUserFilters() {
+      const q = (document.getElementById('search-input').value || '').trim().toLowerCase();
+      const statusFilter = (document.getElementById('filter-status') ? document.getElementById('filter-status').value : '').toLowerCase();
+      const pkgFilter = (document.getElementById('filter-package') ? document.getElementById('filter-package').value : '').toLowerCase();
+
+      usersDisplayLimit = 10; // reset to 10 on filter change
+
+      const filtered = allUsers.filter(u => {
+        const matchesQ = !q || (
+          (u.name || '').toLowerCase().includes(q) ||
+          (u.email || '').toLowerCase().includes(q) ||
+          String(u.id).includes(q)
+        );
+        const matchesStatus = !statusFilter || (u.status || '').toLowerCase() === statusFilter;
+        const matchesPkg = !pkgFilter || (u.package || '').toLowerCase() === pkgFilter;
+
+        return matchesQ && matchesStatus && matchesPkg;
+      });
+
       renderTable(filtered);
-    });
+    }
+
+    document.getElementById('search-input').addEventListener('input', applyUserFilters);
+    const filterStatusEl = document.getElementById('filter-status');
+    const filterPkgEl = document.getElementById('filter-package');
+    if (filterStatusEl) filterStatusEl.addEventListener('change', applyUserFilters);
+    if (filterPkgEl) filterPkgEl.addEventListener('change', applyUserFilters);
 
 
     // ── Theme System: OS Auto Sync on Load + Manual Toggle on Click ──────────
