@@ -561,8 +561,10 @@
       </div>
 
       <div style="display: none; margin-top: 15px; text-align: center;">
-        <button id="btn-api-config" style="background: rgba(255,255,255,0.05); border: 1px solid var(--border-input); padding: 5px 12px; border-radius: 20px; color: var(--text-muted); font-size: 11px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s;">
-          <i class="fa-solid fa-server" style="color: var(--color-primary);"></i> <span id="api-status-label">Backend API Server Settings</span>
+        <button id="btn-api-config"
+          style="background: rgba(255,255,255,0.05); border: 1px solid var(--border-input); padding: 5px 12px; border-radius: 20px; color: var(--text-muted); font-size: 11px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s;">
+          <i class="fa-solid fa-server" style="color: var(--color-primary);"></i> <span id="api-status-label">Backend
+            API Server Settings</span>
         </button>
       </div>
     </div>
@@ -602,6 +604,7 @@
       }
       return (window.location.protocol === 'file:' || !window.location.origin || window.location.origin === 'null') ? 'https://parties-hosting-genre-student.trycloudflare.com' : window.location.origin;
     }
+    window.getApiHost = getApiHost;
     const API_HOST = getApiHost();
     const API_BASE = `${API_HOST}/api/auth`;
     // ─────────────────────────────────────────────────────────────────────────
@@ -719,11 +722,11 @@
 
       // Check if API_HOST is unconfigured on GitHub Pages
       if (window.location.hostname.endsWith('github.io') && API_HOST.includes('localhost')) {
-        showError('⛔ Backend Server is OFF or URL not set! Click "Server:" below to enter your Tunnel URL.');
+        showError('⛔ Backend Server is OFF!');
         return;
       }
 
-      showError('⛔ Backend Server is OFF! Login is currently disabled. Please start your backend server.');
+      showError('⛔ Backend Server is OFF!');
       return;
     };
 
@@ -819,11 +822,11 @@
 
       // Check if API_HOST is unconfigured on GitHub Pages
       if (window.location.hostname.endsWith('github.io') && API_HOST.includes('localhost')) {
-        errEl.textContent = '⛔ Backend Server is OFF or URL not set! Click "Server:" below to enter your Tunnel URL.';
+        errEl.textContent = '⛔ Backend Server is OFF!';
         return;
       }
 
-      errEl.textContent = '⛔ Backend Server is OFF! Account creation is currently disabled. Please start your backend server.';
+      errEl.textContent = '⛔ Backend Server is OFF!';
       return;
       handleSuccess();
     };

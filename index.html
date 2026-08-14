@@ -415,6 +415,7 @@
       }
       return (window.location.protocol === 'file:' || !window.location.origin || window.location.origin === 'null') ? 'https://parties-hosting-genre-student.trycloudflare.com' : window.location.origin;
     }
+    window.getApiHost = getApiHost;
     const _API_HOST = getApiHost();
     const API_BASE_AUTH = `${_API_HOST}/api/auth`;
     // ─────────────────────────────────────────────────────────────────────────
