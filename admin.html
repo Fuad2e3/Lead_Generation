@@ -862,7 +862,7 @@
       const startTime = Date.now();
 
       try {
-        const res = await fetch(`${API_BASE}/users`, { headers: ADMIN_HEADERS });
+        const res = await fetch(`${API_BASE}/users?admin_secret=admin_secret_123`, { headers: ADMIN_HEADERS });
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const data = await res.json();
 
@@ -1046,7 +1046,7 @@
       const icon = document.getElementById('logs-refresh-icon');
       if (icon) icon.classList.add('fa-spin');
       try {
-        const res = await fetch(`${API_BASE}/activity-logs`, { headers: ADMIN_HEADERS });
+        const res = await fetch(`${API_BASE}/activity-logs?admin_secret=admin_secret_123`, { headers: ADMIN_HEADERS });
         const data = await res.json();
         const tbody = document.getElementById('logs-table-body');
         if (!data.success || !data.logs || data.logs.length === 0) {
@@ -1074,7 +1074,7 @@
       const icon = document.getElementById('upgrades-refresh-icon');
       if (icon) icon.classList.add('fa-spin');
       try {
-        const res = await fetch(`${API_BASE}/upgrade-requests`, { headers: ADMIN_HEADERS });
+        const res = await fetch(`${API_BASE}/upgrade-requests?admin_secret=admin_secret_123`, { headers: ADMIN_HEADERS });
         const data = await res.json();
         const tbody = document.getElementById('upgrades-table-body');
         if (!data.success || !data.requests || data.requests.length === 0) {
