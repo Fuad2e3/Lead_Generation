@@ -2152,7 +2152,7 @@
               }
             } catch (err) {
               console.error('Admin Login Error:', err);
-              showAuthError(`Server connection error: ${err.message}. Is backend running?`);
+              showAuthError('Server connection error');
             } finally {
               if (btnSubmit) {
                 btnSubmit.disabled = false;
