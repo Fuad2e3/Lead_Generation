@@ -755,6 +755,50 @@
       justify-content: space-between;
       font-size: 12px;
       color: var(--text-muted);
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .btn-see-more {
+      background: rgba(108, 99, 255, 0.12);
+      border: 1px solid rgba(108, 99, 255, 0.35);
+      color: var(--primary);
+      padding: 6px 14px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s;
+    }
+
+    .btn-see-more:hover {
+      background: rgba(108, 99, 255, 0.25);
+      border-color: var(--primary);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(108, 99, 255, 0.2);
+    }
+
+    .btn-see-less {
+      background: rgba(100, 116, 139, 0.12);
+      border: 1px solid rgba(100, 116, 139, 0.3);
+      color: var(--text-muted);
+      padding: 6px 14px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s;
+    }
+
+    .btn-see-less:hover {
+      background: rgba(100, 116, 139, 0.22);
+      color: var(--text);
     }
 
     @media (max-width: 768px) {
@@ -932,8 +976,9 @@
         </table>
       </div>
 
-      <div class="table-footer">
+      <div class="table-footer" id="users-table-footer">
         <span id="footer-count">Loading...</span>
+        <div id="users-see-more-container" style="display:flex; gap:8px;"></div>
         <span id="footer-time"></span>
       </div>
     </div>
@@ -962,6 +1007,10 @@
           </tbody>
         </table>
       </div>
+      <div class="table-footer" id="upgrades-table-footer" style="display: none;">
+        <span id="upgrades-footer-count">Showing 0 requests</span>
+        <div id="upgrades-see-more-container" style="display:flex; gap:8px;"></div>
+      </div>
     </div>
 
     <!-- Activity Audit Logs Card -->
@@ -985,6 +1034,10 @@
             <tr><td colspan="5" class="text-center" style="padding:30px;color:var(--text-muted);">Loading system activity audit logs...</td></tr>
           </tbody>
         </table>
+      </div>
+      <div class="table-footer" id="logs-table-footer" style="display: none;">
+        <span id="logs-footer-count">Showing 0 logs</span>
+        <div id="logs-see-more-container" style="display:flex; gap:8px;"></div>
       </div>
     </div>
 
@@ -1015,51 +1068,33 @@
     const _API_HOST = getApiHost();
     const API_BASE = `${_API_HOST}/api/admin`;
     // ─────────────────────────────────────────────────────────────────────────
+    // ── Pagination & Display Limits (Default 10 items) ────────────────────────
     let allUsers = [];
+    let currentFilteredUsers = [];
+    let usersDisplayLimit = 10;
 
-    const ADMIN_HEADERS = { 'Content-Type': 'application/json', 'x-admin-secret': 'admin_secret_123' };
+    let allUpgradeRequests = [];
+    let upgradesDisplayLimit = 10;
 
-    // ── Toast
-    function toast(msg, type = 'info') {
-      const container = document.getElementById('toast-container');
-      const el = document.createElement('div');
-      el.className = `toast ${type}`;
-      const icon = type === 'success' ? 'fa-circle-check' : type === 'error' ? 'fa-triangle-exclamation' : 'fa-circle-info';
-      el.innerHTML = `<i class="fa-solid ${icon}"></i><span>${msg}</span>`;
-      container.appendChild(el);
-      setTimeout(() => el.remove(), 3500);
-    }
+    let allActivityLogs = [];
+    let logsDisplayLimit = 10;
 
-    // ── Format date
-    function fmtDate(d) {
-      if (!d) return '<span style="color:var(--text-muted);font-style:italic;">Never</span>';
-      const dt = new Date(d);
-      if (isNaN(dt)) return d;
-      return dt.toLocaleString('en-GB', { day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' });
-    }
-
-    // ── Avatar initials
-    function initials(name) {
-      if (!name) return '?';
-      return name.split(' ').map(w => w[0]).join('').substring(0, 2).toUpperCase();
-    }
-
-    // ── Violations color class
-    function violationClass(v) {
-      if (v === 0) return 'violations-0';
-      if (v < 3)  return 'violations-low';
-      return 'violations-high';
-    }
-
-    // ── Render table
+    // ── Render Users Table
     function renderTable(users) {
+      currentFilteredUsers = users || [];
       const tbody = document.getElementById('table-body');
-      if (users.length === 0) {
+      const seeMoreContainer = document.getElementById('users-see-more-container');
+
+      if (currentFilteredUsers.length === 0) {
         tbody.innerHTML = `<tr><td colspan="10"><div class="empty-state"><i class="fa-solid fa-users-slash"></i><p>No users found.</p></div></td></tr>`;
+        document.getElementById('footer-count').textContent = '0 users found';
+        if (seeMoreContainer) seeMoreContainer.innerHTML = '';
         return;
       }
 
-      tbody.innerHTML = users.map(u => `
+      const usersToRender = currentFilteredUsers.slice(0, usersDisplayLimit);
+
+      tbody.innerHTML = usersToRender.map(u => `
         <tr id="row-${u.id}">
           <td class="td-id">#${u.id}</td>
           <td>
@@ -1103,6 +1138,35 @@
           </td>
         </tr>
       `).join('');
+
+      document.getElementById('footer-count').textContent = `Showing ${usersToRender.length} of ${currentFilteredUsers.length} users`;
+
+      if (seeMoreContainer) {
+        let btnsHtml = '';
+        if (currentFilteredUsers.length > usersDisplayLimit) {
+          const remaining = currentFilteredUsers.length - usersDisplayLimit;
+          btnsHtml += `<button class="btn-see-more" onclick="showMoreUsers()"><i class="fa-solid fa-chevron-down"></i> See More (+${Math.min(10, remaining)})</button>`;
+          btnsHtml += `<button class="btn-see-more" onclick="showAllUsers()"><i class="fa-solid fa-angles-down"></i> Show All (${currentFilteredUsers.length})</button>`;
+        } else if (usersDisplayLimit > 10 && currentFilteredUsers.length > 10) {
+          btnsHtml += `<button class="btn-see-less" onclick="showLessUsers()"><i class="fa-solid fa-chevron-up"></i> Show Less (10)</button>`;
+        }
+        seeMoreContainer.innerHTML = btnsHtml;
+      }
+    }
+
+    function showMoreUsers() {
+      usersDisplayLimit += 10;
+      renderTable(currentFilteredUsers);
+    }
+
+    function showAllUsers() {
+      usersDisplayLimit = currentFilteredUsers.length;
+      renderTable(currentFilteredUsers);
+    }
+
+    function showLessUsers() {
+      usersDisplayLimit = 10;
+      renderTable(currentFilteredUsers);
     }
 
     // ── Update stats
@@ -1116,8 +1180,9 @@
     // ── Load users from API
     async function loadUsers() {
       const icon = document.getElementById('refresh-icon');
-      icon.classList.add('fa-spin');
-      document.getElementById('error-alert').style.display = 'none';
+      if (icon) icon.classList.add('fa-spin');
+      const errAlert = document.getElementById('error-alert');
+      if (errAlert) errAlert.style.display = 'none';
 
       const startTime = Date.now();
 
@@ -1127,12 +1192,12 @@
         const data = await res.json();
 
         allUsers = data.users || [];
+        currentFilteredUsers = allUsers;
         renderTable(allUsers);
         updateStats(allUsers);
 
         const ms = Date.now() - startTime;
-        document.getElementById('footer-count').textContent = `${allUsers.length} user(s) loaded`;
-        document.getElementById('footer-time').textContent  = `Fetched in ${ms}ms — ${new Date().toLocaleTimeString()}`;
+        document.getElementById('footer-time').textContent = `Fetched in ${ms}ms — ${new Date().toLocaleTimeString()}`;
 
         // API connected
         document.getElementById('api-status-badge').style.background = 'rgba(34,211,165,0.1)';
@@ -1143,9 +1208,10 @@
 
       } catch (err) {
         console.error(err);
-        const errAlert = document.getElementById('error-alert');
-        document.getElementById('error-msg').textContent = `Cannot connect to API at ${API_BASE}. Make sure the server is running. Error: ${err.message}`;
-        errAlert.style.display = 'flex';
+        if (errAlert) {
+          document.getElementById('error-msg').textContent = `Cannot connect to API at ${API_BASE}. Make sure the server is running. Error: ${err.message}`;
+          errAlert.style.display = 'flex';
+        }
 
         document.getElementById('api-status-text').textContent = 'API Offline';
         document.querySelector('.api-status .dot').style.background = 'var(--danger)';
@@ -1156,7 +1222,7 @@
         document.getElementById('table-body').innerHTML = `<tr><td colspan="9"><div class="empty-state"><i class="fa-solid fa-plug-circle-xmark"></i><p>Failed to load users. Is the API server running on port 3000?</p></div></td></tr>`;
         document.getElementById('footer-count').textContent = 'Connection failed';
       } finally {
-        icon.classList.remove('fa-spin');
+        if (icon) icon.classList.remove('fa-spin');
       }
     }
 
@@ -1302,26 +1368,69 @@
     }
 
     // ── Load Activity Audit Logs
+    function renderActivityLogsTable() {
+      const tbody = document.getElementById('logs-table-body');
+      const footer = document.getElementById('logs-table-footer');
+      const footerCount = document.getElementById('logs-footer-count');
+      const seeMoreContainer = document.getElementById('logs-see-more-container');
+
+      if (!allActivityLogs || allActivityLogs.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="5" class="text-center" style="padding:20px;color:var(--text-muted);">No activity logs recorded yet.</td></tr>`;
+        if (footer) footer.style.display = 'none';
+        return;
+      }
+
+      if (footer) footer.style.display = 'flex';
+      const toRender = allActivityLogs.slice(0, logsDisplayLimit);
+
+      tbody.innerHTML = toRender.map(l => `
+        <tr>
+          <td class="td-id">#${l.id}</td>
+          <td class="td-email"><strong>${l.user_email || 'System'}</strong></td>
+          <td><span class="status-badge active">${l.action}</span></td>
+          <td>${l.details}</td>
+          <td class="td-datetime">${fmtDate(l.created_at)}</td>
+        </tr>
+      `).join('');
+
+      if (footerCount) footerCount.textContent = `Showing ${toRender.length} of ${allActivityLogs.length} logs`;
+
+      if (seeMoreContainer) {
+        let btnsHtml = '';
+        if (allActivityLogs.length > logsDisplayLimit) {
+          const remaining = allActivityLogs.length - logsDisplayLimit;
+          btnsHtml += `<button class="btn-see-more" onclick="showMoreLogs()"><i class="fa-solid fa-chevron-down"></i> See More (+${Math.min(10, remaining)})</button>`;
+          btnsHtml += `<button class="btn-see-more" onclick="showAllLogs()"><i class="fa-solid fa-angles-down"></i> Show All (${allActivityLogs.length})</button>`;
+        } else if (logsDisplayLimit > 10 && allActivityLogs.length > 10) {
+          btnsHtml += `<button class="btn-see-less" onclick="showLessLogs()"><i class="fa-solid fa-chevron-up"></i> Show Less (10)</button>`;
+        }
+        seeMoreContainer.innerHTML = btnsHtml;
+      }
+    }
+
+    function showMoreLogs() {
+      logsDisplayLimit += 10;
+      renderActivityLogsTable();
+    }
+
+    function showAllLogs() {
+      logsDisplayLimit = allActivityLogs.length;
+      renderActivityLogsTable();
+    }
+
+    function showLessLogs() {
+      logsDisplayLimit = 10;
+      renderActivityLogsTable();
+    }
+
     async function loadActivityLogs() {
       const icon = document.getElementById('logs-refresh-icon');
       if (icon) icon.classList.add('fa-spin');
       try {
         const res = await fetch(`${API_BASE}/activity-logs?admin_secret=admin_secret_123`, { headers: ADMIN_HEADERS });
         const data = await res.json();
-        const tbody = document.getElementById('logs-table-body');
-        if (!data.success || !data.logs || data.logs.length === 0) {
-          tbody.innerHTML = `<tr><td colspan="5" class="text-center" style="padding:20px;color:var(--text-muted);">No activity logs recorded yet.</td></tr>`;
-          return;
-        }
-        tbody.innerHTML = data.logs.map(l => `
-          <tr>
-            <td class="td-id">#${l.id}</td>
-            <td class="td-email"><strong>${l.user_email || 'System'}</strong></td>
-            <td><span class="status-badge active">${l.action}</span></td>
-            <td>${l.details}</td>
-            <td class="td-datetime">${fmtDate(l.created_at)}</td>
-          </tr>
-        `).join('');
+        allActivityLogs = (data.success && data.logs) ? data.logs : [];
+        renderActivityLogsTable();
       } catch (err) {
         console.error(err);
       } finally {
@@ -1330,47 +1439,90 @@
     }
 
     // ── Load Package Upgrade Requests
+    function renderUpgradeRequestsTable() {
+      const tbody = document.getElementById('upgrades-table-body');
+      const footer = document.getElementById('upgrades-table-footer');
+      const footerCount = document.getElementById('upgrades-footer-count');
+      const seeMoreContainer = document.getElementById('upgrades-see-more-container');
+
+      if (!allUpgradeRequests || allUpgradeRequests.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="7" class="text-center" style="padding:20px;color:var(--text-muted);">No upgrade requests pending.</td></tr>`;
+        if (footer) footer.style.display = 'none';
+        return;
+      }
+
+      if (footer) footer.style.display = 'flex';
+      const toRender = allUpgradeRequests.slice(0, upgradesDisplayLimit);
+
+      tbody.innerHTML = toRender.map(r => {
+        const statusBadge = r.status === 'approved' 
+          ? '<span class="status-badge active"><i class="fa-solid fa-circle-check"></i> Approved</span>' 
+          : r.status === 'rejected'
+            ? '<span class="status-badge banned"><i class="fa-solid fa-circle-xmark"></i> Rejected</span>'
+            : '<span class="status-badge" style="background:rgba(245,158,11,0.15);color:#f59e0b;border:1px solid rgba(245,158,11,0.3);"><i class="fa-solid fa-clock"></i> Pending</span>';
+        
+        const pkgBadge = r.requested_package === 'enterprise'
+          ? '<span class="pkg-badge ent">ENTERPRISE (Unlimited)</span>'
+          : '<span class="pkg-badge pro">PRO (1,000 / day)</span>';
+
+        const actionBtns = r.status === 'pending' ? `
+          <div style="display:flex;gap:6px;">
+            <button class="btn-action primary" onclick="handleUpgradeAction(${r.id}, 'approve')" style="background:rgba(34,197,94,0.15);color:#22c55e;border-color:rgba(34,197,94,0.3);"><i class="fa-solid fa-check"></i> Approve</button>
+            <button class="btn-action danger" onclick="handleUpgradeAction(${r.id}, 'reject')"><i class="fa-solid fa-xmark"></i> Reject</button>
+          </div>
+        ` : '<span style="color:var(--text-muted);font-size:12px;">Completed</span>';
+
+        return `
+          <tr>
+            <td class="td-id">#${r.id}</td>
+            <td class="td-name"><strong>${r.user_name || 'User'}</strong></td>
+            <td class="td-email">${r.user_email}</td>
+            <td>${pkgBadge}</td>
+            <td>${statusBadge}</td>
+            <td class="td-datetime">${fmtDate(r.created_at)}</td>
+            <td>${actionBtns}</td>
+          </tr>
+        `;
+      }).join('');
+
+      if (footerCount) footerCount.textContent = `Showing ${toRender.length} of ${allUpgradeRequests.length} requests`;
+
+      if (seeMoreContainer) {
+        let btnsHtml = '';
+        if (allUpgradeRequests.length > upgradesDisplayLimit) {
+          const remaining = allUpgradeRequests.length - upgradesDisplayLimit;
+          btnsHtml += `<button class="btn-see-more" onclick="showMoreUpgrades()"><i class="fa-solid fa-chevron-down"></i> See More (+${Math.min(10, remaining)})</button>`;
+          btnsHtml += `<button class="btn-see-more" onclick="showAllUpgrades()"><i class="fa-solid fa-angles-down"></i> Show All (${allUpgradeRequests.length})</button>`;
+        } else if (upgradesDisplayLimit > 10 && allUpgradeRequests.length > 10) {
+          btnsHtml += `<button class="btn-see-less" onclick="showLessUpgrades()"><i class="fa-solid fa-chevron-up"></i> Show Less (10)</button>`;
+        }
+        seeMoreContainer.innerHTML = btnsHtml;
+      }
+    }
+
+    function showMoreUpgrades() {
+      upgradesDisplayLimit += 10;
+      renderUpgradeRequestsTable();
+    }
+
+    function showAllUpgrades() {
+      upgradesDisplayLimit = allUpgradeRequests.length;
+      renderUpgradeRequestsTable();
+    }
+
+    function showLessUpgrades() {
+      upgradesDisplayLimit = 10;
+      renderUpgradeRequestsTable();
+    }
+
     async function loadUpgradeRequests() {
       const icon = document.getElementById('upgrades-refresh-icon');
       if (icon) icon.classList.add('fa-spin');
       try {
         const res = await fetch(`${API_BASE}/upgrade-requests?admin_secret=admin_secret_123`, { headers: ADMIN_HEADERS });
         const data = await res.json();
-        const tbody = document.getElementById('upgrades-table-body');
-        if (!data.success || !data.requests || data.requests.length === 0) {
-          tbody.innerHTML = `<tr><td colspan="7" class="text-center" style="padding:20px;color:var(--text-muted);">No upgrade requests pending.</td></tr>`;
-          return;
-        }
-        tbody.innerHTML = data.requests.map(r => {
-          const statusBadge = r.status === 'approved' 
-            ? '<span class="status-badge active"><i class="fa-solid fa-circle-check"></i> Approved</span>' 
-            : r.status === 'rejected'
-              ? '<span class="status-badge banned"><i class="fa-solid fa-circle-xmark"></i> Rejected</span>'
-              : '<span class="status-badge" style="background:rgba(245,158,11,0.15);color:#f59e0b;border:1px solid rgba(245,158,11,0.3);"><i class="fa-solid fa-clock"></i> Pending</span>';
-          
-          const pkgBadge = r.requested_package === 'enterprise'
-            ? '<span class="pkg-badge ent">ENTERPRISE (Unlimited)</span>'
-            : '<span class="pkg-badge pro">PRO (1,000 / day)</span>';
-
-          const actionBtns = r.status === 'pending' ? `
-            <div style="display:flex;gap:6px;">
-              <button class="btn-action primary" onclick="handleUpgradeAction(${r.id}, 'approve')" style="background:rgba(34,197,94,0.15);color:#22c55e;border-color:rgba(34,197,94,0.3);"><i class="fa-solid fa-check"></i> Approve</button>
-              <button class="btn-action danger" onclick="handleUpgradeAction(${r.id}, 'reject')"><i class="fa-solid fa-xmark"></i> Reject</button>
-            </div>
-          ` : '<span style="color:var(--text-muted);font-size:12px;">Completed</span>';
-
-          return `
-            <tr>
-              <td class="td-id">#${r.id}</td>
-              <td class="td-name"><strong>${r.user_name || 'User'}</strong></td>
-              <td class="td-email">${r.user_email}</td>
-              <td>${pkgBadge}</td>
-              <td>${statusBadge}</td>
-              <td class="td-datetime">${fmtDate(r.created_at)}</td>
-              <td>${actionBtns}</td>
-            </tr>
-          `;
-        }).join('');
+        allUpgradeRequests = (data.success && data.requests) ? data.requests : [];
+        renderUpgradeRequestsTable();
       } catch(err) {
         console.error(err);
       } finally {
@@ -1403,6 +1555,7 @@
     // ── Search / filter
     document.getElementById('search-input').addEventListener('input', function() {
       const q = this.value.trim().toLowerCase();
+      usersDisplayLimit = 10; // reset to 10 on new search
       if (!q) { renderTable(allUsers); return; }
       const filtered = allUsers.filter(u =>
         (u.name   || '').toLowerCase().includes(q) ||
@@ -1411,7 +1564,6 @@
         (u.package|| '').toLowerCase().includes(q)
       );
       renderTable(filtered);
-      document.getElementById('footer-count').textContent = `${filtered.length} of ${allUsers.length} users shown`;
     });
 
 
