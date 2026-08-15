@@ -501,7 +501,7 @@
         });
         const data = await res.json();
 
-        if (!data.success || data.status === 'banned' || data.status === 'deleted' || data.status === 'inactive') {
+        if (data && (data.status === 'banned' || data.status === 'deleted' || data.status === 'inactive')) {
           localStorage.removeItem('lgs_auth');
           localStorage.removeItem('lgs_session');
           localStorage.removeItem('lgs_token');
