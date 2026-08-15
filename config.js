@@ -1,3 +1,3 @@
 window.LGS_CONFIG = {
-  API_URL: "https://enhance-owen-brochures-various.trycloudflare.com"
+  API_URL: "https://dealing-stable-happen-type.trycloudflare.com"
 };

@@ -355,7 +355,8 @@
           </div>
 
           <!-- Data Grid Pagination & View Controls -->
-          <div id="grid-pagination-container" style="display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; margin-top: 8px; border-top: 1px solid rgba(255, 255, 255, 0.08); flex-wrap: wrap; gap: 10px;">
+          <div id="grid-pagination-container"
+            style="display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; margin-top: 8px; border-top: 1px solid rgba(255, 255, 255, 0.08); flex-wrap: wrap; gap: 10px;">
             <div id="grid-footer-count" style="font-size: 12px; color: var(--text-muted, #94a3b8); font-weight: 500;">
               Showing 0 of 0 websites
             </div>
@@ -461,7 +462,7 @@
   </div>
 
 
-  <script src="app.js?v=20260815_0003"></script>
+  <script src="app.js?v=20260814_2353"></script>
   <script>
     // ── Server URL Config ────────────────────────────────────────────────────
     function getApiHost() {
@@ -475,9 +476,9 @@
       if (isLocal) return 'http://localhost:3000';
       if (isIp) return `http://${h}:3000`;
       if (h.endsWith('github.io') || h.endsWith('netlify.app') || h.endsWith('vercel.app')) {
-        return 'https://enhance-owen-brochures-various.trycloudflare.com';
+        return 'https://dealing-stable-happen-type.trycloudflare.com';
       }
-      return (window.location.protocol === 'file:' || !window.location.origin || window.location.origin === 'null') ? 'https://enhance-owen-brochures-various.trycloudflare.com' : window.location.origin;
+      return (window.location.protocol === 'file:' || !window.location.origin || window.location.origin === 'null') ? 'https://dealing-stable-happen-type.trycloudflare.com' : window.location.origin;
     }
     window.getApiHost = getApiHost;
     const _API_HOST = getApiHost();
