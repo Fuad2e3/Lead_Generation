@@ -342,12 +342,13 @@
                   <th>Homepage</th>
                   <th>About Us</th>
                   <th>Contact Us</th>
+                  <th>Services</th>
                   <th>Action</th>
                 </tr>
               </thead>
               <tbody id="table-body">
                 <tr>
-                  <td colspan="11" class="text-center text-muted">No mined data yet. Click "Launch Mining Session"
+                  <td colspan="12" class="text-center text-muted">No mined data yet. Click "Launch Mining Session"
                     above.</td>
                 </tr>
               </tbody>
@@ -408,34 +409,49 @@
         </div>
 
         <p style="font-size: 12px; color: var(--text-muted);">Export extracted website details into your preferred file
-          format:</p>
-        <div class="export-grid margin-top-sm">
-          <button class="export-card" id="export-excel">
-            <i class="fa-solid fa-file-excel color-excel"></i>
-            <strong>Excel (.xlsx)</strong>
-            <span>Spreadsheet format</span>
+          format with complete full-length text:</p>
+
+        <div class="export-options">
+          <button class="btn-export-option" id="export-excel">
+            <i class="fa-solid fa-file-excel color-success" style="font-size: 24px;"></i>
+            <div>
+              <strong>Excel (.xlsx)</strong>
+              <span>Full text with auto-fit columns</span>
+            </div>
           </button>
-          <button class="export-card" id="export-csv">
-            <i class="fa-solid fa-file-csv color-csv"></i>
-            <strong>CSV (.csv)</strong>
-            <span>Standard data file</span>
+          <button class="btn-export-option" id="export-csv">
+            <i class="fa-solid fa-file-csv color-accent" style="font-size: 24px;"></i>
+            <div>
+              <strong>CSV (.csv)</strong>
+              <span>Universal standard spreadsheet (UTF-8 BOM)</span>
+            </div>
           </button>
-          <button class="export-card" id="export-pdf">
-            <i class="fa-solid fa-file-pdf color-pdf"></i>
-            <strong>PDF Report (.pdf)</strong>
-            <span>Printable document</span>
+          <button class="btn-export-option" id="export-pdf">
+            <i class="fa-solid fa-file-pdf color-danger" style="font-size: 24px;"></i>
+            <div>
+              <strong>PDF Report (.pdf)</strong>
+              <span>Complete structured text report</span>
+            </div>
           </button>
-          <button class="export-card" id="export-json">
-            <i class="fa-solid fa-file-code color-json"></i>
-            <strong>JSON (.json)</strong>
-            <span>Raw structured data</span>
+          <button class="btn-export-option" id="export-json">
+            <i class="fa-solid fa-file-code color-warning" style="font-size: 24px;"></i>
+            <div>
+              <strong>JSON (.json)</strong>
+              <span>Raw structured developer format</span>
+            </div>
           </button>
-          <button class="export-card" id="export-txt">
-            <i class="fa-solid fa-file-lines color-txt"></i>
-            <strong>Google Sheet TSV (.txt)</strong>
-            <span>Copy-paste tab separated</span>
+          <button class="btn-export-option" id="export-txt">
+            <i class="fa-solid fa-file-lines color-primary" style="font-size: 24px;"></i>
+            <div>
+              <strong>Google Sheet TSV (.txt)</strong>
+              <span>Direct paste-ready tab separated text</span>
+            </div>
           </button>
         </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary btn-md"
+          onclick="document.getElementById('modal-export').classList.add('hidden'); document.body.style.overflow='';">Cancel</button>
       </div>
     </div>
   </div>
@@ -456,6 +472,42 @@
         <button id="btn-back-detail" class="btn btn-primary btn-md"
           onclick="document.getElementById('modal-detail').classList.add('hidden'); document.body.style.overflow='';">
           <i class="fa-solid fa-arrow-left"></i> Back to Results Table
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Full Text Cell Expander Modal (Click on any cell to view big text like Google Sheets) -->
+  <div id="modal-cell-preview" class="modal-backdrop hidden">
+    <div class="modal-box modal-lg" style="max-width: 850px; border: 1.5px solid var(--color-primary, #6c63ff); box-shadow: 0 16px 40px rgba(0,0,0,0.5);">
+      <div class="modal-header" style="border-bottom: 1px solid rgba(255,255,255,0.1); padding: 14px 20px;">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <i class="fa-solid fa-up-right-and-down-left-from-center color-primary" style="font-size: 18px;"></i>
+          <div>
+            <h3 id="cell-preview-title" style="margin: 0; font-size: 16px; color: var(--text-heading);">Column Full Text View</h3>
+            <span id="cell-preview-subtitle" style="font-size: 12px; color: var(--text-muted);">Website URL</span>
+          </div>
+        </div>
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <button id="btn-copy-cell-text" class="btn btn-secondary btn-sm" style="display: flex; align-items: center; gap: 6px;">
+            <i class="fa-solid fa-copy"></i> Copy Full Text
+          </button>
+          <button class="btn-close" id="btn-close-cell-preview" onclick="document.getElementById('modal-cell-preview').classList.add('hidden'); document.body.style.overflow='';">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+      </div>
+      <div class="modal-body" style="padding: 20px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; font-size: 12px; color: var(--text-muted);">
+          <span id="cell-preview-meta"><i class="fa-solid fa-chart-simple"></i> Characters: 0 | Words: 0</span>
+          <span style="font-size: 11px; background: rgba(108, 99, 255, 0.15); color: var(--color-primary); padding: 2px 8px; border-radius: 6px; font-weight: 600;">100% Full Uncut Text</span>
+        </div>
+        <div id="cell-preview-content" style="background: var(--bg-input, rgba(0,0,0,0.25)); border: 1px solid var(--border-input, rgba(255,255,255,0.1)); border-radius: 8px; padding: 16px; font-size: 14px; line-height: 1.7; color: var(--text-main, #f1f5f9); max-height: 480px; overflow-y: auto; white-space: pre-wrap; font-family: 'Inter', system-ui, sans-serif; user-select: text;">
+        </div>
+      </div>
+      <div class="modal-footer" style="display: flex; justify-content: flex-end; padding: 12px 20px; border-top: 1px solid rgba(255,255,255,0.08);">
+        <button class="btn btn-primary btn-md" onclick="document.getElementById('modal-cell-preview').classList.add('hidden'); document.body.style.overflow='';">
+          <i class="fa-solid fa-check"></i> Done Viewing
         </button>
       </div>
     </div>
