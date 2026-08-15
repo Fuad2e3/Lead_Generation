@@ -411,41 +411,31 @@
         <p style="font-size: 12px; color: var(--text-muted);">Export extracted website details into your preferred file
           format with complete full-length text:</p>
 
-        <div class="export-options">
-          <button class="btn-export-option" id="export-excel">
-            <i class="fa-solid fa-file-excel color-success" style="font-size: 24px;"></i>
-            <div>
-              <strong>Excel (.xlsx)</strong>
-              <span>Full text with auto-fit columns</span>
-            </div>
+        <div class="export-grid margin-top-sm">
+          <button class="export-card" id="export-excel">
+            <i class="fa-solid fa-file-excel color-excel"></i>
+            <strong>Excel (.xlsx)</strong>
+            <span>Full text auto-fit</span>
           </button>
-          <button class="btn-export-option" id="export-csv">
-            <i class="fa-solid fa-file-csv color-accent" style="font-size: 24px;"></i>
-            <div>
-              <strong>CSV (.csv)</strong>
-              <span>Universal standard spreadsheet (UTF-8 BOM)</span>
-            </div>
+          <button class="export-card" id="export-csv">
+            <i class="fa-solid fa-file-csv color-csv"></i>
+            <strong>CSV (.csv)</strong>
+            <span>Spreadsheet (UTF-8)</span>
           </button>
-          <button class="btn-export-option" id="export-pdf">
-            <i class="fa-solid fa-file-pdf color-danger" style="font-size: 24px;"></i>
-            <div>
-              <strong>PDF Report (.pdf)</strong>
-              <span>Complete structured text report</span>
-            </div>
+          <button class="export-card" id="export-pdf">
+            <i class="fa-solid fa-file-pdf color-pdf"></i>
+            <strong>PDF Report (.pdf)</strong>
+            <span>Printable document</span>
           </button>
-          <button class="btn-export-option" id="export-json">
-            <i class="fa-solid fa-file-code color-warning" style="font-size: 24px;"></i>
-            <div>
-              <strong>JSON (.json)</strong>
-              <span>Raw structured developer format</span>
-            </div>
+          <button class="export-card" id="export-json">
+            <i class="fa-solid fa-file-code color-json"></i>
+            <strong>JSON (.json)</strong>
+            <span>Raw structured data</span>
           </button>
-          <button class="btn-export-option" id="export-txt">
-            <i class="fa-solid fa-file-lines color-primary" style="font-size: 24px;"></i>
-            <div>
-              <strong>Google Sheet TSV (.txt)</strong>
-              <span>Direct paste-ready tab separated text</span>
-            </div>
+          <button class="export-card" id="export-txt">
+            <i class="fa-solid fa-file-lines color-txt"></i>
+            <strong>Google Sheet TSV (.txt)</strong>
+            <span>Tab separated text</span>
           </button>
         </div>
       </div>
