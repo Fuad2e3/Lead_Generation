@@ -807,84 +807,16 @@
     }
 
     function exportData(format) {
-      const { headers, rows, objects } = getMinedTableData();
-
-      if (rows.length === 0) {
-        alert('No mined data available to export. Please run a mining session first!');
-        return;
-      }
-
-      const dateStr = new Date().toISOString().slice(0, 10);
-
       if (format === 'excel') {
-        if (typeof XLSX === 'undefined') {
-          alert('Excel library is loading. Please try again in a moment.');
-          return;
-        }
-        const ws = XLSX.utils.json_to_sheet(objects);
-
-        // Auto-fit column widths
-        const colWidths = headers.map(h => {
-          let maxLen = h.length;
-          objects.forEach(o => {
-            const valLen = String(o[h] || '').length;
-            if (valLen > maxLen) maxLen = valLen;
-          });
-          return { wch: Math.min(Math.max(maxLen + 3, 14), 60) };
-        });
-        ws['!cols'] = colWidths;
-
-        const wb = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, ws, "Extracted Data");
-        XLSX.writeFile(wb, `Lead_Generation_Data_${dateStr}.xlsx`);
+        if (typeof window.exportToExcel === 'function') return window.exportToExcel();
       } else if (format === 'csv') {
-        const csvLines = [];
-        csvLines.push(headers.map(h => `"${String(h).replace(/"/g, '""')}"`).join(','));
-        rows.forEach(row => {
-          csvLines.push(row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(','));
-        });
-        // UTF-8 BOM prefix \uFEFF for seamless opening in Excel & Google Sheets
-        const blob = new Blob(['\uFEFF' + csvLines.join('\r\n')], { type: 'text/csv;charset=utf-8;' });
-        downloadBlob(blob, `Lead_Generation_Data_${dateStr}.csv`);
+        if (typeof window.exportToCSV === 'function') return window.exportToCSV();
       } else if (format === 'pdf') {
-        const jspdf = window.jspdf || window.jsPDF;
-        if (!jspdf) {
-          alert('PDF library is loading. Please try again in a moment.');
-          return;
-        }
-        const doc = new (jspdf.jsPDF || jspdf)({ orientation: 'landscape' });
-        doc.setFontSize(14);
-        doc.text('Lead Generation - Extracted Data Report', 14, 15);
-        doc.setFontSize(9);
-        doc.text(`Generated on: ${new Date().toLocaleString()} | Total Records: ${rows.length}`, 14, 22);
-
-        if (typeof doc.autoTable === 'function') {
-          doc.autoTable({
-            head: [headers],
-            body: rows,
-            startY: 26,
-            styles: { fontSize: 7, cellPadding: 2, overflow: 'linebreak' },
-            headStyles: { fillColor: [108, 99, 255] }
-          });
-        } else {
-          let y = 30;
-          rows.forEach(r => {
-            doc.text(r.join(' | '), 14, y);
-            y += 7;
-          });
-        }
-        doc.save(`Lead_Generation_Report_${dateStr}.pdf`);
+        if (typeof window.exportToPDF === 'function') return window.exportToPDF();
       } else if (format === 'json') {
-        const jsonContent = JSON.stringify(objects, null, 2);
-        const blob = new Blob([jsonContent], { type: 'application/json' });
-        downloadBlob(blob, `Lead_Generation_Data_${dateStr}.json`);
+        if (typeof window.exportToJSON === 'function') return window.exportToJSON();
       } else if (format === 'txt') {
-        const tsvLines = [headers.join('\t')];
-        rows.forEach(row => {
-          tsvLines.push(row.map(c => String(c).replace(/\t/g, ' ')).join('\t'));
-        });
-        const blob = new Blob(['\uFEFF' + tsvLines.join('\r\n')], { type: 'text/plain;charset=utf-8;' });
-        downloadBlob(blob, `Lead_Generation_Data_${dateStr}.txt`);
+        if (typeof window.exportToTXT === 'function') return window.exportToTXT();
       }
     }
 
