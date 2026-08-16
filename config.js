@@ -1,3 +1,3 @@
 window.LGS_CONFIG = {
-  API_URL: "https://courage-handles-commissioners-hopkins.trycloudflare.com"
+  API_URL: "https://contacted-odds-township-extensions.trycloudflare.com"
 };
