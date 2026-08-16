@@ -1,3 +1,3 @@
 window.LGS_CONFIG = {
-  API_URL: "https://dealing-stable-happen-type.trycloudflare.com"
+  API_URL: "https://courage-handles-commissioners-hopkins.trycloudflare.com"
 };
