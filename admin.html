@@ -1570,11 +1570,11 @@
     }
 
     // ── Load users from API
-    async function loadUsers() {
+    async function loadUsers(isSilent = false) {
       const icon = document.getElementById('refresh-icon');
-      if (icon) icon.classList.add('fa-spin');
+      if (icon && !isSilent) icon.classList.add('fa-spin');
       const errAlert = document.getElementById('error-alert');
-      if (errAlert) errAlert.style.display = 'none';
+      if (errAlert && !isSilent) errAlert.style.display = 'none';
 
       const startTime = Date.now();
 
@@ -1590,32 +1590,46 @@
         renderAnalyticsCharts(allUsers);
 
         const ms = Date.now() - startTime;
-        document.getElementById('footer-time').textContent = `Fetched in ${ms}ms — ${new Date().toLocaleTimeString()}`;
+        const footerTime = document.getElementById('footer-time');
+        if (footerTime) footerTime.textContent = `Fetched in ${ms}ms — ${new Date().toLocaleTimeString()}`;
 
         // API connected
-        document.getElementById('api-status-badge').style.background = 'rgba(34,211,165,0.1)';
-        document.getElementById('api-status-badge').style.borderColor = 'rgba(34,211,165,0.25)';
-        document.getElementById('api-status-text').textContent = 'API Connected';
-        document.querySelector('.api-status .dot').style.background = 'var(--success)';
-        document.querySelector('.api-status').style.color = 'var(--success)';
+        const statusBadge = document.getElementById('api-status-badge');
+        if (statusBadge) {
+          statusBadge.style.background = 'rgba(34,211,165,0.1)';
+          statusBadge.style.borderColor = 'rgba(34,211,165,0.25)';
+        }
+        const statusText = document.getElementById('api-status-text');
+        if (statusText) statusText.textContent = 'API Connected';
+        const dot = document.querySelector('.api-status .dot');
+        if (dot) dot.style.background = 'var(--success)';
+        const apiStat = document.querySelector('.api-status');
+        if (apiStat) apiStat.style.color = 'var(--success)';
 
       } catch (err) {
-        console.error(err);
-        if (errAlert) {
-          document.getElementById('error-msg').textContent = `Cannot connect to API at ${API_BASE}. Make sure the server is running. Error: ${err.message}`;
-          errAlert.style.display = 'flex';
+        if (!isSilent) {
+          console.error(err);
+          if (errAlert) {
+            document.getElementById('error-msg').textContent = `Cannot connect to API at ${API_BASE}. Make sure the server is running. Error: ${err.message}`;
+            errAlert.style.display = 'flex';
+          }
+          const statusText = document.getElementById('api-status-text');
+          if (statusText) statusText.textContent = 'API Offline';
+          const dot = document.querySelector('.api-status .dot');
+          if (dot) dot.style.background = 'var(--danger)';
+          const apiStat = document.querySelector('.api-status');
+          if (apiStat) {
+            apiStat.style.color = 'var(--danger)';
+            apiStat.style.borderColor = 'rgba(255,71,87,0.25)';
+            apiStat.style.background = 'rgba(255,71,87,0.1)';
+          }
+          const tbody = document.getElementById('table-body');
+          if (tbody) tbody.innerHTML = `<tr><td colspan="10"><div class="empty-state"><i class="fa-solid fa-plug-circle-xmark"></i><p>Failed to load users. Is the API server running on port 3000?</p></div></td></tr>`;
+          const footerCount = document.getElementById('footer-count');
+          if (footerCount) footerCount.textContent = 'Connection failed';
         }
-
-        document.getElementById('api-status-text').textContent = 'API Offline';
-        document.querySelector('.api-status .dot').style.background = 'var(--danger)';
-        document.querySelector('.api-status').style.color = 'var(--danger)';
-        document.querySelector('.api-status').style.borderColor = 'rgba(255,71,87,0.25)';
-        document.querySelector('.api-status').style.background = 'rgba(255,71,87,0.1)';
-
-        document.getElementById('table-body').innerHTML = `<tr><td colspan="9"><div class="empty-state"><i class="fa-solid fa-plug-circle-xmark"></i><p>Failed to load users. Is the API server running on port 3000?</p></div></td></tr>`;
-        document.getElementById('footer-count').textContent = 'Connection failed';
       } finally {
-        if (icon) icon.classList.remove('fa-spin');
+        if (icon && !isSilent) icon.classList.remove('fa-spin');
       }
     }
 
@@ -1839,18 +1853,18 @@
       renderActivityLogsTable();
     }
 
-    async function loadActivityLogs() {
+    async function loadActivityLogs(isSilent = false) {
       const icon = document.getElementById('logs-refresh-icon');
-      if (icon) icon.classList.add('fa-spin');
+      if (icon && !isSilent) icon.classList.add('fa-spin');
       try {
         const res = await fetch(`${API_BASE}/activity-logs?admin_secret=admin_secret_123`, { headers: ADMIN_HEADERS });
         const data = await res.json();
         allActivityLogs = (data.success && data.logs) ? data.logs : [];
         renderActivityLogsTable();
       } catch (err) {
-        console.error(err);
+        if (!isSilent) console.error(err);
       } finally {
-        if (icon) icon.classList.remove('fa-spin');
+        if (icon && !isSilent) icon.classList.remove('fa-spin');
       }
     }
 
@@ -1931,9 +1945,9 @@
       renderUpgradeRequestsTable();
     }
 
-    async function loadUpgradeRequests() {
+    async function loadUpgradeRequests(isSilent = false) {
       const icon = document.getElementById('upgrades-refresh-icon');
-      if (icon) icon.classList.add('fa-spin');
+      if (icon && !isSilent) icon.classList.add('fa-spin');
       try {
         const res = await fetch(`${API_BASE}/upgrade-requests?admin_secret=admin_secret_123`, { headers: ADMIN_HEADERS });
         const data = await res.json();
@@ -1952,11 +1966,22 @@
           }
         }
       } catch (err) {
-        console.error(err);
+        if (!isSilent) console.error(err);
       } finally {
-        if (icon) icon.classList.remove('fa-spin');
+        if (icon && !isSilent) icon.classList.remove('fa-spin');
       }
     }
+
+    // ── Live Auto-Sync for Admin Dashboard (Syncs audit logs, users & upgrades every 3.5s automatically)
+    function autoSyncAdminDataLive() {
+      const dashboard = document.getElementById('dashboard-container');
+      if (dashboard && dashboard.style.display !== 'none') {
+        loadActivityLogs(true);
+        loadUpgradeRequests(true);
+        loadUsers(true);
+      }
+    }
+    setInterval(autoSyncAdminDataLive, 3500);
 
     async function handleUpgradeAction(id, action) {
       if (!confirm(`Are you sure you want to ${action} this upgrade request?`)) return;
