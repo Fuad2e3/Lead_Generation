@@ -170,10 +170,72 @@
                   Parameters</span></h3>
             </div>
             <div class="card-body" style="padding: 14px 20px;">
+              <!-- 🏢 1. Business Intelligence & Details -->
               <div class="options-section">
                 <h4 class="section-title" style="font-size: 12px; margin-bottom: 6px;"><i
-                    class="fa-solid fa-file-lines"></i> Page Text Sections</h4>
+                    class="fa-solid fa-building color-primary"></i> Business Intelligence</h4>
                 <div class="checkbox-grid" style="grid-template-columns: repeat(2, 1fr); gap: 6px;">
+                  <label class="custom-checkbox" style="padding: 6px 10px; font-size: 12px;">
+                    <input type="checkbox" id="chk-company-name" checked>
+                    <span class="checkmark"></span>
+                    <span><i class="fa-solid fa-signature color-accent"></i> Company Name</span>
+                  </label>
+                  <label class="custom-checkbox" style="padding: 6px 10px; font-size: 12px;">
+                    <input type="checkbox" id="chk-industry" checked>
+                    <span class="checkmark"></span>
+                    <span><i class="fa-solid fa-briefcase color-warning"></i> Business Category</span>
+                  </label>
+                  <label class="custom-checkbox" style="padding: 6px 10px; font-size: 12px;">
+                    <input type="checkbox" id="chk-company-size" checked>
+                    <span class="checkmark"></span>
+                    <span><i class="fa-solid fa-users color-primary"></i> Company Size</span>
+                  </label>
+                  <label class="custom-checkbox" style="padding: 6px 10px; font-size: 12px;">
+                    <input type="checkbox" id="chk-year-founded" checked>
+                    <span class="checkmark"></span>
+                    <span><i class="fa-solid fa-calendar-check color-success"></i> Year Founded</span>
+                  </label>
+                </div>
+              </div>
+
+              <!-- 📍 2. Contact & Location Details -->
+              <div class="options-section margin-top-sm">
+                <h4 class="section-title" style="font-size: 12px; margin-bottom: 6px;"><i
+                    class="fa-solid fa-address-card color-accent"></i> Contact & Location Details</h4>
+                <div class="checkbox-grid" style="grid-template-columns: repeat(2, 1fr); gap: 6px;">
+                  <label class="custom-checkbox" style="padding: 6px 10px; font-size: 12px;">
+                    <input type="checkbox" id="chk-phone" checked>
+                    <span class="checkmark"></span>
+                    <span><i class="fa-solid fa-phone color-accent"></i> Phones</span>
+                  </label>
+                  <label class="custom-checkbox" style="padding: 6px 10px; font-size: 12px;">
+                    <input type="checkbox" id="chk-email" checked>
+                    <span class="checkmark"></span>
+                    <span><i class="fa-solid fa-envelope color-primary"></i> Emails</span>
+                  </label>
+                  <label class="custom-checkbox" style="padding: 6px 10px; font-size: 12px;">
+                    <input type="checkbox" id="chk-address" checked>
+                    <span class="checkmark"></span>
+                    <span><i class="fa-solid fa-location-dot color-danger"></i> Street Address</span>
+                  </label>
+                  <label class="custom-checkbox" style="padding: 6px 10px; font-size: 12px;">
+                    <input type="checkbox" id="chk-social" checked>
+                    <span class="checkmark"></span>
+                    <span><i class="fa-solid fa-share-nodes color-success"></i> Social Links</span>
+                  </label>
+                </div>
+              </div>
+
+              <!-- 📄 3. Page Content & Offerings -->
+              <div class="options-section margin-top-sm">
+                <h4 class="section-title" style="font-size: 12px; margin-bottom: 6px;"><i
+                    class="fa-solid fa-file-lines color-warning"></i> Page Content & Offerings</h4>
+                <div class="checkbox-grid" style="grid-template-columns: repeat(2, 1fr); gap: 6px;">
+                  <label class="custom-checkbox" style="padding: 6px 10px; font-size: 12px;">
+                    <input type="checkbox" id="chk-services-products" checked>
+                    <span class="checkmark"></span>
+                    <span><i class="fa-solid fa-boxes-stacked color-warning"></i> Services & Products</span>
+                  </label>
                   <label class="custom-checkbox" style="padding: 6px 10px; font-size: 12px;">
                     <input type="checkbox" id="chk-home" checked>
                     <span class="checkmark"></span>
@@ -193,28 +255,6 @@
                     <input type="checkbox" id="chk-services" checked>
                     <span class="checkmark"></span>
                     <span>Services Section</span>
-                  </label>
-                </div>
-              </div>
-
-              <div class="options-section margin-top-sm">
-                <h4 class="section-title" style="font-size: 12px; margin-bottom: 6px;"><i
-                    class="fa-solid fa-address-card"></i> Contact & Media Details</h4>
-                <div class="checkbox-grid" style="grid-template-columns: repeat(2, 1fr); gap: 6px;">
-                  <label class="custom-checkbox" style="padding: 6px 10px; font-size: 12px;">
-                    <input type="checkbox" id="chk-phone" checked>
-                    <span class="checkmark"></span>
-                    <span><i class="fa-solid fa-phone color-accent"></i> Phones</span>
-                  </label>
-                  <label class="custom-checkbox" style="padding: 6px 10px; font-size: 12px;">
-                    <input type="checkbox" id="chk-email" checked>
-                    <span class="checkmark"></span>
-                    <span><i class="fa-solid fa-envelope color-primary"></i> Emails</span>
-                  </label>
-                  <label class="custom-checkbox" style="padding: 6px 10px; font-size: 12px;">
-                    <input type="checkbox" id="chk-social" checked>
-                    <span class="checkmark"></span>
-                    <span><i class="fa-solid fa-share-nodes color-success"></i> Social Links</span>
                   </label>
                   <label class="custom-checkbox" style="padding: 6px 10px; font-size: 12px;">
                     <input type="checkbox" id="chk-skip-dup" checked>
@@ -330,10 +370,16 @@
                   <th>#</th>
                   <th>Website URL</th>
                   <th>Status</th>
+                  <th>Company Name</th>
+                  <th>Industry</th>
+                  <th>Company Size</th>
+                  <th>Year Founded</th>
+                  <th>Address</th>
                   <th>Phones</th>
                   <th>Emails</th>
                   <th>Social Links</th>
                   <th>Target Keywords</th>
+                  <th>Services & Products</th>
                   <th>Homepage</th>
                   <th>About Us</th>
                   <th>Contact Us</th>
@@ -343,7 +389,7 @@
               </thead>
               <tbody id="table-body">
                 <tr>
-                  <td colspan="12" class="text-center text-muted">No mined data yet. Click "Launch Mining Session"
+                  <td colspan="18" class="text-center text-muted">No mined data yet. Click "Launch Mining Session"
                     above.</td>
                 </tr>
               </tbody>
