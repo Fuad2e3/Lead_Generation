@@ -1996,7 +1996,7 @@
       }
     }
 
-    // ── Live Auto-Sync for Admin Dashboard (Syncs audit logs, users & upgrades every 2.5s automatically)
+    // ── Live Auto-Sync for Admin Dashboard (Syncs audit logs, users & upgrades every 5s automatically)
     function autoSyncAdminDataLive() {
       const isAuth = localStorage.getItem('lgs_admin_auth') === 'true' || sessionStorage.getItem('lgs_admin_auth') === 'true';
       const dashboard = document.getElementById('admin-dashboard-container');
@@ -2006,7 +2006,7 @@
         loadUsers(true);
       }
     }
-    setInterval(autoSyncAdminDataLive, 2500);
+    setInterval(autoSyncAdminDataLive, 5000);
 
     async function handleUpgradeAction(id, action) {
       if (!confirm(`Are you sure you want to ${action} this upgrade request?`)) return;
