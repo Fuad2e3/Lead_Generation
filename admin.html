@@ -1776,15 +1776,38 @@
       if (footer) footer.style.display = 'flex';
       const toRender = allActivityLogs.slice(0, logsDisplayLimit);
 
-      tbody.innerHTML = toRender.map(l => `
-        <tr>
-          <td class="td-id">#${l.id}</td>
-          <td class="td-email"><strong>${l.user_email || 'System'}</strong></td>
-          <td><span class="status-badge active">${l.action}</span></td>
-          <td>${l.details}</td>
-          <td class="td-datetime">${fmtDate(l.created_at)}</td>
-        </tr>
-      `).join('');
+      tbody.innerHTML = toRender.map(l => {
+        let actionBadge = `<span class="status-badge active">${l.action}</span>`;
+        if (l.action === 'MINING_SESSION') {
+          actionBadge = `<span class="status-badge" style="background:rgba(108,99,255,0.15);color:#a78bfa;border:1px solid rgba(108,99,255,0.35);font-weight:700;"><i class="fa-solid fa-coins" style="color:#ffb347;"></i> MINING</span>`;
+        } else if (l.action === 'LOGIN') {
+          actionBadge = `<span class="status-badge" style="background:rgba(0,210,255,0.15);color:#00d2ff;border:1px solid rgba(0,210,255,0.3);font-weight:700;"><i class="fa-solid fa-right-to-bracket"></i> LOGIN</span>`;
+        } else if (l.action === 'REGISTER') {
+          actionBadge = `<span class="status-badge" style="background:rgba(46,213,115,0.15);color:#2ed573;border:1px solid rgba(46,213,115,0.3);font-weight:700;"><i class="fa-solid fa-user-plus"></i> REGISTER</span>`;
+        } else if (l.action === 'UPGRADE_REQUEST') {
+          actionBadge = `<span class="status-badge" style="background:rgba(255,179,71,0.15);color:#ffb347;border:1px solid rgba(255,179,71,0.3);font-weight:700;"><i class="fa-solid fa-bolt"></i> UPGRADE</span>`;
+        } else if (l.action === 'UPDATE_PACKAGE') {
+          actionBadge = `<span class="status-badge" style="background:rgba(168,85,247,0.15);color:#c084fc;border:1px solid rgba(168,85,247,0.3);font-weight:700;"><i class="fa-solid fa-sliders"></i> PLAN_UPDATE</span>`;
+        }
+
+        // Highlight details for mining session
+        let formattedDetails = l.details || '';
+        if (formattedDetails.includes('Deducted:')) {
+          formattedDetails = formattedDetails.replace(/(Deducted:\s*-\d+\s*Credits?)/i, '<strong style="color:#ff4757;background:rgba(255,71,87,0.1);padding:2px 6px;border-radius:4px;border:1px solid rgba(255,71,87,0.25);">$1</strong>');
+        } else if (l.action === 'MINING_SESSION' && formattedDetails.includes('Mined')) {
+          formattedDetails = formattedDetails.replace(/Mined\s*(\d+)\s*URL\(s\)/i, 'Mined $1 URL(s) | <strong style="color:#ff4757;background:rgba(255,71,87,0.1);padding:2px 6px;border-radius:4px;border:1px solid rgba(255,71,87,0.25);">Deducted: -$1 Credits</strong>');
+        }
+
+        return `
+          <tr>
+            <td class="td-id">#${l.id}</td>
+            <td class="td-email"><strong>${l.user_email || 'System'}</strong></td>
+            <td>${actionBadge}</td>
+            <td>${formattedDetails}</td>
+            <td class="td-datetime">${fmtDate(l.created_at)}</td>
+          </tr>
+        `;
+      }).join('');
 
       if (footerCount) footerCount.textContent = `Showing ${toRender.length} of ${allActivityLogs.length} logs`;
 
