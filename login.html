@@ -594,9 +594,10 @@
       if (isLocal) return 'http://localhost:3000';
       if (isIp) return `http://${h}:3000`;
       if (h.endsWith('github.io') || h.endsWith('netlify.app') || h.endsWith('vercel.app')) {
-        return 'https://various-auditor-rainbow-lands.trycloudflare.com';
+        // Dynamically read from config.js — no hardcoded URL
+        return (window.LGS_CONFIG && window.LGS_CONFIG.API_URL) ? window.LGS_CONFIG.API_URL.trim().replace(/\/+$/, '') : 'http://localhost:3000';
       }
-      return (window.location.protocol === 'file:' || !window.location.origin || window.location.origin === 'null') ? 'https://various-auditor-rainbow-lands.trycloudflare.com' : window.location.origin;
+      return (window.location.protocol === 'file:' || !window.location.origin || window.location.origin === 'null') ? ((window.LGS_CONFIG && window.LGS_CONFIG.API_URL) || 'http://localhost:3000') : window.location.origin;
     }
     window.getApiHost = getApiHost;
     const API_HOST = getApiHost();
