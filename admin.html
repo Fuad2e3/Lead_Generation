@@ -1584,8 +1584,17 @@
         const data = await res.json();
 
         allUsers = data.users || [];
-        currentFilteredUsers = allUsers;
-        renderTable(allUsers);
+        const searchInput = document.getElementById('search-input');
+        const q = (searchInput ? searchInput.value : '').trim();
+        const statusFilter = document.getElementById('filter-status') ? document.getElementById('filter-status').value : '';
+        const pkgFilter = document.getElementById('filter-package') ? document.getElementById('filter-package').value : '';
+
+        if (q || statusFilter || pkgFilter) {
+          applyUserFilters();
+        } else {
+          currentFilteredUsers = allUsers;
+          renderTable(allUsers);
+        }
         updateStats(allUsers);
         renderAnalyticsCharts(allUsers);
 
