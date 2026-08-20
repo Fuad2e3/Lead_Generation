@@ -1,3 +1,3 @@
 window.LGS_CONFIG = {
-  API_URL: "https://moves-feet-dealt-mill.trycloudflare.com"
+  API_URL: "https://advise-montana-paid-saves.trycloudflare.com"
 };
