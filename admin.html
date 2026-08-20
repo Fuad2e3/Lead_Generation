@@ -1428,7 +1428,7 @@
         if (currentFilteredUsers.length > usersDisplayLimit) {
           const remaining = currentFilteredUsers.length - usersDisplayLimit;
           btnsHtml += `<button class="btn-see-more" onclick="showMoreUsers()"><i class="fa-solid fa-chevron-down"></i> See More (+${Math.min(10, remaining)})</button>`;
-          btnsHtml += `<button class="btn-see-more" onclick="showAllUsers()"><i class="fa-solid fa-angles-down"></i> Show All (${currentFilteredUsers.length})</button>`;
+          btnsHtml += `<button class="btn-see-more" onclick="showAllUsers()"><i class="fa-solid fa-angles-down"></i> See All (${currentFilteredUsers.length})</button>`;
         } else if (usersDisplayLimit > 10 && currentFilteredUsers.length > 10) {
           btnsHtml += `<button class="btn-see-less" onclick="showLessUsers()"><i class="fa-solid fa-chevron-up"></i> Show Less (10)</button>`;
         }
@@ -1793,7 +1793,7 @@
         if (allActivityLogs.length > logsDisplayLimit) {
           const remaining = allActivityLogs.length - logsDisplayLimit;
           btnsHtml += `<button class="btn-see-more" onclick="showMoreLogs()"><i class="fa-solid fa-chevron-down"></i> See More (+${Math.min(10, remaining)})</button>`;
-          btnsHtml += `<button class="btn-see-more" onclick="showAllLogs()"><i class="fa-solid fa-angles-down"></i> Show All (${allActivityLogs.length})</button>`;
+          btnsHtml += `<button class="btn-see-more" onclick="showAllLogs()"><i class="fa-solid fa-angles-down"></i> See All (${allActivityLogs.length})</button>`;
         } else if (logsDisplayLimit > 10 && allActivityLogs.length > 10) {
           btnsHtml += `<button class="btn-see-less" onclick="showLessLogs()"><i class="fa-solid fa-chevron-up"></i> Show Less (10)</button>`;
         }
@@ -1885,7 +1885,7 @@
         if (allUpgradeRequests.length > upgradesDisplayLimit) {
           const remaining = allUpgradeRequests.length - upgradesDisplayLimit;
           btnsHtml += `<button class="btn-see-more" onclick="showMoreUpgrades()"><i class="fa-solid fa-chevron-down"></i> See More (+${Math.min(10, remaining)})</button>`;
-          btnsHtml += `<button class="btn-see-more" onclick="showAllUpgrades()"><i class="fa-solid fa-angles-down"></i> Show All (${allUpgradeRequests.length})</button>`;
+          btnsHtml += `<button class="btn-see-more" onclick="showAllUpgrades()"><i class="fa-solid fa-angles-down"></i> See All (${allUpgradeRequests.length})</button>`;
         } else if (upgradesDisplayLimit > 10 && allUpgradeRequests.length > 10) {
           btnsHtml += `<button class="btn-see-less" onclick="showLessUpgrades()"><i class="fa-solid fa-chevron-up"></i> Show Less (10)</button>`;
         }
