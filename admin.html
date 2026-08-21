@@ -1599,7 +1599,7 @@
       const startTime = Date.now();
 
       try {
-        const res = await fetch(`${API_BASE}/users?admin_secret=admin_secret_123&_t=${Date.now()}`, { headers: ADMIN_HEADERS, cache: 'no-store' });
+        const res = await fetch(`${API_BASE}/users?_t=${Date.now()}`, { headers: ADMIN_HEADERS, cache: 'no-store' });
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const data = await res.json();
 
@@ -1886,7 +1886,7 @@
       const icon = document.getElementById('logs-refresh-icon');
       if (icon && !isSilent) icon.classList.add('fa-spin');
       try {
-        const res = await fetch(`${API_BASE}/activity-logs?admin_secret=admin_secret_123&_t=${Date.now()}`, { headers: ADMIN_HEADERS, cache: 'no-store' });
+        const res = await fetch(`${API_BASE}/activity-logs?_t=${Date.now()}`, { headers: ADMIN_HEADERS, cache: 'no-store' });
         const data = await res.json();
         allActivityLogs = (data.success && data.logs) ? data.logs : [];
         renderActivityLogsTable();
@@ -1978,7 +1978,7 @@
       const icon = document.getElementById('upgrades-refresh-icon');
       if (icon && !isSilent) icon.classList.add('fa-spin');
       try {
-        const res = await fetch(`${API_BASE}/upgrade-requests?admin_secret=admin_secret_123&_t=${Date.now()}`, { headers: ADMIN_HEADERS, cache: 'no-store' });
+        const res = await fetch(`${API_BASE}/upgrade-requests?_t=${Date.now()}`, { headers: ADMIN_HEADERS, cache: 'no-store' });
         const data = await res.json();
         allUpgradeRequests = (data.success && data.requests) ? data.requests : [];
         renderUpgradeRequestsTable();
@@ -2275,7 +2275,7 @@
           const timer = setTimeout(() => controller.abort(), 3000);
 
           try {
-            const res = await fetch(`${API_BASE}/users?admin_secret=admin_secret_123`, {
+            const res = await fetch(`${API_BASE}/users`, {
               headers: ADMIN_HEADERS,
               signal: controller.signal
             });
@@ -2303,7 +2303,7 @@
           if (savedSecret) ADMIN_HEADERS['x-admin-secret'] = savedSecret;
 
           // Perform initial verification check before showing dashboard
-          fetch(`${API_BASE}/users?admin_secret=admin_secret_123`, { headers: ADMIN_HEADERS })
+          fetch(`${API_BASE}/users`, { headers: ADMIN_HEADERS })
             .then(res => {
               if (!res.ok) throw new Error(`HTTP ${res.status}`);
               return res.json();

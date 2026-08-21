@@ -631,68 +631,7 @@
       }
     }
 
-    // Theme Management System (Universal OS Day/Night Auto Sync)
-    function applyThemeMode(mode) {
-      const getSystemTheme = () => (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
-      const btnTheme = document.getElementById('btn-theme');
 
-      let activeTheme = mode;
-      if (mode !== 'light' && mode !== 'dark') {
-        activeTheme = getSystemTheme();
-        localStorage.removeItem('lgs_theme');
-      } else {
-        localStorage.setItem('lgs_theme', mode);
-      }
-
-      document.documentElement.setAttribute('data-theme', activeTheme);
-
-      if (btnTheme) {
-        if (mode === 'light') {
-          btnTheme.innerHTML = '<i class="fa-solid fa-sun" style="color: #ffb347;"></i>';
-          btnTheme.title = 'Light Mode (Click for Dark)';
-        } else if (mode === 'dark') {
-          btnTheme.innerHTML = '<i class="fa-solid fa-moon"></i>';
-          btnTheme.title = 'Dark Mode (Click for Auto OS Sync)';
-        } else {
-          btnTheme.innerHTML = activeTheme === 'dark' ? '<i class="fa-solid fa-desktop"></i>' : '<i class="fa-solid fa-desktop" style="color: #6c63ff;"></i>';
-          btnTheme.title = `Auto OS Sync (${activeTheme.toUpperCase()})`;
-        }
-      }
-    }
-
-    function initThemeSystem() {
-      const savedMode = localStorage.getItem('lgs_theme');
-      applyThemeMode(savedMode || 'auto');
-
-      if (window.matchMedia) {
-        const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-        const handleOSChange = function (e) {
-          const currentSaved = localStorage.getItem('lgs_theme');
-          if (!currentSaved || currentSaved === 'auto') {
-            applyThemeMode('auto');
-          }
-        };
-        if (mediaQuery.addEventListener) {
-          mediaQuery.addEventListener('change', handleOSChange);
-        } else if (mediaQuery.addListener) {
-          mediaQuery.addListener(handleOSChange);
-        }
-      }
-
-      const btnTheme = document.getElementById('btn-theme');
-      if (btnTheme) {
-        btnTheme.addEventListener('click', function () {
-          const savedMode = localStorage.getItem('lgs_theme');
-          if (!savedMode || savedMode === 'auto') {
-            applyThemeMode('light');
-          } else if (savedMode === 'light') {
-            applyThemeMode('dark');
-          } else {
-            applyThemeMode('auto');
-          }
-        });
-      }
-    }
 
     // Language Switching System
     const i18n = {
@@ -736,7 +675,6 @@
     }
 
     document.addEventListener('DOMContentLoaded', function () {
-      initThemeSystem();
       initLanguageSystem();
       syncUserStatusAndCredits();
     });
@@ -799,6 +737,17 @@
         };
         if (mq.addEventListener) mq.addEventListener('change', onOSChange);
         else if (mq.addListener) mq.addListener(onOSChange);
+      }
+
+      // Manual toggle: Dark ↔ Light, mark session as manually set
+      const btnTheme = document.getElementById('btn-theme');
+      if (btnTheme) {
+        btnTheme.addEventListener('click', function () {
+          const currentTheme = document.documentElement.getAttribute('data-theme');
+          const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+          sessionStorage.setItem('lgs_manual_theme', newTheme);
+          applyTheme(newTheme);
+        });
       }
 
     })();
