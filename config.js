@@ -1,3 +1,3 @@
 window.LGS_CONFIG = {
-  API_URL: "https://lips-toddler-netscape-grab.trycloudflare.com"
+  API_URL: "https://dual-columns-cheque-arnold.trycloudflare.com"
 };
