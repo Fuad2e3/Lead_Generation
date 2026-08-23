@@ -1528,25 +1528,63 @@
       }
 
       // 2. Today's Active Users & Mining Activity
+      function parseDateSafe(dateStr) {
+        if (!dateStr) return null;
+        if (dateStr instanceof Date) return isNaN(dateStr.getTime()) ? null : dateStr;
+        const normalized = (typeof dateStr === 'string' && dateStr.includes(' ') && !dateStr.includes('T'))
+          ? dateStr.replace(' ', 'T')
+          : dateStr;
+        const d = new Date(normalized);
+        return isNaN(d.getTime()) ? null : d;
+      }
+
       function isDateToday(dateStr) {
-        if (!dateStr) return false;
-        const d = new Date(dateStr);
-        if (isNaN(d.getTime())) return false;
+        const d = parseDateSafe(dateStr);
+        if (!d) return false;
         const now = new Date();
         return d.getDate() === now.getDate() &&
                d.getMonth() === now.getMonth() &&
                d.getFullYear() === now.getFullYear();
       }
 
-      const todayUsers = users.filter(u => ((u.used_credits_today || 0) > 0) || isDateToday(u.last_login));
+      function shouldResetDailyCreditsClient(lastCreditReset) {
+        if (!lastCreditReset) return true;
+        const lastReset = parseDateSafe(lastCreditReset);
+        if (!lastReset) return true;
+        const now = new Date();
+        const cutoff = new Date(now);
+        cutoff.setHours(1, 0, 0, 0);
+        if (now.getHours() < 1) {
+          cutoff.setDate(cutoff.getDate() - 1);
+        }
+        return lastReset < cutoff;
+      }
+
+      const effectiveUsers = users.map(u => {
+        const isResetDue = shouldResetDailyCreditsClient(u.last_credit_reset);
+        const effectiveCredits = isResetDue ? 0 : (parseInt(u.used_credits_today, 10) || 0);
+        return {
+          ...u,
+          used_credits_effective: effectiveCredits
+        };
+      });
+
+      const todayUsers = effectiveUsers.filter(u => (u.used_credits_effective > 0) || isDateToday(u.last_login));
       // Sort: highest credits used today first, then most recent login
-      todayUsers.sort((a, b) => (b.used_credits_today || 0) - (a.used_credits_today || 0));
+      todayUsers.sort((a, b) => {
+        if ((b.used_credits_effective || 0) !== (a.used_credits_effective || 0)) {
+          return (b.used_credits_effective || 0) - (a.used_credits_effective || 0);
+        }
+        const timeA = a.last_login ? (parseDateSafe(a.last_login)?.getTime() || 0) : 0;
+        const timeB = b.last_login ? (parseDateSafe(b.last_login)?.getTime() || 0) : 0;
+        return timeB - timeA;
+      });
 
       const dailyBadge = document.getElementById('daily-active-badge');
       const dailyContainer = document.getElementById('daily-users-container');
 
       if (dailyBadge) {
-        const totalCreditsToday = todayUsers.reduce((sum, u) => sum + (u.used_credits_today || 0), 0);
+        const totalCreditsToday = todayUsers.reduce((sum, u) => sum + (u.used_credits_effective || 0), 0);
         dailyBadge.textContent = `${todayUsers.length} Active (${totalCreditsToday} Credits Mined Today)`;
       }
 
@@ -1561,9 +1599,10 @@
           `;
         } else {
           dailyContainer.innerHTML = todayUsers.map(u => {
-            const used = u.used_credits_today || 0;
+            const used = u.used_credits_effective || 0;
             const maxCr = u.daily_credits || 50;
-            const lastTime = u.last_login ? new Date(u.last_login).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Today';
+            const loginDate = parseDateSafe(u.last_login);
+            const lastTime = loginDate ? loginDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Today';
             const initials = (u.name || u.email || 'U').substring(0, 2).toUpperCase();
             const pkgColor = u.package === 'enterprise' ? '#f59e0b' : (u.package === 'pro' ? '#6366f1' : '#64748b');
 
