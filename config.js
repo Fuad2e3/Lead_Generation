@@ -1,3 +1,4 @@
 window.LGS_CONFIG = {
-  API_URL: "https://dual-columns-cheque-arnold.trycloudflare.com"
+  API_URL: "https://matters-supervisors-pole-advanced.trycloudflare.com"
 };
+
