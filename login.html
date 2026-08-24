@@ -454,6 +454,10 @@
 </head>
 
 <body>
+  <a href="index.html" id="btn-back-home" title="Back to Home"
+    style="position: fixed; top: 20px; left: 20px; z-index: 1000; padding: 8px 16px; border-radius: 30px; border: 1px solid var(--border-card); background: var(--bg-card); color: var(--text-main); text-decoration: none; display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; backdrop-filter: blur(10px); box-shadow: var(--shadow-glass); transition: all 0.2s;">
+    <i class="fa-solid fa-arrow-left"></i> <span>Home</span>
+  </a>
   <button id="btn-theme" title="Toggle Light/Dark Theme"
     style="position: fixed; top: 20px; right: 20px; z-index: 1000; width: 42px; height: 42px; border-radius: 50%; border: 1px solid var(--border-card); background: var(--bg-card); color: var(--text-main); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 16px; backdrop-filter: blur(10px); box-shadow: var(--shadow-glass);"><i
       class="fa-solid fa-moon"></i></button>
@@ -566,7 +570,7 @@
   </div>
 
   <script>
-    if (localStorage.getItem('lgs_auth') === 'true') { window.location.href = 'index.html'; }
+    if (localStorage.getItem('lgs_auth') === 'true') { window.location.href = 'app.html'; }
 
     const signinTab = document.getElementById('signin-tab');
     const signupTab = document.getElementById('signup-tab');
@@ -719,7 +723,7 @@
         localStorage.setItem('lgs_auth', 'true');
         localStorage.setItem('lgs_session', JSON.stringify(userObj));
         if (token) localStorage.setItem('lgs_token', token);
-        window.location.href = 'index.html';
+        window.location.href = 'app.html';
       };
 
       try {

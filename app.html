@@ -1,0 +1,895 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <script>
+    // Always OS Theme Sync — ignores any saved preference, always follows device Dark/Light
+    (function () {
+      const dark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
+      localStorage.removeItem('lgs_theme'); // clear any old manual override
+    })();
+
+    if (localStorage.getItem('lgs_auth') !== 'true') {
+      window.location.href = 'login.html';
+    }
+  </script>
+  <script src="config.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light dark">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <meta name="theme-color" content="#070913" media="(prefers-color-scheme: dark)">
+  <meta name="theme-color" content="#F0F4F8" media="(prefers-color-scheme: light)">
+  <title>Lead Generation - Web Data Scraper</title>
+  <meta name="description"
+    content="Automated Web Data Mining Tool. Extract Emails, Phones, Social Links, and Page Content at scale.">
+  <meta name="author" content="Softece">
+
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap"
+    rel="stylesheet">
+
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+
+  <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+
+
+  <div class="app-container">
+
+
+    <header class="app-header">
+      <div class="header-brand">
+        <div class="brand-icon">
+          <i class="fa-solid fa-spider"></i>
+        </div>
+        <div class="brand-text">
+          <h1 data-i18n="app_title">Lead Generation</h1>
+          <span class="badge-v2" id="header-user-badge">Lead Gen</span>
+        </div>
+      </div>
+
+
+      <div class="header-actions">
+        <div id="header-credit-badge" class="action-pill"
+          style="font-weight:700;color:var(--text-main);border-color:rgba(108,99,255,0.3);display:inline-flex;flex-direction:column;gap:3px;padding:6px 12px;min-width:155px;justify-content:center;">
+          <div
+            style="display:flex;align-items:center;justify-content:space-between;gap:6px;width:100%;line-height:1.2;">
+            <span style="display:flex;align-items:center;gap:5px;font-size:12px;color:var(--text-main);"><i
+                class="fa-solid fa-coins" style="color:#ffb347;"></i> <span id="lbl-user-credits">Credits: 50 /
+                50</span></span>
+            <span id="lbl-user-credit-pct"
+              style="font-size:10px;font-weight:800;color:#ffb347;background:rgba(255,179,71,0.15);padding:1px 5px;border-radius:6px;border:1px solid rgba(255,179,71,0.3);">100%</span>
+          </div>
+          <div style="width:100%;height:5px;background:var(--border-input);border-radius:10px;overflow:hidden;">
+            <div id="credit-progress-fill"
+              style="width:100%;height:100%;background:linear-gradient(90deg, #6c63ff, #00d2ff);border-radius:10px;transition:width 0.4s ease, background 0.4s ease;">
+            </div>
+          </div>
+        </div>
+        <a href="index.html" class="action-pill" title="Visit Home Page" style="text-decoration:none;color:var(--text-main);display:inline-flex;align-items:center;gap:6px;">
+          <i class="fa-solid fa-house"></i> <span>Home</span>
+        </a>
+        <button id="btn-upgrade-plan" class="action-pill" title="Request Package Upgrade"
+          style="font-weight:700;color:#ffb347;border-color:rgba(255,179,71,0.4);background:rgba(255,179,71,0.1);cursor:pointer;display:inline-flex;align-items:center;gap:6px;">
+          <i class="fa-solid fa-bolt" style="color:#ffb347;"></i> <span>Upgrade Plan</span>
+        </button>
+        <button id="btn-lang" class="action-pill" title="Switch Language">
+          <i class="fa-solid fa-language"></i> <span id="lang-label">English</span>
+        </button>
+        <button id="btn-theme" class="action-pill" title="Toggle Light/Dark Theme">
+          <i class="fa-solid fa-moon"></i>
+        </button>
+        <button id="btn-logout" class="action-pill" title="Logout"
+          style="color: #ff4d4d; border-color: rgba(255, 77, 77, 0.3);">
+          <i class="fa-solid fa-right-from-bracket"></i>
+        </button>
+      </div>
+    </header>
+
+
+    <main class="app-main">
+
+      <!-- Live System Announcement Banner -->
+      <div id="system-announcement-banner" class="quick-status-banner"
+        style="display: none; background: linear-gradient(135deg, rgba(255, 179, 71, 0.15), rgba(108, 99, 255, 0.15)); border: 1px solid rgba(255, 179, 71, 0.4); padding: 10px 18px; border-radius: 10px; color: var(--text-heading); font-size: 13px; font-weight: 600; margin-bottom: 16px; align-items: center; justify-content: space-between;">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <i class="fa-solid fa-bullhorn" style="color: var(--color-warning); font-size: 16px;"></i>
+          <span id="announcement-banner-text">Welcome to Lead Generation!</span>
+        </div>
+        <button onclick="document.getElementById('system-announcement-banner').style.display='none';"
+          style="background: transparent; border: none; color: rgba(255,255,255,0.6); cursor: pointer; font-size: 14px;"><i
+            class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <div class="top-dashboard-section">
+
+        <div class="grid-layout-2col">
+
+          <div class="card glass-card">
+            <div class="card-header flex-between" style="padding: 12px 20px;">
+              <h3><i class="fa-solid fa-file-import"></i> <span data-i18n="input_heading">1. Input Website URLs</span>
+              </h3>
+              <div class="input-stats-pills" style="display: flex; gap: 8px;">
+                <span class="stat-pill"><i class="fa-solid fa-globe"></i> <span id="detected-urls-count">0</span>
+                  URLs</span>
+                <span id="duplicate-warning" class="stat-pill warning hidden"
+                  style="background: rgba(255, 179, 71, 0.15); color: var(--color-warning); border: 1px solid rgba(255, 179, 71, 0.3); padding: 2px 8px; border-radius: 12px; font-size: 11px;"><i
+                    class="fa-solid fa-clone"></i> <span id="duplicates-count">0</span> Dups</span>
+              </div>
+            </div>
+
+            <div class="card-body" style="padding: 14px 20px;">
+              <div class="dropzone" id="file-dropzone"
+                style="position: relative; padding: 16px 14px; text-align: center; overflow: hidden; cursor: pointer;">
+                <input type="file" id="file-input" accept=".txt,.csv,.xlsx,.xls,.tsv"
+                  onchange="if(this.files && this.files.length && window.handleFileSelectGlobal) window.handleFileSelectGlobal(this.files[0]);"
+                  style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; z-index: 5;">
+                <div style="position: relative; z-index: 1; pointer-events: none;">
+                  <i class="fa-solid fa-cloud-arrow-up dropzone-icon" style="font-size: 26px; margin-bottom: 4px;"></i>
+                  <p class="dropzone-text" style="font-size: 12px; margin-bottom: 4px;" data-i18n="dropzone_msg">Drag &
+                    Drop <strong>.txt</strong>, <strong>.csv</strong>, or <strong>.xlsx</strong> file here</p>
+                  <span class="dropzone-or" style="margin: 2px 0; display: block;">or</span>
+                  <div class="btn btn-secondary btn-xs"
+                    style="display: inline-flex; align-items: center; gap: 6px; margin-top: 2px;">
+                    <i class="fa-solid fa-folder-open"></i> <span data-i18n="browse_btn">Browse Files</span>
+                  </div>
+                </div>
+                <div id="file-info" class="file-info-badge hidden"
+                  style="position: relative; z-index: 10; margin-top: 6px; padding: 4px 10px; font-size: 11px;">
+                  <i class="fa-solid fa-file-csv"></i> <span id="file-name">filename.csv</span>
+                  <button id="btn-remove-file" type="button" class="btn-icon" style="cursor: pointer;"><i
+                      class="fa-solid fa-xmark"></i></button>
+                </div>
+              </div>
+
+              <div class="form-group margin-top-sm" style="margin-bottom: 0;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                  <label for="url-textarea" style="margin-bottom: 0; font-size: 12px;"><i
+                      class="fa-solid fa-list-check"></i> <span data-i18n="manual_urls_label">Or Paste URLs/Domains
+                      directly:</span></label>
+                  <span id="url-input-stats" style="font-size: 11px; color: var(--text-muted);">Lines: 0</span>
+                </div>
+                <textarea id="url-textarea" placeholder="https://example.com&#10;mycompany.org&#10;agency.net" rows="6"
+                  style="height: 125px; padding: 10px 12px; font-size: 12px; line-height: 1.6; resize: vertical;"></textarea>
+
+                <div class="url-action-bar" style="display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap;">
+                  <button type="button" id="btn-paste-clipboard" class="btn btn-secondary btn-xs" style="padding: 5px 10px; font-size: 11px;">
+                    <i class="fa-solid fa-paste color-accent"></i> Paste Clipboard
+                  </button>
+                  <button type="button" id="btn-sample-urls" class="btn btn-secondary btn-xs" style="padding: 5px 10px; font-size: 11px;">
+                    <i class="fa-solid fa-lightbulb color-warning"></i> Load Samples
+                  </button>
+                  <button type="button" id="btn-clear-urls" class="btn btn-secondary btn-xs" style="padding: 5px 10px; font-size: 11px;">
+                    <i class="fa-solid fa-trash-can color-danger"></i> Clear
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+
+          <div class="card glass-card">
+            <div class="card-header" style="padding: 12px 20px; display: flex; align-items: center; justify-content: space-between;">
+              <h3 style="margin: 0;"><i class="fa-solid fa-square-check"></i> <span data-i18n="options_heading">2. Extraction
+                  Parameters</span></h3>
+              <button id="btn-select-all-params" class="btn btn-secondary btn-xs" title="Click to deselect all parameters" style="font-size: 11px; padding: 4px 10px; opacity: 0.85;">&#9745; Deselect All</button>
+            </div>
+            <div class="card-body" style="padding: 14px 20px;">
+              <!-- 🏢 1. Business Intelligence & Details -->
+              <div class="options-section">
+                <h4 class="section-title" style="font-size: 12px; margin-bottom: 6px;"><i
+                    class="fa-solid fa-building color-primary"></i> Business Intelligence</h4>
+                <div class="checkbox-grid" style="grid-template-columns: repeat(2, 1fr); gap: 6px;">
+                  <label class="custom-checkbox" style="padding: 6px 10px; font-size: 12px;">
+                    <input type="checkbox" id="chk-company-name" checked>
+                    <span class="checkmark"></span>
+                    <span><i class="fa-solid fa-signature color-accent"></i> Company Name</span>
+                  </label>
+                  <label class="custom-checkbox" style="padding: 6px 10px; font-size: 12px;">
+                    <input type="checkbox" id="chk-industry" checked>
+                    <span class="checkmark"></span>
+                    <span><i class="fa-solid fa-briefcase color-warning"></i> Business Category</span>
+                  </label>
+                  <label class="custom-checkbox" style="padding: 6px 10px; font-size: 12px;">
+                    <input type="checkbox" id="chk-company-size" checked>
+                    <span class="checkmark"></span>
+                    <span><i class="fa-solid fa-users color-primary"></i> Company Size</span>
+                  </label>
+                  <label class="custom-checkbox" style="padding: 6px 10px; font-size: 12px;">
+                    <input type="checkbox" id="chk-year-founded" checked>
+                    <span class="checkmark"></span>
+                    <span><i class="fa-solid fa-calendar-check color-success"></i> Year Founded</span>
+                  </label>
+                </div>
+              </div>
+
+              <!-- 📍 2. Contact & Location Details -->
+              <div class="options-section margin-top-sm">
+                <h4 class="section-title" style="font-size: 12px; margin-bottom: 6px;"><i
+                    class="fa-solid fa-address-card color-accent"></i> Contact & Location Details</h4>
+                <div class="checkbox-grid" style="grid-template-columns: repeat(2, 1fr); gap: 6px;">
+                  <label class="custom-checkbox" style="padding: 6px 10px; font-size: 12px;">
+                    <input type="checkbox" id="chk-phone" checked>
+                    <span class="checkmark"></span>
+                    <span><i class="fa-solid fa-phone color-accent"></i> Phones</span>
+                  </label>
+                  <label class="custom-checkbox" style="padding: 6px 10px; font-size: 12px;">
+                    <input type="checkbox" id="chk-email" checked>
+                    <span class="checkmark"></span>
+                    <span><i class="fa-solid fa-envelope color-primary"></i> Emails</span>
+                  </label>
+                  <label class="custom-checkbox" style="padding: 6px 10px; font-size: 12px;">
+                    <input type="checkbox" id="chk-address" checked>
+                    <span class="checkmark"></span>
+                    <span><i class="fa-solid fa-location-dot color-danger"></i> Street Address</span>
+                  </label>
+                  <label class="custom-checkbox" style="padding: 6px 10px; font-size: 12px;">
+                    <input type="checkbox" id="chk-social" checked>
+                    <span class="checkmark"></span>
+                    <span><i class="fa-solid fa-share-nodes color-success"></i> Social Links</span>
+                  </label>
+                </div>
+              </div>
+
+              <!-- 📄 3. Page Content & Offerings -->
+              <div class="options-section margin-top-sm">
+                <h4 class="section-title" style="font-size: 12px; margin-bottom: 6px;"><i
+                    class="fa-solid fa-file-lines color-warning"></i> Page Content & Offerings</h4>
+                <div class="checkbox-grid" style="grid-template-columns: repeat(2, 1fr); gap: 6px;">
+                  <label class="custom-checkbox" style="padding: 6px 10px; font-size: 12px;">
+                    <input type="checkbox" id="chk-services-products" checked>
+                    <span class="checkmark"></span>
+                    <span><i class="fa-solid fa-boxes-stacked color-warning"></i> Services & Products</span>
+                  </label>
+                  <label class="custom-checkbox" style="padding: 6px 10px; font-size: 12px;">
+                    <input type="checkbox" id="chk-home" checked>
+                    <span class="checkmark"></span>
+                    <span>Homepage Text</span>
+                  </label>
+                  <label class="custom-checkbox" style="padding: 6px 10px; font-size: 12px;">
+                    <input type="checkbox" id="chk-about" checked>
+                    <span class="checkmark"></span>
+                    <span>About Us Section</span>
+                  </label>
+                  <label class="custom-checkbox" style="padding: 6px 10px; font-size: 12px;">
+                    <input type="checkbox" id="chk-contact" checked>
+                    <span class="checkmark"></span>
+                    <span>Contact Us Section</span>
+                  </label>
+                  <label class="custom-checkbox" style="padding: 6px 10px; font-size: 12px;">
+                    <input type="checkbox" id="chk-services" checked>
+                    <span class="checkmark"></span>
+                    <span>Services Section</span>
+                  </label>
+                  <label class="custom-checkbox" style="padding: 6px 10px; font-size: 12px;">
+                    <input type="checkbox" id="chk-skip-dup" checked>
+                    <span class="checkmark"></span>
+                    <span><i class="fa-solid fa-filter color-warning"></i> Skip Duplicates</span>
+                  </label>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+        </div>
+
+
+        <div class="card glass-card margin-top-sm">
+          <div class="automation-top-bar" style="padding: 10px 18px;">
+            <div class="session-info">
+              <h2 style="font-size: 14px;"><i class="fa-solid fa-bolt color-warning"></i> <span
+                  data-i18n="live_tracker_title">Live Execution Progress</span></h2>
+              <span id="session-status-badge" class="badge badge-idle">Idle</span>
+            </div>
+
+            <div class="session-controls" style="display: flex; gap: 6px;">
+              <button id="btn-pause" class="btn btn-warning btn-xs hidden"><i class="fa-solid fa-pause"></i> Pause</button>
+              <button id="btn-resume" class="btn btn-success btn-xs hidden"><i class="fa-solid fa-play"></i> Resume</button>
+              <button id="btn-stop" class="btn btn-danger btn-xs hidden"><i class="fa-solid fa-stop"></i> Stop</button>
+              <button id="btn-retry-failed" class="btn btn-warning btn-xs hidden"><i class="fa-solid fa-rotate-right"></i>
+                Retry Failed & N/A</button>
+              <button id="btn-restart" class="btn btn-primary btn-xs"
+                style="padding: 6px 14px; cursor: pointer;"><i class="fa-solid fa-play"></i> Launch Mining
+                Session</button>
+              <button id="btn-export-toolbar" class="btn btn-export-primary btn-xs"
+                style="padding: 7px 16px; background: linear-gradient(135deg, #107C41, #009688); color: #ffffff; border: none; font-weight: 700; box-shadow: 0 4px 14px rgba(16, 124, 65, 0.35); cursor: pointer;"><i
+                  class="fa-solid fa-file-export"></i> Export Data</button>
+            </div>
+          </div>
+
+          <div class="card-body" style="padding: 10px 18px;">
+            <div id="quick-status" class="quick-status-banner hidden"
+              style="background: rgba(108, 99, 255, 0.1); border: 1px solid rgba(108, 99, 255, 0.3); padding: 6px 14px; border-radius: 6px; color: var(--color-primary); font-size: 12px; font-weight: 500; margin-bottom: 8px;">
+              <span id="quick-status-icon"><i class="fa-solid fa-spinner fa-spin"></i></span> <span
+                id="lbl-status-text">Mining in progress...</span>
+            </div>
+
+            <div class="progress-container" style="padding: 8px 14px;">
+              <div class="progress-metrics" style="font-size: 11px; margin-bottom: 4px;">
+                <span class="metric-text"><span id="lbl-processed-sites">0</span> / <span id="lbl-total-sites">0</span>
+                  Websites Processed</span>
+                <span id="lbl-percentage" class="metric-percentage" style="font-size: 13px;">0.0%</span>
+              </div>
+              <div class="progress-bar-bg" style="height: 6px;">
+                <div id="progress-bar-fill" class="progress-bar-fill" style="width: 0%;"></div>
+              </div>
+              <div class="progress-subtext" style="font-size: 10px; margin-top: 4px;">
+                <span><i class="fa-solid fa-stopwatch"></i> Elapsed: <strong
+                    id="lbl-elapsed-time">00:00:00</strong></span>
+              </div>
+            </div>
+
+            <div class="stats-counters-grid margin-top-sm" style="grid-template-columns: repeat(4, 1fr); gap: 10px;">
+              <div class="stat-box blue" style="padding: 6px 10px;">
+                <div class="stat-number" id="stat-total" style="font-size: 18px;">0</div>
+                <div class="stat-label" style="font-size: 9px;">Total Sites</div>
+              </div>
+              <div class="stat-box green" style="padding: 6px 10px;">
+                <div class="stat-number" id="stat-done" style="font-size: 18px;">0</div>
+                <div class="stat-label" style="font-size: 9px;">Successful</div>
+              </div>
+              <div class="stat-box red" style="padding: 6px 10px;">
+                <div class="stat-number" id="stat-error" style="font-size: 18px;">0</div>
+                <div class="stat-label" style="font-size: 9px;">Failed/Error</div>
+              </div>
+              <div class="stat-box orange" style="padding: 6px 10px;">
+                <div class="stat-number" id="stat-skipped" style="font-size: 18px;">0</div>
+                <div class="stat-label" style="font-size: 9px;">Duplicates Skipped</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+
+
+      </div>
+
+
+
+      <div class="card glass-card margin-top-lg">
+        <div class="card-header flex-between">
+          <h3><i class="fa-solid fa-table-list"></i> <span>Extracted Website Data Grid</span></h3>
+          <div class="table-actions">
+            <input type="text" id="table-search" class="input-sm" placeholder="Search extracted results...">
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="data-table" id="mined-data-table">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Website URL</th>
+                  <th>Status</th>
+                  <th>Company Name</th>
+                  <th>Industry</th>
+                  <th>Company Size</th>
+                  <th>Year Founded</th>
+                  <th>Address</th>
+                  <th>Phones</th>
+                  <th>Emails</th>
+                  <th>Social Links</th>
+                  <th>Services & Products</th>
+                  <th>Homepage</th>
+                  <th>About Us</th>
+                  <th>Contact Us</th>
+                  <th>Services</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="table-body">
+                <tr>
+                  <td colspan="17" class="text-center text-muted">No mined data yet. Click "Launch Mining Session"
+                    above.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Data Grid Pagination & View Controls -->
+          <div id="grid-pagination-container"
+            style="display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; margin-top: 8px; border-top: 1px solid rgba(255, 255, 255, 0.08); flex-wrap: wrap; gap: 10px;">
+            <div id="grid-footer-count" style="font-size: 12px; color: var(--text-muted, #94a3b8); font-weight: 500;">
+              Showing 0 of 0 websites
+            </div>
+            <div id="grid-see-more-buttons" style="display: flex; gap: 8px;"></div>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+
+  <div class="hidden-background-elements" style="display: none !important;">
+    <select id="proxy-select">
+      <option value="direct" selected></option>
+    </select>
+    <input type="checkbox" id="chk-sound" checked>
+    <div id="console-log"></div>
+    <div id="console-log-visible"></div>
+    <canvas id="status-chart"></canvas>
+    <tbody id="history-table-body"></tbody>
+    <button id="btn-clear-log"></button>
+    <button id="btn-clear-log-visible"></button>
+    <button id="btn-clean-data"></button>
+    <button id="btn-clear-history"></button>
+    <button id="btn-apply-parameters"></button>
+    <input type="text" id="custom-keywords-input" placeholder="Keywords...">
+    <span id="lbl-active-proxy"></span>
+  </div>
+
+
+  <div id="modal-export" class="modal-backdrop hidden">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3><i class="fa-solid fa-file-export color-primary"></i> Choose Export File Format</h3>
+        <button class="btn-close" id="btn-close-export"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="modal-body">
+
+        <!-- Scope Option -->
+        <div
+          style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; background: var(--bg-input); padding: 8px 12px; border-radius: 8px; border: 1px solid var(--border-input);">
+          <label for="export-scope-select"
+            style="font-size: 12px; font-weight: 600; color: var(--text-heading); display: flex; align-items: center; gap: 6px;">
+            <i class="fa-solid fa-filter color-warning"></i> Export Scope:
+          </label>
+          <select id="export-scope-select" class="input-sm"
+            style="font-size: 12px; padding: 4px 8px; border-radius: 6px; background: var(--bg-card); color: var(--text-main); border: 1px solid var(--border-card);">
+            <option value="all" selected>All Extracted Rows</option>
+            <option value="search">Active Search Filter Results Only</option>
+          </select>
+        </div>
+
+        <p style="font-size: 12px; color: var(--text-muted);">Export extracted website details into your preferred file
+          format with complete full-length text:</p>
+
+        <div class="export-grid margin-top-sm">
+          <button class="export-card" id="export-excel">
+            <i class="fa-solid fa-file-excel color-excel"></i>
+            <strong>Excel (.xlsx)</strong>
+            <span>Full text auto-fit</span>
+          </button>
+          <button class="export-card" id="export-csv">
+            <i class="fa-solid fa-file-csv color-csv"></i>
+            <strong>CSV (.csv)</strong>
+            <span>Spreadsheet (UTF-8)</span>
+          </button>
+          <button class="export-card" id="export-pdf">
+            <i class="fa-solid fa-file-pdf color-pdf"></i>
+            <strong>PDF Report (.pdf)</strong>
+            <span>Printable document</span>
+          </button>
+          <button class="export-card" id="export-json">
+            <i class="fa-solid fa-file-code color-json"></i>
+            <strong>JSON (.json)</strong>
+            <span>Raw structured data</span>
+          </button>
+          <button class="export-card" id="export-txt">
+            <i class="fa-solid fa-file-lines color-txt"></i>
+            <strong>Google Sheet TSV (.txt)</strong>
+            <span>Tab separated text</span>
+          </button>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary btn-md"
+          onclick="document.getElementById('modal-export').classList.add('hidden'); document.body.style.overflow='';">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+
+  <div id="modal-detail" class="modal-backdrop hidden">
+    <div class="modal-box modal-lg">
+      <div class="modal-header">
+        <h3><i class="fa-solid fa-globe color-accent"></i> <span id="detail-modal-title">Website Details</span></h3>
+        <button class="btn-close" id="btn-close-detail"
+          onclick="document.getElementById('modal-detail').classList.add('hidden'); document.body.style.overflow='';"><i
+            class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="modal-body" id="detail-modal-body">
+
+      </div>
+      <div class="modal-footer">
+        <button id="btn-back-detail" class="btn btn-primary btn-md"
+          onclick="document.getElementById('modal-detail').classList.add('hidden'); document.body.style.overflow='';">
+          <i class="fa-solid fa-arrow-left"></i> Back to Results Table
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Full Text Cell Expander Modal (Click on any cell to view big text like Google Sheets) -->
+  <div id="modal-cell-preview" class="modal-backdrop hidden">
+    <div class="modal-box modal-lg" style="max-width: 850px; border: 1.5px solid var(--color-primary, #6c63ff); box-shadow: 0 16px 40px rgba(0,0,0,0.5);">
+      <div class="modal-header" style="border-bottom: 1px solid rgba(255,255,255,0.1); padding: 14px 20px;">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <i class="fa-solid fa-up-right-and-down-left-from-center color-primary" style="font-size: 18px;"></i>
+          <div>
+            <h3 id="cell-preview-title" style="margin: 0; font-size: 16px; color: var(--text-heading);">Column Full Text View</h3>
+            <span id="cell-preview-subtitle" style="font-size: 12px; color: var(--text-muted);">Website URL</span>
+          </div>
+        </div>
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <button id="btn-copy-cell-text" class="btn btn-secondary btn-sm" style="display: flex; align-items: center; gap: 6px;">
+            <i class="fa-solid fa-copy"></i> Copy Full Text
+          </button>
+          <button class="btn-close" id="btn-close-cell-preview" onclick="document.getElementById('modal-cell-preview').classList.add('hidden'); document.body.style.overflow='';">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+      </div>
+      <div class="modal-body" style="padding: 20px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; font-size: 12px; color: var(--text-muted);">
+          <span id="cell-preview-meta"><i class="fa-solid fa-chart-simple"></i> Characters: 0 | Words: 0</span>
+          <span style="font-size: 11px; background: rgba(108, 99, 255, 0.15); color: var(--color-primary); padding: 2px 8px; border-radius: 6px; font-weight: 600;">100% Full Uncut Text</span>
+        </div>
+        <div id="cell-preview-content" style="background: var(--bg-input, rgba(0,0,0,0.25)); border: 1px solid var(--border-input, rgba(255,255,255,0.1)); border-radius: 8px; padding: 16px; font-size: 14px; line-height: 1.7; color: var(--text-main, #f1f5f9); max-height: 480px; overflow-y: auto; white-space: pre-wrap; font-family: 'Inter', system-ui, sans-serif; user-select: text;">
+        </div>
+      </div>
+      <div class="modal-footer" style="display: flex; justify-content: flex-end; padding: 12px 20px; border-top: 1px solid rgba(255,255,255,0.08);">
+        <button class="btn btn-primary btn-md" onclick="document.getElementById('modal-cell-preview').classList.add('hidden'); document.body.style.overflow='';">
+          <i class="fa-solid fa-check"></i> Done Viewing
+        </button>
+      </div>
+    </div>
+  </div>
+
+
+  <script src="app.js?v=20260814_2353"></script>
+  <script>
+    // ── Server URL Config ────────────────────────────────────────────────────
+    function getApiHost() {
+      const custom = (localStorage.getItem('lgs_api_url') || '').trim().replace(/\/+$/, '').replace(/\/api$/, '');
+      if (custom) return custom;
+      const globalCfg = (window.LGS_CONFIG && window.LGS_CONFIG.API_URL) ? window.LGS_CONFIG.API_URL.trim().replace(/\/+$/, '').replace(/\/api$/, '') : '';
+      if (globalCfg) return globalCfg;
+      const h = window.location.hostname;
+      const isLocal = h === 'localhost' || h === '127.0.0.1';
+      const isIp = /^(\d{1,3}\.){3}\d{1,3}$/.test(h);
+      if (isLocal) return 'http://localhost:3000';
+      if (isIp) return `http://${h}:3000`;
+      if (h.endsWith('github.io') || h.endsWith('netlify.app') || h.endsWith('vercel.app')) {
+        return (window.LGS_CONFIG && window.LGS_CONFIG.API_URL) ? window.LGS_CONFIG.API_URL.trim().replace(/\/+$/, '') : 'http://localhost:3000';
+      }
+      return (window.location.protocol === 'file:' || !window.location.origin || window.location.origin === 'null') ? ((window.LGS_CONFIG && window.LGS_CONFIG.API_URL) || 'http://localhost:3000') : window.location.origin;
+    }
+    window.getApiHost = getApiHost;
+    const _API_HOST = getApiHost();
+    const API_BASE_AUTH = `${_API_HOST}/api/auth`;
+    // ─────────────────────────────────────────────────────────────────────────
+    let currentUserSession = null;
+    let currentUserCredits = { dailyCredits: 50, usedCreditsToday: 0, remainingCredits: 50 };
+
+    // Fetch User Status, Credits, and System Announcement on Load
+    async function syncUserStatusAndCredits() {
+      try {
+        const sessionStr = localStorage.getItem('lgs_session');
+        if (!sessionStr) return;
+        currentUserSession = JSON.parse(sessionStr);
+
+        const res = await fetch(`${API_BASE_AUTH}/check-status`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: currentUserSession.email, id: currentUserSession.id })
+        });
+        const data = await res.json();
+
+        if (data && (data.status === 'banned' || data.status === 'deleted' || data.status === 'inactive')) {
+          localStorage.removeItem('lgs_auth');
+          localStorage.removeItem('lgs_session');
+          localStorage.removeItem('lgs_token');
+          alert(data.message || 'Your account has been banned or removed by an administrator.');
+          window.location.href = 'login.html';
+          return;
+        }
+
+        // Render User Name & Package Badge
+        const userBadge = document.getElementById('header-user-badge');
+        if (userBadge && data.user) {
+          const pkg = (data.user.package || 'free').toUpperCase();
+          userBadge.textContent = '\u{1F464} ' + (data.user.name || currentUserSession.fullname || 'User') + ' [' + pkg + ']';
+          userBadge.style.background = pkg === 'ENTERPRISE' ? 'rgba(255,179,71,0.2)' : pkg === 'PRO' ? 'rgba(108,99,255,0.2)' : 'rgba(100,116,139,0.2)';
+        }
+
+        // Render Credit Badge & Live Progress Bar
+        if (data.user) {
+          window.currentUserCredits = {
+            dailyCredits: data.user.dailyCredits || 50,
+            usedCreditsToday: data.user.usedCreditsToday || 0,
+            remainingCredits: data.user.remainingCredits !== undefined ? data.user.remainingCredits : 50
+          };
+          updateCreditUI(window.currentUserCredits.remainingCredits, window.currentUserCredits.dailyCredits);
+        }
+
+        // Render System Announcement Banner
+        if (data.announcement) {
+          const banner = document.getElementById('system-announcement-banner');
+          const bannerText = document.getElementById('announcement-banner-text');
+          if (banner && bannerText) {
+            bannerText.textContent = data.announcement;
+            banner.style.display = 'flex';
+          }
+        }
+      } catch (e) {
+        console.error('Credit/Status Sync Error:', e);
+      }
+    }
+
+
+
+    // Language Switching System
+    const i18n = {
+      en: {
+        app_title: "Lead Generation",
+        input_heading: "1. Input Website URLs",
+        dropzone_msg: "Drag & Drop .txt, .csv, or .xlsx file here",
+        browse_btn: "Browse Files",
+        manual_urls_label: "Or Paste URLs/Domains directly:",
+        options_heading: "2. Extraction Parameters",
+        apply_param_btn: "Apply Columns & Parameters",
+        live_tracker_title: "Live Execution Progress"
+      },
+      bn: {
+        app_title: "লিড জেনারেশন",
+        input_heading: "১. ওয়েবসাইট URL প্রদান করুন",
+        dropzone_msg: ".txt, .csv, অথবা .xlsx ফাইল ড্র্যাগ এবং ড্রপ করুন",
+        browse_btn: "ফাইল সিলেক্ট করুন",
+        manual_urls_label: "অথবা সরাসরি URL/ডোমেইন পেস্ট করুন:",
+        options_heading: "২. তথ্য এক্সট্র্যাকশন প্যারামিটার",
+        apply_param_btn: "কলাম ও প্যারামিটার প্রয়োগ করুন",
+        live_tracker_title: "লাইভ অগ্রগতি ট্র্যাকার"
+      }
+    };
+    let currentLang = 'en';
+    function initLanguageSystem() {
+      const btnLang = document.getElementById('btn-lang');
+      const langLabel = document.getElementById('lang-label');
+      if (btnLang) {
+        btnLang.addEventListener('click', function () {
+          currentLang = currentLang === 'en' ? 'bn' : 'en';
+          if (langLabel) langLabel.textContent = currentLang === 'en' ? 'English' : 'বাংলা';
+          document.querySelectorAll('[data-i18n]').forEach(el => {
+            const key = el.getAttribute('data-i18n');
+            if (i18n[currentLang] && i18n[currentLang][key]) {
+              el.textContent = i18n[currentLang][key];
+            }
+          });
+        });
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+      initLanguageSystem();
+      syncUserStatusAndCredits();
+    });
+
+    const btnLogout = document.getElementById('btn-logout');
+    if (btnLogout) {
+      btnLogout.addEventListener('click', function () {
+        if (confirm('Are you sure you want to logout?')) {
+          localStorage.removeItem('lgs_auth');
+          localStorage.removeItem('lgs_session');
+          localStorage.removeItem('lgs_token');
+          window.location.href = 'login.html';
+        }
+      });
+    }
+
+
+    // ── Theme System: OS Auto Sync on Load + Manual Toggle on Click ──────────
+    (function initThemeSystem() {
+
+      // Apply theme visually + update button style
+      function applyTheme(theme) {
+        document.documentElement.setAttribute('data-theme', theme);
+        const btnTheme = document.getElementById('btn-theme');
+        if (!btnTheme) return;
+        if (theme === 'dark') {
+          // 🌙 Dark Mode — cool indigo/purple glow
+          btnTheme.innerHTML = '<i class="fa-solid fa-moon" style="color:#a78bfa;"></i>';
+          btnTheme.title = 'Dark Mode — Click for Light';
+          btnTheme.style.background = 'rgba(109,90,255,0.22)';
+          btnTheme.style.border = '1.5px solid rgba(167,139,250,0.6)';
+          btnTheme.style.color = '#a78bfa';
+          btnTheme.style.boxShadow = '0 0 14px rgba(109,90,255,0.45)';
+        } else {
+          // ☀️ Light Mode — warm amber/orange glow
+          btnTheme.innerHTML = '<i class="fa-solid fa-sun" style="color:#f59e0b;"></i>';
+          btnTheme.title = 'Light Mode — Click for Dark';
+          btnTheme.style.background = 'rgba(251,191,36,0.18)';
+          btnTheme.style.border = '1.5px solid rgba(251,191,36,0.7)';
+          btnTheme.style.color = '#f59e0b';
+          btnTheme.style.boxShadow = '0 0 14px rgba(251,191,36,0.4)';
+        }
+        btnTheme.style.cursor = 'pointer';
+        btnTheme.style.pointerEvents = 'auto';
+      }
+
+      // On every page load: always follow OS, clear any old saved preference
+      const osTheme = (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
+      localStorage.removeItem('lgs_theme');
+      applyTheme(osTheme);
+
+      // Live OS listener: auto-update if OS Dark/Light changes while page is open
+      if (window.matchMedia) {
+        const mq = window.matchMedia('(prefers-color-scheme: dark)');
+        const onOSChange = () => {
+          // Only follow OS if user hasn't manually toggled this session
+          if (!sessionStorage.getItem('lgs_manual_theme')) {
+            applyTheme(mq.matches ? 'dark' : 'light');
+          }
+        };
+        if (mq.addEventListener) mq.addEventListener('change', onOSChange);
+        else if (mq.addListener) mq.addListener(onOSChange);
+      }
+
+      // Manual toggle: Dark ↔ Light, mark session as manually set
+      const btnTheme = document.getElementById('btn-theme');
+      if (btnTheme) {
+        btnTheme.addEventListener('click', function () {
+          const currentTheme = document.documentElement.getAttribute('data-theme');
+          const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+          sessionStorage.setItem('lgs_manual_theme', newTheme);
+          applyTheme(newTheme);
+        });
+      }
+
+    })();
+    // ─────────────────────────────────────────────────────────────────────────
+
+    // ── Helper: Live Credit Progress Bar & Percentage UI ──────────────────────
+    function updateCreditUI(remaining, total) {
+      const rem = Math.max(0, parseInt(remaining, 10) || 0);
+      const tot = Math.max(1, parseInt(total, 10) || 50);
+      const pct = Math.min(100, Math.max(0, Math.round((rem / tot) * 100)));
+
+      const credLbl = document.getElementById('lbl-user-credits');
+      if (credLbl) credLbl.textContent = `Credits: ${rem} / ${tot}`;
+
+      const pctLbl = document.getElementById('lbl-user-credit-pct');
+      if (pctLbl) pctLbl.textContent = `${pct}%`;
+
+      const fill = document.getElementById('credit-progress-fill');
+      if (fill) {
+        fill.style.width = `${pct}%`;
+        fill.style.background = pct < 20
+          ? 'linear-gradient(90deg, #ff4757, #ffa502)'
+          : pct < 50
+            ? 'linear-gradient(90deg, #ffa502, #ffb347)'
+            : 'linear-gradient(90deg, #6c63ff, #00d2ff)';
+      }
+    }
+    window.updateCreditUI = updateCreditUI;
+    function showToast(msg, type = 'info', duration = 3500) {
+      let container = document.getElementById('toast-container');
+      if (!container) {
+        container = document.createElement('div');
+        container.id = 'toast-container';
+        container.style.cssText = 'position:fixed;bottom:24px;right:24px;z-index:99999;display:flex;flex-direction:column;gap:10px;max-width:380px;pointer-events:none;';
+        document.body.appendChild(container);
+      }
+      const el = document.createElement('div');
+      el.className = `toast toast-${type}`;
+      const bg = type === 'success' ? 'rgba(34,197,94,0.15)' : type === 'error' ? 'rgba(239,68,68,0.15)' : type === 'warning' ? 'rgba(245,158,11,0.15)' : 'rgba(99,102,241,0.15)';
+      const border = type === 'success' ? 'rgba(34,197,94,0.4)' : type === 'error' ? 'rgba(239,68,68,0.4)' : type === 'warning' ? 'rgba(245,158,11,0.4)' : 'rgba(99,102,241,0.4)';
+      const color = type === 'success' ? '#22c55e' : type === 'error' ? '#ef4444' : type === 'warning' ? '#f59e0b' : '#6366f1';
+      const icon = type === 'success' ? 'fa-circle-check' : type === 'error' ? 'fa-triangle-exclamation' : type === 'warning' ? 'fa-circle-exclamation' : 'fa-circle-info';
+
+      el.style.cssText = `background:${bg};border:1px solid ${border};color:var(--text-heading,#fff);backdrop-filter:blur(12px);padding:12px 16px;border-radius:10px;box-shadow:0 10px 25px -5px rgba(0,0,0,0.3);font-size:13px;font-weight:600;display:flex;align-items:center;gap:10px;pointer-events:auto;animation:toastIn 0.3s cubic-bezier(0.16,1,0.3,1);`;
+      el.innerHTML = `<i class="fa-solid ${icon}" style="color:${color};font-size:16px;flex-shrink:0;"></i> <span style="flex:1;">${msg}</span>`;
+      container.appendChild(el);
+
+      setTimeout(() => {
+        el.style.animation = 'toastOut 0.3s ease forwards';
+        setTimeout(() => el.remove(), 300);
+      }, duration);
+    }
+    // Inject Keyframes
+    const toastStyle = document.createElement('style');
+    toastStyle.textContent = `@keyframes toastIn { from { opacity:0; transform:translateY(20px) scale(0.95); } to { opacity:1; transform:translateY(0) scale(1); } } @keyframes toastOut { from { opacity:1; transform:translateY(0) scale(1); } to { opacity:0; transform:translateY(20px) scale(0.95); } }`;
+    document.head.appendChild(toastStyle);
+
+    // ── Package Upgrade Request System ────────────────────────────────────────
+    const btnUpgrade = document.getElementById('btn-upgrade-plan');
+    if (btnUpgrade) {
+      btnUpgrade.addEventListener('click', function () {
+        let modal = document.getElementById('upgrade-plan-modal');
+        if (!modal) {
+          modal = document.createElement('div');
+          modal.id = 'upgrade-plan-modal';
+          modal.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);backdrop-filter:blur(8px);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px;';
+          modal.innerHTML = `
+            <div style="background:var(--bg-card,#111827);border:1px solid rgba(255,255,255,0.12);border-radius:16px;width:100%;max-width:480px;padding:24px;box-shadow:0 25px 50px -12px rgba(0,0,0,0.5);color:var(--text-heading,#fff);">
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+                <h3 style="margin:0;font-size:18px;display:flex;align-items:center;gap:8px;"><i class="fa-solid fa-bolt" style="color:#ffb347;"></i> Request Package Upgrade</h3>
+                <button onclick="document.getElementById('upgrade-plan-modal').style.display='none';" style="background:none;border:none;color:rgba(255,255,255,0.6);font-size:18px;cursor:pointer;"><i class="fa-solid fa-xmark"></i></button>
+              </div>
+              <p style="font-size:13px;color:var(--text-muted,#94a3b8);margin-bottom:20px;">Choose a package below to submit an upgrade request to the Administrator:</p>
+              <div style="display:flex;flex-direction:column;gap:12px;margin-bottom:24px;">
+                <label style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;background:rgba(108,99,255,0.1);border:1px solid rgba(108,99,255,0.3);border-radius:10px;cursor:pointer;">
+                  <div style="display:flex;align-items:center;gap:10px;">
+                    <input type="radio" name="plan-option" value="pro" checked style="accent-color:#6c63ff;">
+                    <div>
+                      <strong style="color:#a78bfa;font-size:14px;">PRO PLAN</strong>
+                      <div style="font-size:12px;color:rgba(255,255,255,0.7);">1,000 Credits / Day</div>
+                    </div>
+                  </div>
+                  <span style="font-size:12px;font-weight:700;background:rgba(108,99,255,0.2);color:#a78bfa;padding:4px 8px;border-radius:6px;">Popular</span>
+                </label>
+                <label style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;background:rgba(255,179,71,0.1);border:1px solid rgba(255,179,71,0.3);border-radius:10px;cursor:pointer;">
+                  <div style="display:flex;align-items:center;gap:10px;">
+                    <input type="radio" name="plan-option" value="enterprise" style="accent-color:#ffb347;">
+                    <div>
+                      <strong style="color:#ffb347;font-size:14px;">ENTERPRISE PLAN</strong>
+                      <div style="font-size:12px;color:rgba(255,255,255,0.7);">Unlimited (999,999 Credits / Day)</div>
+                    </div>
+                  </div>
+                  <span style="font-size:12px;font-weight:700;background:rgba(255,179,71,0.2);color:#ffb347;padding:4px 8px;border-radius:6px;">Unlimited</span>
+                </label>
+              </div>
+              <div style="display:flex;gap:10px;justify-content:flex-end;">
+                <button onclick="document.getElementById('upgrade-plan-modal').style.display='none';" style="padding:10px 16px;border-radius:8px;border:1px solid rgba(255,255,255,0.15);background:none;color:#fff;font-size:13px;font-weight:600;cursor:pointer;">Cancel</button>
+                <button id="btn-submit-upgrade" style="padding:10px 20px;border-radius:8px;border:none;background:linear-gradient(135deg,#6c63ff,#5a52e0);color:#fff;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:8px;">
+                  <i class="fa-solid fa-paper-plane"></i> Submit Request
+                </button>
+              </div>
+            </div>
+          `;
+          document.body.appendChild(modal);
+
+          document.getElementById('btn-submit-upgrade').addEventListener('click', async function () {
+            if (!currentUserSession) return;
+            const selected = modal.querySelector('input[name="plan-option"]:checked')?.value || 'pro';
+            this.disabled = true;
+            this.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Submitting...';
+
+            try {
+              const res = await fetch(`${API_BASE_AUTH}/upgrade-request`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id: currentUserSession.id, email: currentUserSession.email, requestedPackage: selected })
+              });
+              const data = await res.json();
+              modal.style.display = 'none';
+              if (data.success) {
+                showToast(data.message, 'success', 4500);
+              } else {
+                showToast(data.message || 'Failed to submit request', 'error');
+              }
+            } catch (e) {
+              modal.style.display = 'none';
+              showToast('Network error submitting upgrade request.', 'error');
+            } finally {
+              this.disabled = false;
+              this.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Submit Request';
+            }
+          });
+        } else {
+          modal.style.display = 'flex';
+        }
+      });
+    }
+    // ─────────────────────────────────────────────────────────────────────────
+  </script>
+</body>
+
+</html>

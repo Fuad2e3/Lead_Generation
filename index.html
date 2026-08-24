@@ -1,891 +1,1622 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 
 <head>
-  <script>
-    // Always OS Theme Sync — ignores any saved preference, always follows device Dark/Light
-    (function () {
-      const dark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-      document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
-      localStorage.removeItem('lgs_theme'); // clear any old manual override
-    })();
-
-    if (localStorage.getItem('lgs_auth') !== 'true') {
-      window.location.href = 'login.html';
-    }
-  </script>
-  <script src="config.js"></script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="color-scheme" content="light dark">
   <link rel="icon" type="image/svg+xml" href="favicon.svg">
   <meta name="theme-color" content="#070913" media="(prefers-color-scheme: dark)">
-  <meta name="theme-color" content="#F0F4F8" media="(prefers-color-scheme: light)">
-  <title>Lead Generation - Web Data Scraper</title>
+  <meta name="theme-color" content="#F8FAFC" media="(prefers-color-scheme: light)">
+
+  <title>ProspectInsight — Next-Gen B2B Web Intelligence & Lead Mining</title>
   <meta name="description"
-    content="Automated Web Data Mining Tool. Extract Emails, Phones, Social Links, and Page Content at scale.">
-  <meta name="author" content="Softece">
+    content="Turn any website into verified B2B leads in seconds. Automated contact extraction, phone formatting, social footprint discovery, and 1-click clean export.">
+  <meta name="author" content="ProspectInsight">
 
-
+  <!-- Google Fonts: Inter & Outfit -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link
-    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap"
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&family=Outfit:wght@500;600;700;800;900&display=swap"
     rel="stylesheet">
 
-
+  <!-- Font Awesome Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="config.js"></script>
 
+  <style>
+    /* ==========================================================================
+       PROSPECTINSIGHT - MODERN SAAS DESIGN SYSTEM
+       ========================================================================== */
+    :root {
+      --font-main: 'Inter', system-ui, -apple-system, sans-serif;
+      --font-heading: 'Outfit', 'Inter', system-ui, sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
 
-  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+      /* Brand Palette */
+      --primary: #6366f1;
+      --primary-hover: #4f46e5;
+      --primary-light: #818cf8;
+      --accent: #06b6d4;
+      --accent-glow: rgba(6, 182, 212, 0.35);
+      --secondary: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
 
+      /* Dark Theme (Default) */
+      --bg-body: #070913;
+      --bg-surface: rgba(15, 23, 42, 0.75);
+      --bg-surface-elevated: rgba(30, 41, 59, 0.85);
+      --bg-card: rgba(15, 23, 42, 0.65);
+      --border-subtle: rgba(255, 255, 255, 0.08);
+      --border-glow: rgba(99, 102, 241, 0.3);
 
-  <link rel="stylesheet" href="styles.css">
+      --text-heading: #f8fafc;
+      --text-body: #94a3b8;
+      --text-muted: #64748b;
+      --text-inverse: #070913;
+
+      --glass-bg: rgba(15, 23, 42, 0.6);
+      --glass-border: rgba(255, 255, 255, 0.08);
+      --glass-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.5);
+
+      --radius-sm: 8px;
+      --radius-md: 14px;
+      --radius-lg: 20px;
+      --radius-full: 9999px;
+      --transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    [data-theme="light"] {
+      --bg-body: #f8fafc;
+      --bg-surface: rgba(255, 255, 255, 0.85);
+      --bg-surface-elevated: rgba(255, 255, 255, 0.95);
+      --bg-card: #ffffff;
+      --border-subtle: rgba(0, 0, 0, 0.08);
+      --border-glow: rgba(99, 102, 241, 0.25);
+
+      --text-heading: #0f172a;
+      --text-body: #475569;
+      --text-muted: #94a3b8;
+      --text-inverse: #ffffff;
+
+      --glass-bg: rgba(255, 255, 255, 0.8);
+      --glass-border: rgba(0, 0, 0, 0.08);
+      --glass-shadow: 0 20px 40px -15px rgba(99, 102, 241, 0.12);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: var(--font-main);
+      background-color: var(--bg-body);
+      color: var(--text-body);
+      line-height: 1.6;
+      overflow-x: hidden;
+      transition: background-color 0.3s ease, color 0.3s ease;
+      min-height: 100vh;
+    }
+
+    /* Ambient Background Glows */
+    .ambient-glow {
+      position: fixed;
+      width: 600px;
+      height: 600px;
+      border-radius: 50%;
+      filter: blur(140px);
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.25;
+      transition: opacity 0.5s ease;
+    }
+
+    .glow-1 {
+      top: -100px;
+      left: -100px;
+      background: radial-gradient(circle, #6366f1, #3b82f6);
+    }
+
+    .glow-2 {
+      top: 40%;
+      right: -150px;
+      background: radial-gradient(circle, #06b6d4, #10b981);
+    }
+
+    .glow-3 {
+      bottom: -100px;
+      left: 30%;
+      background: radial-gradient(circle, #8b5cf6, #ec4899);
+    }
+
+    [data-theme="light"] .ambient-glow {
+      opacity: 0.15;
+    }
+
+    /* Typography & Utilities */
+    h1, h2, h3, h4, h5, h6 {
+      font-family: var(--font-heading);
+      color: var(--text-heading);
+      font-weight: 700;
+      line-height: 1.2;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 1240px;
+      margin: 0 auto;
+      padding: 0 24px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .gradient-text {
+      background: linear-gradient(135deg, #a5b4fc 0%, #6366f1 50%, #06b6d4 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      display: inline-block;
+    }
+
+    .gradient-text-alt {
+      background: linear-gradient(135deg, #f59e0b 0%, #ef4444 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      display: inline-block;
+    }
+
+    /* Buttons */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 12px 24px;
+      border-radius: var(--radius-md);
+      font-weight: 600;
+      font-size: 15px;
+      cursor: pointer;
+      transition: var(--transition);
+      border: 1px solid transparent;
+      text-align: center;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #6366f1, #4f46e5);
+      color: #ffffff;
+      box-shadow: 0 8px 20px -4px rgba(99, 102, 241, 0.45);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 28px -4px rgba(99, 102, 241, 0.6);
+      background: linear-gradient(135deg, #4f46e5, #4338ca);
+      color: #fff;
+    }
+
+    .btn-secondary {
+      background: var(--bg-surface);
+      color: var(--text-heading);
+      border: 1px solid var(--border-subtle);
+      backdrop-filter: blur(12px);
+    }
+
+    .btn-secondary:hover {
+      background: var(--bg-surface-elevated);
+      border-color: var(--border-glow);
+      transform: translateY(-2px);
+      color: var(--primary-light);
+    }
+
+    .btn-outline {
+      border: 1px solid var(--border-glow);
+      color: var(--primary-light);
+      background: rgba(99, 102, 241, 0.08);
+    }
+
+    .btn-outline:hover {
+      background: rgba(99, 102, 241, 0.18);
+      border-color: var(--primary);
+      transform: translateY(-2px);
+    }
+
+    .btn-sm {
+      padding: 8px 16px;
+      font-size: 13px;
+      border-radius: var(--radius-sm);
+    }
+
+    .btn-lg {
+      padding: 16px 32px;
+      font-size: 16px;
+      border-radius: var(--radius-md);
+    }
+
+    .badge-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 16px;
+      border-radius: var(--radius-full);
+      font-size: 13px;
+      font-weight: 600;
+      background: rgba(99, 102, 241, 0.12);
+      border: 1px solid rgba(99, 102, 241, 0.3);
+      color: #a5b4fc;
+      margin-bottom: 20px;
+      backdrop-filter: blur(8px);
+    }
+
+    [data-theme="light"] .badge-pill {
+      background: rgba(99, 102, 241, 0.08);
+      color: #4f46e5;
+    }
+
+    /* Header & Navigation */
+    .site-header {
+      position: sticky;
+      top: 0;
+      width: 100%;
+      z-index: 1000;
+      background: var(--glass-bg);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--glass-border);
+      transition: var(--transition);
+    }
+
+    .nav-container {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 76px;
+    }
+
+    .brand-logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 800;
+      font-size: 20px;
+      font-family: var(--font-heading);
+      color: var(--text-heading);
+    }
+
+    .brand-logo-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #6366f1, #06b6d4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #ffffff;
+      font-size: 20px;
+      box-shadow: 0 4px 14px rgba(99, 102, 241, 0.4);
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 32px;
+      list-style: none;
+    }
+
+    .nav-link {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text-body);
+      transition: var(--transition);
+      position: relative;
+    }
+
+    .nav-link:hover {
+      color: var(--primary-light);
+    }
+
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .theme-toggle-btn {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-heading);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      transition: var(--transition);
+    }
+
+    .theme-toggle-btn:hover {
+      border-color: var(--border-glow);
+      color: var(--primary);
+    }
+
+    .mobile-menu-btn {
+      display: none;
+      background: none;
+      border: none;
+      color: var(--text-heading);
+      font-size: 22px;
+      cursor: pointer;
+    }
+
+    /* Hero Section */
+    .hero-section {
+      padding: 90px 0 70px;
+      text-align: center;
+      position: relative;
+    }
+
+    .hero-content {
+      max-width: 860px;
+      margin: 0 auto;
+    }
+
+    .hero-title {
+      font-size: 58px;
+      font-weight: 900;
+      letter-spacing: -0.02em;
+      margin-bottom: 24px;
+    }
+
+    .hero-subtitle {
+      font-size: 19px;
+      color: var(--text-body);
+      line-height: 1.7;
+      margin-bottom: 40px;
+      max-width: 720px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .hero-cta-group {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-bottom: 48px;
+    }
+
+    .hero-badges-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 28px;
+      flex-wrap: wrap;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-muted);
+    }
+
+    .hero-badge-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .hero-badge-item i {
+      color: var(--secondary);
+    }
+
+    /* Live Interactive Terminal Mockup */
+    .hero-mockup-wrapper {
+      margin-top: 56px;
+      border-radius: var(--radius-lg);
+      background: var(--bg-surface-elevated);
+      border: 1px solid var(--border-glow);
+      padding: 8px;
+      box-shadow: 0 30px 60px -15px rgba(0, 0, 0, 0.6), 0 0 30px rgba(99, 102, 241, 0.15);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .terminal-header {
+      background: rgba(0, 0, 0, 0.35);
+      padding: 12px 18px;
+      border-radius: 14px 14px 0 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .terminal-dots {
+      display: flex;
+      gap: 8px;
+    }
+
+    .terminal-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+    }
+
+    .dot-red { background: #ef4444; }
+    .dot-yellow { background: #f59e0b; }
+    .dot-green { background: #10b981; }
+
+    .terminal-title {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .terminal-body {
+      background: rgba(7, 9, 19, 0.95);
+      padding: 24px;
+      border-radius: 0 0 14px 14px;
+      font-family: var(--font-mono);
+      font-size: 13px;
+      text-align: left;
+      min-height: 280px;
+    }
+
+    .terminal-prompt {
+      color: #a5b4fc;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .terminal-sim-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 12px;
+      margin-top: 18px;
+    }
+
+    .terminal-card {
+      background: rgba(30, 41, 59, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 10px;
+      padding: 12px 14px;
+      font-size: 12px;
+    }
+
+    .terminal-card-title {
+      color: #38bdf8;
+      font-weight: 600;
+      margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .terminal-card-val {
+      color: #f1f5f9;
+      word-break: break-all;
+    }
+
+    /* Section Styles */
+    .section {
+      padding: 100px 0;
+      position: relative;
+    }
+
+    .section-header {
+      text-align: center;
+      max-width: 680px;
+      margin: 0 auto 60px;
+    }
+
+    .section-tag {
+      text-transform: uppercase;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.1em;
+      color: var(--primary-light);
+      margin-bottom: 12px;
+      display: inline-block;
+    }
+
+    .section-title {
+      font-size: 40px;
+      font-weight: 800;
+      margin-bottom: 18px;
+      letter-spacing: -0.02em;
+    }
+
+    .section-desc {
+      font-size: 16px;
+      color: var(--text-body);
+      line-height: 1.6;
+    }
+
+    /* Services Grid */
+    .services-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+    }
+
+    .service-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: 32px 28px;
+      transition: var(--transition);
+      position: relative;
+      overflow: hidden;
+      backdrop-filter: blur(12px);
+    }
+
+    .service-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 3px;
+      background: linear-gradient(90deg, var(--primary), var(--accent));
+      opacity: 0;
+      transition: var(--transition);
+    }
+
+    .service-card:hover {
+      transform: translateY(-6px);
+      border-color: var(--border-glow);
+      box-shadow: 0 20px 40px -10px rgba(99, 102, 241, 0.2);
+    }
+
+    .service-card:hover::before {
+      opacity: 1;
+    }
+
+    .service-icon-box {
+      width: 56px;
+      height: 56px;
+      border-radius: 16px;
+      background: rgba(99, 102, 241, 0.12);
+      border: 1px solid rgba(99, 102, 241, 0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      color: #818cf8;
+      margin-bottom: 24px;
+      transition: var(--transition);
+    }
+
+    .service-card:hover .service-icon-box {
+      transform: scale(1.1);
+      background: var(--primary);
+      color: #ffffff;
+      box-shadow: 0 0 20px rgba(99, 102, 241, 0.5);
+    }
+
+    .service-card-title {
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+
+    .service-card-desc {
+      font-size: 14px;
+      color: var(--text-body);
+      line-height: 1.6;
+      margin-bottom: 20px;
+    }
+
+    .service-features-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      font-size: 13px;
+      color: var(--text-muted);
+      border-top: 1px solid var(--border-subtle);
+      padding-top: 16px;
+    }
+
+    .service-features-list li {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .service-features-list li i {
+      color: var(--secondary);
+      font-size: 12px;
+    }
+
+    /* How It Works Steps */
+    .steps-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 32px;
+      position: relative;
+    }
+
+    .step-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: 36px 30px;
+      text-align: left;
+      position: relative;
+    }
+
+    .step-number {
+      font-family: var(--font-heading);
+      font-size: 48px;
+      font-weight: 900;
+      color: rgba(99, 102, 241, 0.25);
+      position: absolute;
+      top: 20px;
+      right: 24px;
+    }
+
+    .step-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(6, 182, 212, 0.2));
+      border: 1px solid var(--border-glow);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--primary-light);
+      font-size: 20px;
+      margin-bottom: 20px;
+    }
+
+    .step-title {
+      font-size: 20px;
+      margin-bottom: 12px;
+    }
+
+    .step-desc {
+      font-size: 14px;
+      color: var(--text-body);
+      line-height: 1.6;
+    }
+
+    /* Stats Section */
+    .stats-bar {
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(6, 182, 212, 0.08));
+      border: 1px solid var(--border-glow);
+      border-radius: var(--radius-lg);
+      padding: 48px 36px;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 24px;
+      text-align: center;
+      backdrop-filter: blur(16px);
+      margin: 40px 0;
+    }
+
+    .stat-metric {
+      font-size: 44px;
+      font-weight: 900;
+      font-family: var(--font-heading);
+      margin-bottom: 8px;
+    }
+
+    .stat-label {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text-muted);
+    }
+
+    /* Pricing Section */
+    .pricing-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 28px;
+      align-items: stretch;
+    }
+
+    .pricing-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: 38px 32px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: var(--transition);
+      position: relative;
+    }
+
+    .pricing-card.featured {
+      background: var(--bg-surface-elevated);
+      border-color: var(--primary);
+      box-shadow: 0 20px 40px -10px rgba(99, 102, 241, 0.35);
+      transform: scale(1.03);
+    }
+
+    .pricing-card.featured .pricing-popular-badge {
+      position: absolute;
+      top: -14px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: linear-gradient(135deg, #6366f1, #06b6d4);
+      color: #fff;
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      padding: 4px 14px;
+      border-radius: 20px;
+      box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+    }
+
+    .pricing-plan-name {
+      font-size: 22px;
+      margin-bottom: 8px;
+    }
+
+    .pricing-plan-desc {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-bottom: 24px;
+    }
+
+    .pricing-price {
+      font-size: 44px;
+      font-weight: 900;
+      font-family: var(--font-heading);
+      color: var(--text-heading);
+      margin-bottom: 24px;
+    }
+
+    .pricing-price span {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text-muted);
+    }
+
+    .pricing-features-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      font-size: 14px;
+      margin-bottom: 32px;
+    }
+
+    .pricing-features-list li {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .pricing-features-list li i {
+      color: var(--secondary);
+      font-size: 13px;
+    }
+
+    /* FAQ Accordion */
+    .faq-wrapper {
+      max-width: 780px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .faq-item {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      transition: var(--transition);
+    }
+
+    .faq-question {
+      padding: 20px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text-heading);
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .faq-question i {
+      color: var(--primary-light);
+      transition: transform 0.3s ease;
+    }
+
+    .faq-answer {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.35s ease, padding 0.35s ease;
+      padding: 0 24px;
+      font-size: 14px;
+      color: var(--text-body);
+      line-height: 1.6;
+    }
+
+    .faq-item.active {
+      border-color: var(--border-glow);
+    }
+
+    .faq-item.active .faq-question i {
+      transform: rotate(180deg);
+    }
+
+    .faq-item.active .faq-answer {
+      max-height: 200px;
+      padding: 0 24px 20px;
+    }
+
+    /* CTA Section */
+    .cta-banner {
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(6, 182, 212, 0.15));
+      border: 1px solid var(--border-glow);
+      border-radius: var(--radius-lg);
+      padding: 64px 40px;
+      text-align: center;
+      box-shadow: 0 25px 50px -15px rgba(0, 0, 0, 0.4);
+      backdrop-filter: blur(20px);
+    }
+
+    .cta-banner h2 {
+      font-size: 38px;
+      margin-bottom: 16px;
+    }
+
+    .cta-banner p {
+      font-size: 16px;
+      max-width: 600px;
+      margin: 0 auto 32px;
+      color: var(--text-body);
+    }
+
+    /* Footer */
+    .site-footer {
+      border-top: 1px solid var(--border-subtle);
+      padding: 60px 0 30px;
+      background: var(--bg-body);
+      font-size: 14px;
+    }
+
+    .footer-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 1fr;
+      gap: 40px;
+      margin-bottom: 48px;
+    }
+
+    .footer-brand p {
+      margin-top: 14px;
+      color: var(--text-muted);
+      max-width: 320px;
+      font-size: 13px;
+    }
+
+    .footer-col h4 {
+      font-size: 15px;
+      font-weight: 700;
+      margin-bottom: 18px;
+      color: var(--text-heading);
+    }
+
+    .footer-links {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    .footer-links a:hover {
+      color: var(--primary-light);
+    }
+
+    .footer-bottom {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-top: 24px;
+      border-top: 1px solid var(--border-subtle);
+      color: var(--text-muted);
+      font-size: 13px;
+    }
+
+    .system-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 4px 10px;
+      border-radius: var(--radius-full);
+      background: rgba(16, 185, 129, 0.1);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      color: #10b981;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .status-pulse {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #10b981;
+      box-shadow: 0 0 8px #10b981;
+      animation: pulseDot 2s infinite;
+    }
+
+    @keyframes pulseDot {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(0.85); }
+    }
+
+    /* Responsive Queries */
+    @media (max-width: 1024px) {
+      .hero-title { font-size: 44px; }
+      .services-grid { grid-template-columns: repeat(2, 1fr); }
+      .steps-grid { grid-template-columns: 1fr; }
+      .pricing-grid { grid-template-columns: 1fr; max-width: 480px; margin: 0 auto; }
+      .pricing-card.featured { transform: none; }
+      .stats-bar { grid-template-columns: repeat(2, 1fr); }
+      .footer-grid { grid-template-columns: 1fr 1fr; }
+    }
+
+    @media (max-width: 768px) {
+      .nav-links { display: none; }
+      .mobile-menu-btn { display: block; }
+      .hero-title { font-size: 34px; }
+      .hero-subtitle { font-size: 16px; }
+      .services-grid { grid-template-columns: 1fr; }
+      .stats-bar { grid-template-columns: 1fr; padding: 24px; }
+      .stat-metric { font-size: 36px; }
+      .cta-banner { padding: 40px 20px; }
+      .cta-banner h2 { font-size: 28px; }
+      .footer-grid { grid-template-columns: 1fr; }
+      .footer-bottom { flex-direction: column; gap: 14px; text-align: center; }
+    }
+  </style>
 </head>
 
 <body>
+  <!-- Ambient Lighting Effects -->
+  <div class="ambient-glow glow-1"></div>
+  <div class="ambient-glow glow-2"></div>
+  <div class="ambient-glow glow-3"></div>
 
-
-  <div class="app-container">
-
-
-    <header class="app-header">
-      <div class="header-brand">
-        <div class="brand-icon">
+  <!-- Header & Navigation Bar -->
+  <header class="site-header">
+    <div class="container nav-container">
+      <!-- Logo -->
+      <a href="index.html" class="brand-logo">
+        <div class="brand-logo-icon">
           <i class="fa-solid fa-spider"></i>
         </div>
-        <div class="brand-text">
-          <h1 data-i18n="app_title">Lead Generation</h1>
-          <span class="badge-v2" id="header-user-badge">Lead Gen</span>
-        </div>
-      </div>
+        <span>Prospect<span class="gradient-text">Insight</span></span>
+      </a>
 
+      <!-- Desktop Nav Links -->
+      <ul class="nav-links">
+        <li><a href="#services" class="nav-link">Services</a></li>
+        <li><a href="#how-it-works" class="nav-link">How It Works</a></li>
+        <li><a href="#demo" class="nav-link">Live Demo</a></li>
+        <li><a href="#pricing" class="nav-link">Pricing</a></li>
+        <li><a href="#faq" class="nav-link">FAQ</a></li>
+      </ul>
 
-      <div class="header-actions">
-        <div id="header-credit-badge" class="action-pill"
-          style="font-weight:700;color:var(--text-main);border-color:rgba(108,99,255,0.3);display:inline-flex;flex-direction:column;gap:3px;padding:6px 12px;min-width:155px;justify-content:center;">
-          <div
-            style="display:flex;align-items:center;justify-content:space-between;gap:6px;width:100%;line-height:1.2;">
-            <span style="display:flex;align-items:center;gap:5px;font-size:12px;color:var(--text-main);"><i
-                class="fa-solid fa-coins" style="color:#ffb347;"></i> <span id="lbl-user-credits">Credits: 50 /
-                50</span></span>
-            <span id="lbl-user-credit-pct"
-              style="font-size:10px;font-weight:800;color:#ffb347;background:rgba(255,179,71,0.15);padding:1px 5px;border-radius:6px;border:1px solid rgba(255,179,71,0.3);">100%</span>
-          </div>
-          <div style="width:100%;height:5px;background:var(--border-input);border-radius:10px;overflow:hidden;">
-            <div id="credit-progress-fill"
-              style="width:100%;height:100%;background:linear-gradient(90deg, #6c63ff, #00d2ff);border-radius:10px;transition:width 0.4s ease, background 0.4s ease;">
-            </div>
-          </div>
-        </div>
-        <button id="btn-upgrade-plan" class="action-pill" title="Request Package Upgrade"
-          style="font-weight:700;color:#ffb347;border-color:rgba(255,179,71,0.4);background:rgba(255,179,71,0.1);cursor:pointer;display:inline-flex;align-items:center;gap:6px;">
-          <i class="fa-solid fa-bolt" style="color:#ffb347;"></i> <span>Upgrade Plan</span>
-        </button>
-        <button id="btn-lang" class="action-pill" title="Switch Language">
-          <i class="fa-solid fa-language"></i> <span id="lang-label">English</span>
-        </button>
-        <button id="btn-theme" class="action-pill" title="Toggle Light/Dark Theme">
+      <!-- Action Buttons & Auth Status -->
+      <div class="nav-actions">
+        <!-- Theme Toggle -->
+        <button id="theme-toggle" class="theme-toggle-btn" title="Toggle Dark/Light Mode">
           <i class="fa-solid fa-moon"></i>
         </button>
-        <button id="btn-logout" class="action-pill" title="Logout"
-          style="color: #ff4d4d; border-color: rgba(255, 77, 77, 0.3);">
-          <i class="fa-solid fa-right-from-bracket"></i>
-        </button>
-      </div>
-    </header>
 
-
-    <main class="app-main">
-
-      <!-- Live System Announcement Banner -->
-      <div id="system-announcement-banner" class="quick-status-banner"
-        style="display: none; background: linear-gradient(135deg, rgba(255, 179, 71, 0.15), rgba(108, 99, 255, 0.15)); border: 1px solid rgba(255, 179, 71, 0.4); padding: 10px 18px; border-radius: 10px; color: var(--text-heading); font-size: 13px; font-weight: 600; margin-bottom: 16px; align-items: center; justify-content: space-between;">
-        <div style="display: flex; align-items: center; gap: 10px;">
-          <i class="fa-solid fa-bullhorn" style="color: var(--color-warning); font-size: 16px;"></i>
-          <span id="announcement-banner-text">Welcome to Lead Generation!</span>
+        <!-- Dynamic User Auth Button Container -->
+        <div id="auth-buttons-container" style="display: flex; align-items: center; gap: 10px;">
+          <a href="login.html" class="btn btn-primary btn-sm" id="nav-btn-login" style="padding: 9px 20px;">
+            <i class="fa-solid fa-right-to-bracket"></i> Sign In
+          </a>
         </div>
-        <button onclick="document.getElementById('system-announcement-banner').style.display='none';"
-          style="background: transparent; border: none; color: rgba(255,255,255,0.6); cursor: pointer; font-size: 14px;"><i
-            class="fa-solid fa-xmark"></i></button>
-      </div>
-
-      <div class="top-dashboard-section">
-
-        <div class="grid-layout-2col">
-
-          <div class="card glass-card">
-            <div class="card-header flex-between" style="padding: 12px 20px;">
-              <h3><i class="fa-solid fa-file-import"></i> <span data-i18n="input_heading">1. Input Website URLs</span>
-              </h3>
-              <div class="input-stats-pills" style="display: flex; gap: 8px;">
-                <span class="stat-pill"><i class="fa-solid fa-globe"></i> <span id="detected-urls-count">0</span>
-                  URLs</span>
-                <span id="duplicate-warning" class="stat-pill warning hidden"
-                  style="background: rgba(255, 179, 71, 0.15); color: var(--color-warning); border: 1px solid rgba(255, 179, 71, 0.3); padding: 2px 8px; border-radius: 12px; font-size: 11px;"><i
-                    class="fa-solid fa-clone"></i> <span id="duplicates-count">0</span> Dups</span>
-              </div>
-            </div>
-
-            <div class="card-body" style="padding: 14px 20px;">
-              <div class="dropzone" id="file-dropzone"
-                style="position: relative; padding: 16px 14px; text-align: center; overflow: hidden; cursor: pointer;">
-                <input type="file" id="file-input" accept=".txt,.csv,.xlsx,.xls,.tsv"
-                  onchange="if(this.files && this.files.length && window.handleFileSelectGlobal) window.handleFileSelectGlobal(this.files[0]);"
-                  style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; z-index: 5;">
-                <div style="position: relative; z-index: 1; pointer-events: none;">
-                  <i class="fa-solid fa-cloud-arrow-up dropzone-icon" style="font-size: 26px; margin-bottom: 4px;"></i>
-                  <p class="dropzone-text" style="font-size: 12px; margin-bottom: 4px;" data-i18n="dropzone_msg">Drag &
-                    Drop <strong>.txt</strong>, <strong>.csv</strong>, or <strong>.xlsx</strong> file here</p>
-                  <span class="dropzone-or" style="margin: 2px 0; display: block;">or</span>
-                  <div class="btn btn-secondary btn-xs"
-                    style="display: inline-flex; align-items: center; gap: 6px; margin-top: 2px;">
-                    <i class="fa-solid fa-folder-open"></i> <span data-i18n="browse_btn">Browse Files</span>
-                  </div>
-                </div>
-                <div id="file-info" class="file-info-badge hidden"
-                  style="position: relative; z-index: 10; margin-top: 6px; padding: 4px 10px; font-size: 11px;">
-                  <i class="fa-solid fa-file-csv"></i> <span id="file-name">filename.csv</span>
-                  <button id="btn-remove-file" type="button" class="btn-icon" style="cursor: pointer;"><i
-                      class="fa-solid fa-xmark"></i></button>
-                </div>
-              </div>
-
-              <div class="form-group margin-top-sm" style="margin-bottom: 0;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-                  <label for="url-textarea" style="margin-bottom: 0; font-size: 12px;"><i
-                      class="fa-solid fa-list-check"></i> <span data-i18n="manual_urls_label">Or Paste URLs/Domains
-                      directly:</span></label>
-                  <span id="url-input-stats" style="font-size: 11px; color: var(--text-muted);">Lines: 0</span>
-                </div>
-                <textarea id="url-textarea" placeholder="https://example.com&#10;mycompany.org&#10;agency.net" rows="6"
-                  style="height: 125px; padding: 10px 12px; font-size: 12px; line-height: 1.6; resize: vertical;"></textarea>
-
-                <div class="url-action-bar" style="display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap;">
-                  <button type="button" id="btn-paste-clipboard" class="btn btn-secondary btn-xs" style="padding: 5px 10px; font-size: 11px;">
-                    <i class="fa-solid fa-paste color-accent"></i> Paste Clipboard
-                  </button>
-                  <button type="button" id="btn-sample-urls" class="btn btn-secondary btn-xs" style="padding: 5px 10px; font-size: 11px;">
-                    <i class="fa-solid fa-lightbulb color-warning"></i> Load Samples
-                  </button>
-                  <button type="button" id="btn-clear-urls" class="btn btn-secondary btn-xs" style="padding: 5px 10px; font-size: 11px;">
-                    <i class="fa-solid fa-trash-can color-danger"></i> Clear
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-
-
-          <div class="card glass-card">
-            <div class="card-header" style="padding: 12px 20px; display: flex; align-items: center; justify-content: space-between;">
-              <h3 style="margin: 0;"><i class="fa-solid fa-square-check"></i> <span data-i18n="options_heading">2. Extraction
-                  Parameters</span></h3>
-              <button id="btn-select-all-params" class="btn btn-secondary btn-xs" title="Click to deselect all parameters" style="font-size: 11px; padding: 4px 10px; opacity: 0.85;">&#9745; Deselect All</button>
-            </div>
-            <div class="card-body" style="padding: 14px 20px;">
-              <!-- 🏢 1. Business Intelligence & Details -->
-              <div class="options-section">
-                <h4 class="section-title" style="font-size: 12px; margin-bottom: 6px;"><i
-                    class="fa-solid fa-building color-primary"></i> Business Intelligence</h4>
-                <div class="checkbox-grid" style="grid-template-columns: repeat(2, 1fr); gap: 6px;">
-                  <label class="custom-checkbox" style="padding: 6px 10px; font-size: 12px;">
-                    <input type="checkbox" id="chk-company-name" checked>
-                    <span class="checkmark"></span>
-                    <span><i class="fa-solid fa-signature color-accent"></i> Company Name</span>
-                  </label>
-                  <label class="custom-checkbox" style="padding: 6px 10px; font-size: 12px;">
-                    <input type="checkbox" id="chk-industry" checked>
-                    <span class="checkmark"></span>
-                    <span><i class="fa-solid fa-briefcase color-warning"></i> Business Category</span>
-                  </label>
-                  <label class="custom-checkbox" style="padding: 6px 10px; font-size: 12px;">
-                    <input type="checkbox" id="chk-company-size" checked>
-                    <span class="checkmark"></span>
-                    <span><i class="fa-solid fa-users color-primary"></i> Company Size</span>
-                  </label>
-                  <label class="custom-checkbox" style="padding: 6px 10px; font-size: 12px;">
-                    <input type="checkbox" id="chk-year-founded" checked>
-                    <span class="checkmark"></span>
-                    <span><i class="fa-solid fa-calendar-check color-success"></i> Year Founded</span>
-                  </label>
-                </div>
-              </div>
-
-              <!-- 📍 2. Contact & Location Details -->
-              <div class="options-section margin-top-sm">
-                <h4 class="section-title" style="font-size: 12px; margin-bottom: 6px;"><i
-                    class="fa-solid fa-address-card color-accent"></i> Contact & Location Details</h4>
-                <div class="checkbox-grid" style="grid-template-columns: repeat(2, 1fr); gap: 6px;">
-                  <label class="custom-checkbox" style="padding: 6px 10px; font-size: 12px;">
-                    <input type="checkbox" id="chk-phone" checked>
-                    <span class="checkmark"></span>
-                    <span><i class="fa-solid fa-phone color-accent"></i> Phones</span>
-                  </label>
-                  <label class="custom-checkbox" style="padding: 6px 10px; font-size: 12px;">
-                    <input type="checkbox" id="chk-email" checked>
-                    <span class="checkmark"></span>
-                    <span><i class="fa-solid fa-envelope color-primary"></i> Emails</span>
-                  </label>
-                  <label class="custom-checkbox" style="padding: 6px 10px; font-size: 12px;">
-                    <input type="checkbox" id="chk-address" checked>
-                    <span class="checkmark"></span>
-                    <span><i class="fa-solid fa-location-dot color-danger"></i> Street Address</span>
-                  </label>
-                  <label class="custom-checkbox" style="padding: 6px 10px; font-size: 12px;">
-                    <input type="checkbox" id="chk-social" checked>
-                    <span class="checkmark"></span>
-                    <span><i class="fa-solid fa-share-nodes color-success"></i> Social Links</span>
-                  </label>
-                </div>
-              </div>
-
-              <!-- 📄 3. Page Content & Offerings -->
-              <div class="options-section margin-top-sm">
-                <h4 class="section-title" style="font-size: 12px; margin-bottom: 6px;"><i
-                    class="fa-solid fa-file-lines color-warning"></i> Page Content & Offerings</h4>
-                <div class="checkbox-grid" style="grid-template-columns: repeat(2, 1fr); gap: 6px;">
-                  <label class="custom-checkbox" style="padding: 6px 10px; font-size: 12px;">
-                    <input type="checkbox" id="chk-services-products" checked>
-                    <span class="checkmark"></span>
-                    <span><i class="fa-solid fa-boxes-stacked color-warning"></i> Services & Products</span>
-                  </label>
-                  <label class="custom-checkbox" style="padding: 6px 10px; font-size: 12px;">
-                    <input type="checkbox" id="chk-home" checked>
-                    <span class="checkmark"></span>
-                    <span>Homepage Text</span>
-                  </label>
-                  <label class="custom-checkbox" style="padding: 6px 10px; font-size: 12px;">
-                    <input type="checkbox" id="chk-about" checked>
-                    <span class="checkmark"></span>
-                    <span>About Us Section</span>
-                  </label>
-                  <label class="custom-checkbox" style="padding: 6px 10px; font-size: 12px;">
-                    <input type="checkbox" id="chk-contact" checked>
-                    <span class="checkmark"></span>
-                    <span>Contact Us Section</span>
-                  </label>
-                  <label class="custom-checkbox" style="padding: 6px 10px; font-size: 12px;">
-                    <input type="checkbox" id="chk-services" checked>
-                    <span class="checkmark"></span>
-                    <span>Services Section</span>
-                  </label>
-                  <label class="custom-checkbox" style="padding: 6px 10px; font-size: 12px;">
-                    <input type="checkbox" id="chk-skip-dup" checked>
-                    <span class="checkmark"></span>
-                    <span><i class="fa-solid fa-filter color-warning"></i> Skip Duplicates</span>
-                  </label>
-                </div>
-              </div>
-
-            </div>
-          </div>
-
-        </div>
-
-
-        <div class="card glass-card margin-top-sm">
-          <div class="automation-top-bar" style="padding: 10px 18px;">
-            <div class="session-info">
-              <h2 style="font-size: 14px;"><i class="fa-solid fa-bolt color-warning"></i> <span
-                  data-i18n="live_tracker_title">Live Execution Progress</span></h2>
-              <span id="session-status-badge" class="badge badge-idle">Idle</span>
-            </div>
-
-            <div class="session-controls" style="display: flex; gap: 6px;">
-              <button id="btn-pause" class="btn btn-warning btn-xs hidden"><i class="fa-solid fa-pause"></i> Pause</button>
-              <button id="btn-resume" class="btn btn-success btn-xs hidden"><i class="fa-solid fa-play"></i> Resume</button>
-              <button id="btn-stop" class="btn btn-danger btn-xs hidden"><i class="fa-solid fa-stop"></i> Stop</button>
-              <button id="btn-retry-failed" class="btn btn-warning btn-xs hidden"><i class="fa-solid fa-rotate-right"></i>
-                Retry Failed & N/A</button>
-              <button id="btn-restart" class="btn btn-primary btn-xs"
-                style="padding: 6px 14px; cursor: pointer;"><i class="fa-solid fa-play"></i> Launch Mining
-                Session</button>
-              <button id="btn-export-toolbar" class="btn btn-export-primary btn-xs"
-                style="padding: 7px 16px; background: linear-gradient(135deg, #107C41, #009688); color: #ffffff; border: none; font-weight: 700; box-shadow: 0 4px 14px rgba(16, 124, 65, 0.35); cursor: pointer;"><i
-                  class="fa-solid fa-file-export"></i> Export Data</button>
-            </div>
-          </div>
-
-          <div class="card-body" style="padding: 10px 18px;">
-            <div id="quick-status" class="quick-status-banner hidden"
-              style="background: rgba(108, 99, 255, 0.1); border: 1px solid rgba(108, 99, 255, 0.3); padding: 6px 14px; border-radius: 6px; color: var(--color-primary); font-size: 12px; font-weight: 500; margin-bottom: 8px;">
-              <span id="quick-status-icon"><i class="fa-solid fa-spinner fa-spin"></i></span> <span
-                id="lbl-status-text">Mining in progress...</span>
-            </div>
-
-            <div class="progress-container" style="padding: 8px 14px;">
-              <div class="progress-metrics" style="font-size: 11px; margin-bottom: 4px;">
-                <span class="metric-text"><span id="lbl-processed-sites">0</span> / <span id="lbl-total-sites">0</span>
-                  Websites Processed</span>
-                <span id="lbl-percentage" class="metric-percentage" style="font-size: 13px;">0.0%</span>
-              </div>
-              <div class="progress-bar-bg" style="height: 6px;">
-                <div id="progress-bar-fill" class="progress-bar-fill" style="width: 0%;"></div>
-              </div>
-              <div class="progress-subtext" style="font-size: 10px; margin-top: 4px;">
-                <span><i class="fa-solid fa-stopwatch"></i> Elapsed: <strong
-                    id="lbl-elapsed-time">00:00:00</strong></span>
-              </div>
-            </div>
-
-            <div class="stats-counters-grid margin-top-sm" style="grid-template-columns: repeat(4, 1fr); gap: 10px;">
-              <div class="stat-box blue" style="padding: 6px 10px;">
-                <div class="stat-number" id="stat-total" style="font-size: 18px;">0</div>
-                <div class="stat-label" style="font-size: 9px;">Total Sites</div>
-              </div>
-              <div class="stat-box green" style="padding: 6px 10px;">
-                <div class="stat-number" id="stat-done" style="font-size: 18px;">0</div>
-                <div class="stat-label" style="font-size: 9px;">Successful</div>
-              </div>
-              <div class="stat-box red" style="padding: 6px 10px;">
-                <div class="stat-number" id="stat-error" style="font-size: 18px;">0</div>
-                <div class="stat-label" style="font-size: 9px;">Failed/Error</div>
-              </div>
-              <div class="stat-box orange" style="padding: 6px 10px;">
-                <div class="stat-number" id="stat-skipped" style="font-size: 18px;">0</div>
-                <div class="stat-label" style="font-size: 9px;">Duplicates Skipped</div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-
-
-      </div>
-
-
-
-      <div class="card glass-card margin-top-lg">
-        <div class="card-header flex-between">
-          <h3><i class="fa-solid fa-table-list"></i> <span>Extracted Website Data Grid</span></h3>
-          <div class="table-actions">
-            <input type="text" id="table-search" class="input-sm" placeholder="Search extracted results...">
-          </div>
-        </div>
-        <div class="card-body">
-          <div class="table-responsive">
-            <table class="data-table" id="mined-data-table">
-              <thead>
-                <tr>
-                  <th>#</th>
-                  <th>Website URL</th>
-                  <th>Status</th>
-                  <th>Company Name</th>
-                  <th>Industry</th>
-                  <th>Company Size</th>
-                  <th>Year Founded</th>
-                  <th>Address</th>
-                  <th>Phones</th>
-                  <th>Emails</th>
-                  <th>Social Links</th>
-                  <th>Services & Products</th>
-                  <th>Homepage</th>
-                  <th>About Us</th>
-                  <th>Contact Us</th>
-                  <th>Services</th>
-                  <th>Action</th>
-                </tr>
-              </thead>
-              <tbody id="table-body">
-                <tr>
-                  <td colspan="17" class="text-center text-muted">No mined data yet. Click "Launch Mining Session"
-                    above.</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-
-          <!-- Data Grid Pagination & View Controls -->
-          <div id="grid-pagination-container"
-            style="display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; margin-top: 8px; border-top: 1px solid rgba(255, 255, 255, 0.08); flex-wrap: wrap; gap: 10px;">
-            <div id="grid-footer-count" style="font-size: 12px; color: var(--text-muted, #94a3b8); font-weight: 500;">
-              Showing 0 of 0 websites
-            </div>
-            <div id="grid-see-more-buttons" style="display: flex; gap: 8px;"></div>
-          </div>
-        </div>
-      </div>
-
-    </main>
-  </div>
-
-
-  <div class="hidden-background-elements" style="display: none !important;">
-    <select id="proxy-select">
-      <option value="direct" selected></option>
-    </select>
-    <input type="checkbox" id="chk-sound" checked>
-    <div id="console-log"></div>
-    <div id="console-log-visible"></div>
-    <canvas id="status-chart"></canvas>
-    <tbody id="history-table-body"></tbody>
-    <button id="btn-clear-log"></button>
-    <button id="btn-clear-log-visible"></button>
-    <button id="btn-clean-data"></button>
-    <button id="btn-clear-history"></button>
-    <button id="btn-apply-parameters"></button>
-    <input type="text" id="custom-keywords-input" placeholder="Keywords...">
-    <span id="lbl-active-proxy"></span>
-  </div>
-
-
-  <div id="modal-export" class="modal-backdrop hidden">
-    <div class="modal-box">
-      <div class="modal-header">
-        <h3><i class="fa-solid fa-file-export color-primary"></i> Choose Export File Format</h3>
-        <button class="btn-close" id="btn-close-export"><i class="fa-solid fa-xmark"></i></button>
-      </div>
-      <div class="modal-body">
-
-        <!-- Scope Option -->
-        <div
-          style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; background: var(--bg-input); padding: 8px 12px; border-radius: 8px; border: 1px solid var(--border-input);">
-          <label for="export-scope-select"
-            style="font-size: 12px; font-weight: 600; color: var(--text-heading); display: flex; align-items: center; gap: 6px;">
-            <i class="fa-solid fa-filter color-warning"></i> Export Scope:
-          </label>
-          <select id="export-scope-select" class="input-sm"
-            style="font-size: 12px; padding: 4px 8px; border-radius: 6px; background: var(--bg-card); color: var(--text-main); border: 1px solid var(--border-card);">
-            <option value="all" selected>All Extracted Rows</option>
-            <option value="search">Active Search Filter Results Only</option>
-          </select>
-        </div>
-
-        <p style="font-size: 12px; color: var(--text-muted);">Export extracted website details into your preferred file
-          format with complete full-length text:</p>
-
-        <div class="export-grid margin-top-sm">
-          <button class="export-card" id="export-excel">
-            <i class="fa-solid fa-file-excel color-excel"></i>
-            <strong>Excel (.xlsx)</strong>
-            <span>Full text auto-fit</span>
-          </button>
-          <button class="export-card" id="export-csv">
-            <i class="fa-solid fa-file-csv color-csv"></i>
-            <strong>CSV (.csv)</strong>
-            <span>Spreadsheet (UTF-8)</span>
-          </button>
-          <button class="export-card" id="export-pdf">
-            <i class="fa-solid fa-file-pdf color-pdf"></i>
-            <strong>PDF Report (.pdf)</strong>
-            <span>Printable document</span>
-          </button>
-          <button class="export-card" id="export-json">
-            <i class="fa-solid fa-file-code color-json"></i>
-            <strong>JSON (.json)</strong>
-            <span>Raw structured data</span>
-          </button>
-          <button class="export-card" id="export-txt">
-            <i class="fa-solid fa-file-lines color-txt"></i>
-            <strong>Google Sheet TSV (.txt)</strong>
-            <span>Tab separated text</span>
-          </button>
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button class="btn btn-secondary btn-md"
-          onclick="document.getElementById('modal-export').classList.add('hidden'); document.body.style.overflow='';">Cancel</button>
       </div>
     </div>
-  </div>
+  </header>
 
+  <!-- Hero Section -->
+  <section class="hero-section">
+    <div class="container">
+      <div class="hero-content">
+        <div class="badge-pill">
+          <i class="fa-solid fa-sparkles"></i> Next-Gen Web Intelligence & Lead Mining 2.5
+        </div>
+        <h1 class="hero-title">
+          Turn Any Website Into <span class="gradient-text">Verified B2B Leads</span> in Seconds
+        </h1>
+        <p class="hero-subtitle">
+          Automate website discovery, extract verified corporate emails, direct phone numbers, social footprints, and structured business offerings with our 15x parallel intelligence engine.
+        </p>
 
-  <div id="modal-detail" class="modal-backdrop hidden">
-    <div class="modal-box modal-lg">
-      <div class="modal-header">
-        <h3><i class="fa-solid fa-globe color-accent"></i> <span id="detail-modal-title">Website Details</span></h3>
-        <button class="btn-close" id="btn-close-detail"
-          onclick="document.getElementById('modal-detail').classList.add('hidden'); document.body.style.overflow='';"><i
-            class="fa-solid fa-xmark"></i></button>
+        <div class="hero-cta-group">
+          <a href="login.html" class="btn btn-primary btn-lg" id="hero-primary-cta">
+            <i class="fa-solid fa-rocket"></i> Launch Free Miner
+          </a>
+          <a href="#services" class="btn btn-secondary btn-lg">
+            <i class="fa-solid fa-layer-group"></i> Explore Services
+          </a>
+        </div>
+
+        <div class="hero-badges-row">
+          <div class="hero-badge-item"><i class="fa-solid fa-circle-check"></i> 15x Fast Parallel Crawling</div>
+          <div class="hero-badge-item"><i class="fa-solid fa-circle-check"></i> Zero Coding Required</div>
+          <div class="hero-badge-item"><i class="fa-solid fa-circle-check"></i> 1-Click Excel / CSV Export</div>
+          <div class="hero-badge-item"><i class="fa-solid fa-circle-check"></i> Anti-Bot Auto Proxy Racer</div>
+        </div>
       </div>
-      <div class="modal-body" id="detail-modal-body">
 
-      </div>
-      <div class="modal-footer">
-        <button id="btn-back-detail" class="btn btn-primary btn-md"
-          onclick="document.getElementById('modal-detail').classList.add('hidden'); document.body.style.overflow='';">
-          <i class="fa-solid fa-arrow-left"></i> Back to Results Table
-        </button>
+      <!-- Live Interactive Terminal Preview Mockup -->
+      <div class="hero-mockup-wrapper" id="demo">
+        <div class="terminal-header">
+          <div class="terminal-dots">
+            <div class="terminal-dot dot-red"></div>
+            <div class="terminal-dot dot-yellow"></div>
+            <div class="terminal-dot dot-green"></div>
+          </div>
+          <div class="terminal-title">
+            <i class="fa-solid fa-terminal"></i> prospectinsight-miner-v2.5 — live session preview
+          </div>
+          <div style="font-size: 11px; color: #10b981; font-weight: 600;">
+            <i class="fa-solid fa-circle" style="font-size: 8px;"></i> CRAWLER ACTIVE
+          </div>
+        </div>
+
+        <div class="terminal-body">
+          <div class="terminal-prompt">
+            <span style="color: #10b981;">miner@prospectinsight:~$</span>
+            <span id="typing-command" style="color: #f1f5f9;">exec crawl --url="https://stripe.com" --extract="emails,phones,socials,services"</span>
+            <span class="status-pulse" style="display: inline-block; vertical-align: middle;"></span>
+          </div>
+
+          <div style="color: #64748b; font-size: 12px; margin-bottom: 12px;">
+            [INFO] 15 Workers spawned • Bypassing CDN challenge • Deep subpage crawler initiated: /about, /contact, /enterprise...
+          </div>
+
+          <div class="terminal-sim-grid">
+            <div class="terminal-card">
+              <div class="terminal-card-title"><i class="fa-solid fa-building"></i> Company Name</div>
+              <div class="terminal-card-val">Stripe, Inc.</div>
+            </div>
+            <div class="terminal-card">
+              <div class="terminal-card-title"><i class="fa-solid fa-briefcase"></i> Industry Category</div>
+              <div class="terminal-card-val">Financial Infrastructure & SaaS</div>
+            </div>
+            <div class="terminal-card">
+              <div class="terminal-card-title"><i class="fa-solid fa-envelope"></i> Verified Emails</div>
+              <div class="terminal-card-val" style="color: #34d399;">press@stripe.com, sales@stripe.com</div>
+            </div>
+            <div class="terminal-card">
+              <div class="terminal-card-title"><i class="fa-solid fa-phone"></i> Formatted Phones</div>
+              <div class="terminal-card-val" style="color: #fbbf24;">+1 (888) 963-8955</div>
+            </div>
+            <div class="terminal-card">
+              <div class="terminal-card-title"><i class="fa-solid fa-share-nodes"></i> Social Footprint</div>
+              <div class="terminal-card-val" style="color: #818cf8;">linkedin, twitter/x, github, youtube</div>
+            </div>
+            <div class="terminal-card">
+              <div class="terminal-card-title"><i class="fa-solid fa-file-export"></i> 1-Click Export</div>
+              <div class="terminal-card-val" style="color: #a78bfa;">Excel (.xlsx), CSV, PDF Ready</div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
-  </div>
+  </section>
 
-  <!-- Full Text Cell Expander Modal (Click on any cell to view big text like Google Sheets) -->
-  <div id="modal-cell-preview" class="modal-backdrop hidden">
-    <div class="modal-box modal-lg" style="max-width: 850px; border: 1.5px solid var(--color-primary, #6c63ff); box-shadow: 0 16px 40px rgba(0,0,0,0.5);">
-      <div class="modal-header" style="border-bottom: 1px solid rgba(255,255,255,0.1); padding: 14px 20px;">
-        <div style="display: flex; align-items: center; gap: 10px;">
-          <i class="fa-solid fa-up-right-and-down-left-from-center color-primary" style="font-size: 18px;"></i>
+  <!-- Services & Solutions Section -->
+  <section class="section" id="services">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-tag">What We Do</span>
+        <h2 class="section-title">Comprehensive <span class="gradient-text">Intelligence Services</span></h2>
+        <p class="section-desc">
+          Everything your sales, recruiting, and growth marketing teams need to extract, clean, and enrich actionable B2B leads at massive scale.
+        </p>
+      </div>
+
+      <div class="services-grid">
+        <!-- Service 1 -->
+        <div class="service-card">
+          <div class="service-icon-box">
+            <i class="fa-solid fa-bolt"></i>
+          </div>
+          <h3 class="service-card-title">15x Parallel Web Crawling</h3>
+          <p class="service-card-desc">
+            Ultra-fast concurrent worker pool that traverses websites and their critical subpages (/about, /contact, /services) in parallel fractions of a second.
+          </p>
+          <ul class="service-features-list">
+            <li><i class="fa-solid fa-check"></i> Multi-threaded Subpage Discovery</li>
+            <li><i class="fa-solid fa-check"></i> Automatic Duplicate URL Filtration</li>
+            <li><i class="fa-solid fa-check"></i> Batch processing up to 10,000 URLs</li>
+          </ul>
+        </div>
+
+        <!-- Service 2 -->
+        <div class="service-card">
+          <div class="service-icon-box" style="background: rgba(16, 185, 129, 0.12); color: #34d399; border-color: rgba(16, 185, 129, 0.3);">
+            <i class="fa-solid fa-envelope-circle-check"></i>
+          </div>
+          <h3 class="service-card-title">Direct Contact Intelligence</h3>
+          <p class="service-card-desc">
+            High-precision extraction engine that identifies verified corporate emails, direct phone numbers with country codes, and physical street addresses.
+          </p>
+          <ul class="service-features-list">
+            <li><i class="fa-solid fa-check"></i> Auto-validates Email Syntax</li>
+            <li><i class="fa-solid fa-check"></i> International Phone Number Standardizer</li>
+            <li><i class="fa-solid fa-check"></i> Street Address & Location Discovery</li>
+          </ul>
+        </div>
+
+        <!-- Service 3 -->
+        <div class="service-card">
+          <div class="service-icon-box" style="background: rgba(6, 182, 212, 0.12); color: #22d3ee; border-color: rgba(6, 182, 212, 0.3);">
+            <i class="fa-solid fa-share-nodes"></i>
+          </div>
+          <h3 class="service-card-title">Deep Social Footprint Discovery</h3>
+          <p class="service-card-desc">
+            Uncovers verified links to key social channels including LinkedIn corporate profiles, Twitter/X handles, Facebook pages, Instagram, and YouTube.
+          </p>
+          <ul class="service-features-list">
+            <li><i class="fa-solid fa-check"></i> LinkedIn Company Profiles</li>
+            <li><i class="fa-solid fa-check"></i> Direct Executive Handles & Socials</li>
+            <li><i class="fa-solid fa-check"></i> Developer & GitHub Org Linkage</li>
+          </ul>
+        </div>
+
+        <!-- Service 4 -->
+        <div class="service-card">
+          <div class="service-icon-box" style="background: rgba(245, 158, 11, 0.12); color: #fbbf24; border-color: rgba(245, 158, 11, 0.3);">
+            <i class="fa-solid fa-brain"></i>
+          </div>
+          <h3 class="service-card-title">Semantic Content & Summaries</h3>
+          <p class="service-card-desc">
+            Cleans raw HTML/JS scripts, extracts pure business metadata, identifies company offerings, and generates succinct summaries of company services.
+          </p>
+          <ul class="service-features-list">
+            <li><i class="fa-solid fa-check"></i> Strips JS Code, Ads & Raw Tags</li>
+            <li><i class="fa-solid fa-check"></i> Industry Classification & Keywords</li>
+            <li><i class="fa-solid fa-check"></i> Full Text Cell Expander Modal</li>
+          </ul>
+        </div>
+
+        <!-- Service 5 -->
+        <div class="service-card">
+          <div class="service-icon-box" style="background: rgba(139, 92, 246, 0.12); color: #a78bfa; border-color: rgba(139, 92, 246, 0.3);">
+            <i class="fa-solid fa-file-export"></i>
+          </div>
+          <h3 class="service-card-title">Multi-Format Smart Exporter</h3>
+          <p class="service-card-desc">
+            Export formatted datasets directly into Microsoft Excel (.xlsx) with auto-fit columns, clean CSV, PDF printable reports, JSON APIs, and TSV spreadsheets.
+          </p>
+          <ul class="service-features-list">
+            <li><i class="fa-solid fa-check"></i> Excel (.xlsx) Auto-Fit Columns</li>
+            <li><i class="fa-solid fa-check"></i> Filtered or Full-Scope Exports</li>
+            <li><i class="fa-solid fa-check"></i> CRM-Ready Format for HubSpot/Salesforce</li>
+          </ul>
+        </div>
+
+        <!-- Service 6 -->
+        <div class="service-card">
+          <div class="service-icon-box" style="background: rgba(239, 68, 68, 0.12); color: #f87171; border-color: rgba(239, 68, 68, 0.3);">
+            <i class="fa-solid fa-shield-halved"></i>
+          </div>
+          <h3 class="service-card-title">Anti-Ban Multi-Proxy Racer</h3>
+          <p class="service-card-desc">
+            Built-in resilience engine that pairs native high-speed connections with multi-proxy fallbacks to bypass anti-bot shields and rate limits automatically.
+          </p>
+          <ul class="service-features-list">
+            <li><i class="fa-solid fa-check"></i> Automatic Proxy Failover Mechanism</li>
+            <li><i class="fa-solid fa-check"></i> IP Rotation & Throttling Protection</li>
+            <li><i class="fa-solid fa-check"></i> 99.8% Successful Extraction Rate</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- How It Works Section -->
+  <section class="section" id="how-it-works" style="background: var(--bg-surface-elevated);">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-tag">Simple 3-Step Process</span>
+        <h2 class="section-title">How <span class="gradient-text">ProspectInsight</span> Works</h2>
+        <p class="section-desc">
+          No complicated scraping scripts or proxies to configure. Get verified lead data in three easy steps.
+        </p>
+      </div>
+
+      <div class="steps-grid">
+        <div class="step-card">
+          <div class="step-number">01</div>
+          <div class="step-icon"><i class="fa-solid fa-list-check"></i></div>
+          <h3 class="step-title">Input Target URLs</h3>
+          <p class="step-desc">
+            Paste website domains directly or drag-and-drop your .txt, .csv, or .xlsx file containing hundreds of companies.
+          </p>
+        </div>
+
+        <div class="step-card">
+          <div class="step-number">02</div>
+          <div class="step-icon"><i class="fa-solid fa-sliders"></i></div>
+          <h3 class="step-title">Select Parameters</h3>
+          <p class="step-desc">
+            Pick exactly what data points you need: Company Name, Emails, Phone Numbers, Socials, Services, or Full Content.
+          </p>
+        </div>
+
+        <div class="step-card">
+          <div class="step-number">03</div>
+          <div class="step-icon"><i class="fa-solid fa-download"></i></div>
+          <h3 class="step-title">Mine & Export</h3>
+          <p class="step-desc">
+            Hit "Launch Mining Session", monitor live progress on the interactive grid, and export cleanly formatted spreadsheets in 1-click.
+          </p>
+        </div>
+      </div>
+
+      <!-- Live Performance Stats Bar -->
+      <div class="stats-bar">
+        <div>
+          <div class="stat-metric gradient-text">10M+</div>
+          <div class="stat-label">Leads & Contacts Extracted</div>
+        </div>
+        <div>
+          <div class="stat-metric gradient-text">99.8%</div>
+          <div class="stat-label">Data Accuracy Rate</div>
+        </div>
+        <div>
+          <div class="stat-metric gradient-text">15x</div>
+          <div class="stat-label">Parallel Crawler Speed</div>
+        </div>
+        <div>
+          <div class="stat-metric gradient-text">&lt; 1.2s</div>
+          <div class="stat-label">Average Page Scrape Time</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Pricing Plans Section -->
+  <section class="section" id="pricing">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-tag">Transparent Plans</span>
+        <h2 class="section-title">Scale Your <span class="gradient-text">Lead Pipeline</span></h2>
+        <p class="section-desc">
+          Choose a plan that matches your outreach goals. Upgrade anytime with seamless administrator approval.
+        </p>
+      </div>
+
+      <div class="pricing-grid">
+        <!-- Free Tier -->
+        <div class="pricing-card">
           <div>
-            <h3 id="cell-preview-title" style="margin: 0; font-size: 16px; color: var(--text-heading);">Column Full Text View</h3>
-            <span id="cell-preview-subtitle" style="font-size: 12px; color: var(--text-muted);">Website URL</span>
+            <h3 class="pricing-plan-name">Free Starter</h3>
+            <p class="pricing-plan-desc">For testing and light occasional lead mining.</p>
+            <div class="pricing-price">$0 <span>/ month</span></div>
+            <ul class="pricing-features-list">
+              <li><i class="fa-solid fa-check"></i> <strong>50 Credits</strong> Every Day</li>
+              <li><i class="fa-solid fa-check"></i> Standard Parallel Mining Engine</li>
+              <li><i class="fa-solid fa-check"></i> Email, Phone & Social Extraction</li>
+              <li><i class="fa-solid fa-check"></i> Excel & CSV Multi-Format Exports</li>
+              <li><i class="fa-solid fa-check"></i> Daily Credit Auto-Reset at 1:00 AM</li>
+            </ul>
           </div>
+          <a href="login.html" class="btn btn-secondary" style="width: 100%;">Get Started Free</a>
         </div>
-        <div style="display: flex; align-items: center; gap: 10px;">
-          <button id="btn-copy-cell-text" class="btn btn-secondary btn-sm" style="display: flex; align-items: center; gap: 6px;">
-            <i class="fa-solid fa-copy"></i> Copy Full Text
-          </button>
-          <button class="btn-close" id="btn-close-cell-preview" onclick="document.getElementById('modal-cell-preview').classList.add('hidden'); document.body.style.overflow='';">
-            <i class="fa-solid fa-xmark"></i>
-          </button>
+
+        <!-- Pro Tier -->
+        <div class="pricing-card featured">
+          <div class="pricing-popular-badge">Most Popular</div>
+          <div>
+            <h3 class="pricing-plan-name">Pro Marketer</h3>
+            <p class="pricing-plan-desc">For active sales representatives and growing agencies.</p>
+            <div class="pricing-price">$29 <span>/ month</span></div>
+            <ul class="pricing-features-list">
+              <li><i class="fa-solid fa-check"></i> <strong>1,000 Credits</strong> Every Day</li>
+              <li><i class="fa-solid fa-check"></i> 15x High-Speed Multi-Thread Crawler</li>
+              <li><i class="fa-solid fa-check"></i> Full Deep Social Footprint Discovery</li>
+              <li><i class="fa-solid fa-check"></i> Full Text Cell Expander & PDF Tables</li>
+              <li><i class="fa-solid fa-check"></i> Multi-Proxy Racer Anti-Ban Fallback</li>
+              <li><i class="fa-solid fa-check"></i> Priority Ticket Support</li>
+            </ul>
+          </div>
+          <a href="login.html" class="btn btn-primary" style="width: 100%;">Upgrade to Pro</a>
         </div>
-      </div>
-      <div class="modal-body" style="padding: 20px;">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; font-size: 12px; color: var(--text-muted);">
-          <span id="cell-preview-meta"><i class="fa-solid fa-chart-simple"></i> Characters: 0 | Words: 0</span>
-          <span style="font-size: 11px; background: rgba(108, 99, 255, 0.15); color: var(--color-primary); padding: 2px 8px; border-radius: 6px; font-weight: 600;">100% Full Uncut Text</span>
+
+        <!-- Enterprise Tier -->
+        <div class="pricing-card">
+          <div>
+            <h3 class="pricing-plan-name">Enterprise</h3>
+            <p class="pricing-plan-desc">For high-volume outreach teams and data aggregators.</p>
+            <div class="pricing-price">Custom <span>/ month</span></div>
+            <ul class="pricing-features-list">
+              <li><i class="fa-solid fa-check"></i> <strong>Unlimited Credits</strong> (999,999/day)</li>
+              <li><i class="fa-solid fa-check"></i> Maximum Concurrency Worker Threads</li>
+              <li><i class="fa-solid fa-check"></i> Dedicated Multi-Proxy Pool Routing</li>
+              <li><i class="fa-solid fa-check"></i> Custom CRM & Webhook Integrations</li>
+              <li><i class="fa-solid fa-check"></i> 24/7 Dedicated Account Manager</li>
+            </ul>
+          </div>
+          <a href="login.html" class="btn btn-outline" style="width: 100%;">Contact Enterprise</a>
         </div>
-        <div id="cell-preview-content" style="background: var(--bg-input, rgba(0,0,0,0.25)); border: 1px solid var(--border-input, rgba(255,255,255,0.1)); border-radius: 8px; padding: 16px; font-size: 14px; line-height: 1.7; color: var(--text-main, #f1f5f9); max-height: 480px; overflow-y: auto; white-space: pre-wrap; font-family: 'Inter', system-ui, sans-serif; user-select: text;">
-        </div>
-      </div>
-      <div class="modal-footer" style="display: flex; justify-content: flex-end; padding: 12px 20px; border-top: 1px solid rgba(255,255,255,0.08);">
-        <button class="btn btn-primary btn-md" onclick="document.getElementById('modal-cell-preview').classList.add('hidden'); document.body.style.overflow='';">
-          <i class="fa-solid fa-check"></i> Done Viewing
-        </button>
       </div>
     </div>
-  </div>
+  </section>
 
+  <!-- FAQ Section -->
+  <section class="section" id="faq" style="background: var(--bg-surface);">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-tag">Frequently Asked Questions</span>
+        <h2 class="section-title">Got <span class="gradient-text">Questions?</span></h2>
+        <p class="section-desc">Everything you need to know about ProspectInsight and lead mining.</p>
+      </div>
 
-  <script src="app.js?v=20260814_2353"></script>
+      <div class="faq-wrapper">
+        <div class="faq-item active">
+          <div class="faq-question">
+            <span>Do I need any coding knowledge to use ProspectInsight?</span>
+            <i class="fa-solid fa-chevron-down"></i>
+          </div>
+          <div class="faq-answer">
+            None at all! ProspectInsight is an intuitive, web-based tool. Simply paste website URLs or upload a list, select the parameters you want to extract, and click Launch.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-question">
+            <span>What file formats are supported for exporting mined data?</span>
+            <i class="fa-solid fa-chevron-down"></i>
+          </div>
+          <div class="faq-answer">
+            You can export your leads in 5 formats with full-length text: Microsoft Excel (.xlsx) with auto-fit columns, standard CSV (.csv), printable PDF tables, structured JSON (.json), and Google Sheets tab-separated text (.txt).
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-question">
+            <span>How does the daily credit reset work?</span>
+            <i class="fa-solid fa-chevron-down"></i>
+          </div>
+          <div class="faq-answer">
+            Every user receives a daily credit allowance (e.g. 50 on Free, 1,000 on Pro). Used credits automatically reset back to 100% every single night at 1:00 AM.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-question">
+            <span>How are new user registrations approved?</span>
+            <i class="fa-solid fa-chevron-down"></i>
+          </div>
+          <div class="faq-answer">
+            When you register a new account, your request is reviewed by our administrators in the Admin Request Manager. Once approved, you can immediately sign in with full access.
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Final Call to Action Banner -->
+  <section class="section">
+    <div class="container">
+      <div class="cta-banner">
+        <h2>Ready to Supercharge Your <span class="gradient-text">Lead Pipeline?</span></h2>
+        <p>Join thousands of professionals using ProspectInsight to extract verified B2B leads at 15x parallel speed.</p>
+        <div style="display: flex; justify-content: center; gap: 16px; flex-wrap: wrap;">
+          <a href="login.html" class="btn btn-primary btn-lg" id="footer-cta-btn">
+            <i class="fa-solid fa-bolt"></i> Get Started Free Today
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <a href="index.html" class="brand-logo">
+            <div class="brand-logo-icon">
+              <i class="fa-solid fa-spider"></i>
+            </div>
+            <span>Prospect<span class="gradient-text">Insight</span></span>
+          </a>
+          <p>The ultimate automated B2B web intelligence and contact extraction platform for high-velocity revenue teams.</p>
+        </div>
+
+        <div class="footer-col">
+          <h4>Product</h4>
+          <ul class="footer-links">
+            <li><a href="#services">Services Outline</a></li>
+            <li><a href="#how-it-works">How It Works</a></li>
+            <li><a href="#demo">Live Demo Simulation</a></li>
+            <li><a href="#pricing">Pricing Plans</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-col">
+          <h4>Platform</h4>
+          <ul class="footer-links">
+            <li><a href="login.html">Sign In</a></li>
+            <li><a href="login.html">Create Free Account</a></li>
+            <li><a href="app.html">Lead Miner Workspace</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-col">
+          <h4>System Status</h4>
+          <div class="system-status" style="margin-top: 8px;">
+            <div class="status-pulse"></div>
+            <span>All Systems Operational</span>
+          </div>
+          <p style="font-size: 12px; color: var(--text-muted); margin-top: 10px;">
+            v2.5.0 • Live Cloud Engine
+          </p>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <div>&copy; 2026 ProspectInsight Inc. All rights reserved.</div>
+        <div style="display: flex; gap: 20px;">
+          <a href="#" style="color: var(--text-muted);">Privacy Policy</a>
+          <a href="#" style="color: var(--text-muted);">Terms of Service</a>
+          <a href="#" style="color: var(--text-muted);">Security</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Interactive Scripts -->
   <script>
-    // ── Server URL Config ────────────────────────────────────────────────────
-    function getApiHost() {
-      const custom = (localStorage.getItem('lgs_api_url') || '').trim().replace(/\/+$/, '').replace(/\/api$/, '');
-      if (custom) return custom;
-      const globalCfg = (window.LGS_CONFIG && window.LGS_CONFIG.API_URL) ? window.LGS_CONFIG.API_URL.trim().replace(/\/+$/, '').replace(/\/api$/, '') : '';
-      if (globalCfg) return globalCfg;
-      const h = window.location.hostname;
-      const isLocal = h === 'localhost' || h === '127.0.0.1';
-      const isIp = /^(\d{1,3}\.){3}\d{1,3}$/.test(h);
-      if (isLocal) return 'http://localhost:3000';
-      if (isIp) return `http://${h}:3000`;
-      if (h.endsWith('github.io') || h.endsWith('netlify.app') || h.endsWith('vercel.app')) {
-        return (window.LGS_CONFIG && window.LGS_CONFIG.API_URL) ? window.LGS_CONFIG.API_URL.trim().replace(/\/+$/, '') : 'http://localhost:3000';
+    // ── 1. Dynamic Authentication State Recognition ────────────────────────────
+    (function checkAuthState() {
+      const isAuth = localStorage.getItem('lgs_auth') === 'true';
+      const container = document.getElementById('auth-buttons-container');
+      const heroPrimaryCta = document.getElementById('hero-primary-cta');
+      const footerCtaBtn = document.getElementById('footer-cta-btn');
+
+      if (isAuth && container) {
+        let userName = 'User';
+        try {
+          const session = JSON.parse(localStorage.getItem('lgs_session') || '{}');
+          userName = session.fullname || session.name || 'User';
+        } catch (e) {}
+
+        container.innerHTML = `
+          <a href="app.html" class="btn btn-primary btn-sm" style="display:flex;align-items:center;gap:8px;">
+            <i class="fa-solid fa-gauge-high"></i> Dashboard (${userName}) &rarr;
+          </a>
+        `;
+
+        if (heroPrimaryCta) {
+          heroPrimaryCta.innerHTML = `<i class="fa-solid fa-gauge-high"></i> Go to Dashboard &rarr;`;
+          heroPrimaryCta.href = 'app.html';
+        }
+        if (footerCtaBtn) {
+          footerCtaBtn.innerHTML = `<i class="fa-solid fa-gauge-high"></i> Open Workspace &rarr;`;
+          footerCtaBtn.href = 'app.html';
+        }
       }
-      return (window.location.protocol === 'file:' || !window.location.origin || window.location.origin === 'null') ? ((window.LGS_CONFIG && window.LGS_CONFIG.API_URL) || 'http://localhost:3000') : window.location.origin;
-    }
-    window.getApiHost = getApiHost;
-    const _API_HOST = getApiHost();
-    const API_BASE_AUTH = `${_API_HOST}/api/auth`;
-    // ─────────────────────────────────────────────────────────────────────────
-    let currentUserSession = null;
-    let currentUserCredits = { dailyCredits: 50, usedCreditsToday: 0, remainingCredits: 50 };
+    })();
 
-    // Fetch User Status, Credits, and System Announcement on Load
-    async function syncUserStatusAndCredits() {
-      try {
-        const sessionStr = localStorage.getItem('lgs_session');
-        if (!sessionStr) return;
-        currentUserSession = JSON.parse(sessionStr);
+    // ── 2. Theme System: OS Auto Sync on Load + Live Listener + Manual Toggle ──
+    (function initTheme() {
+      const btn = document.getElementById('theme-toggle');
 
-        const res = await fetch(`${API_BASE_AUTH}/check-status`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email: currentUserSession.email, id: currentUserSession.id })
-        });
-        const data = await res.json();
-
-        if (data && (data.status === 'banned' || data.status === 'deleted' || data.status === 'inactive')) {
-          localStorage.removeItem('lgs_auth');
-          localStorage.removeItem('lgs_session');
-          localStorage.removeItem('lgs_token');
-          alert(data.message || 'Your account has been banned or removed by an administrator.');
-          window.location.href = 'login.html';
-          return;
-        }
-
-        // Render User Name & Package Badge
-        const userBadge = document.getElementById('header-user-badge');
-        if (userBadge && data.user) {
-          const pkg = (data.user.package || 'free').toUpperCase();
-          userBadge.textContent = '\u{1F464} ' + (data.user.name || currentUserSession.fullname || 'User') + ' [' + pkg + ']';
-          userBadge.style.background = pkg === 'ENTERPRISE' ? 'rgba(255,179,71,0.2)' : pkg === 'PRO' ? 'rgba(108,99,255,0.2)' : 'rgba(100,116,139,0.2)';
-        }
-
-        // Render Credit Badge & Live Progress Bar
-        if (data.user) {
-          window.currentUserCredits = {
-            dailyCredits: data.user.dailyCredits || 50,
-            usedCreditsToday: data.user.usedCreditsToday || 0,
-            remainingCredits: data.user.remainingCredits !== undefined ? data.user.remainingCredits : 50
-          };
-          updateCreditUI(window.currentUserCredits.remainingCredits, window.currentUserCredits.dailyCredits);
-        }
-
-        // Render System Announcement Banner
-        if (data.announcement) {
-          const banner = document.getElementById('system-announcement-banner');
-          const bannerText = document.getElementById('announcement-banner-text');
-          if (banner && bannerText) {
-            bannerText.textContent = data.announcement;
-            banner.style.display = 'flex';
-          }
-        }
-      } catch (e) {
-        console.error('Credit/Status Sync Error:', e);
-      }
-    }
-
-
-
-    // Language Switching System
-    const i18n = {
-      en: {
-        app_title: "Lead Generation",
-        input_heading: "1. Input Website URLs",
-        dropzone_msg: "Drag & Drop .txt, .csv, or .xlsx file here",
-        browse_btn: "Browse Files",
-        manual_urls_label: "Or Paste URLs/Domains directly:",
-        options_heading: "2. Extraction Parameters",
-        apply_param_btn: "Apply Columns & Parameters",
-        live_tracker_title: "Live Execution Progress"
-      },
-      bn: {
-        app_title: "লিড জেনারেশন",
-        input_heading: "১. ওয়েবসাইট URL প্রদান করুন",
-        dropzone_msg: ".txt, .csv, অথবা .xlsx ফাইল ড্র্যাগ এবং ড্রপ করুন",
-        browse_btn: "ফাইল সিলেক্ট করুন",
-        manual_urls_label: "অথবা সরাসরি URL/ডোমেইন পেস্ট করুন:",
-        options_heading: "২. তথ্য এক্সট্র্যাকশন প্যারামিটার",
-        apply_param_btn: "কলাম ও প্যারামিটার প্রয়োগ করুন",
-        live_tracker_title: "লাইভ অগ্রগতি ট্র্যাকার"
-      }
-    };
-    let currentLang = 'en';
-    function initLanguageSystem() {
-      const btnLang = document.getElementById('btn-lang');
-      const langLabel = document.getElementById('lang-label');
-      if (btnLang) {
-        btnLang.addEventListener('click', function () {
-          currentLang = currentLang === 'en' ? 'bn' : 'en';
-          if (langLabel) langLabel.textContent = currentLang === 'en' ? 'English' : 'বাংলা';
-          document.querySelectorAll('[data-i18n]').forEach(el => {
-            const key = el.getAttribute('data-i18n');
-            if (i18n[currentLang] && i18n[currentLang][key]) {
-              el.textContent = i18n[currentLang][key];
-            }
-          });
-        });
-      }
-    }
-
-    document.addEventListener('DOMContentLoaded', function () {
-      initLanguageSystem();
-      syncUserStatusAndCredits();
-    });
-
-    const btnLogout = document.getElementById('btn-logout');
-    if (btnLogout) {
-      btnLogout.addEventListener('click', function () {
-        if (confirm('Are you sure you want to logout?')) {
-          localStorage.removeItem('lgs_auth');
-          localStorage.removeItem('lgs_session');
-          localStorage.removeItem('lgs_token');
-          window.location.href = 'login.html';
-        }
-      });
-    }
-
-
-    // ── Theme System: OS Auto Sync on Load + Manual Toggle on Click ──────────
-    (function initThemeSystem() {
-
-      // Apply theme visually + update button style
       function applyTheme(theme) {
         document.documentElement.setAttribute('data-theme', theme);
-        const btnTheme = document.getElementById('btn-theme');
-        if (!btnTheme) return;
+        if (!btn) return;
         if (theme === 'dark') {
-          // 🌙 Dark Mode — cool indigo/purple glow
-          btnTheme.innerHTML = '<i class="fa-solid fa-moon" style="color:#a78bfa;"></i>';
-          btnTheme.title = 'Dark Mode — Click for Light';
-          btnTheme.style.background = 'rgba(109,90,255,0.22)';
-          btnTheme.style.border = '1.5px solid rgba(167,139,250,0.6)';
-          btnTheme.style.color = '#a78bfa';
-          btnTheme.style.boxShadow = '0 0 14px rgba(109,90,255,0.45)';
+          btn.innerHTML = '<i class="fa-solid fa-moon" style="color:#a78bfa;"></i>';
+          btn.title = 'Dark Mode Active — Click for Light';
         } else {
-          // ☀️ Light Mode — warm amber/orange glow
-          btnTheme.innerHTML = '<i class="fa-solid fa-sun" style="color:#f59e0b;"></i>';
-          btnTheme.title = 'Light Mode — Click for Dark';
-          btnTheme.style.background = 'rgba(251,191,36,0.18)';
-          btnTheme.style.border = '1.5px solid rgba(251,191,36,0.7)';
-          btnTheme.style.color = '#f59e0b';
-          btnTheme.style.boxShadow = '0 0 14px rgba(251,191,36,0.4)';
+          btn.innerHTML = '<i class="fa-solid fa-sun" style="color:#f59e0b;"></i>';
+          btn.title = 'Light Mode Active — Click for Dark';
         }
-        btnTheme.style.cursor = 'pointer';
-        btnTheme.style.pointerEvents = 'auto';
       }
 
-      // On every page load: always follow OS, clear any old saved preference
+      // 1. Auto-detect user's Windows/Device System Theme on load
       const osTheme = (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
-      localStorage.removeItem('lgs_theme');
-      applyTheme(osTheme);
+      const savedTheme = localStorage.getItem('lgs_theme') || osTheme;
+      applyTheme(savedTheme);
 
-      // Live OS listener: auto-update if OS Dark/Light changes while page is open
+      // 2. Live OS Listener: Auto changes if your device changes Day/Night mode
       if (window.matchMedia) {
         const mq = window.matchMedia('(prefers-color-scheme: dark)');
-        const onOSChange = () => {
-          // Only follow OS if user hasn't manually toggled this session
-          if (!sessionStorage.getItem('lgs_manual_theme')) {
-            applyTheme(mq.matches ? 'dark' : 'light');
+        const onOSChange = (e) => {
+          if (!localStorage.getItem('lgs_theme')) {
+            applyTheme(e.matches ? 'dark' : 'light');
           }
         };
         if (mq.addEventListener) mq.addEventListener('change', onOSChange);
         else if (mq.addListener) mq.addListener(onOSChange);
       }
 
-      // Manual toggle: Dark ↔ Light, mark session as manually set
-      const btnTheme = document.getElementById('btn-theme');
-      if (btnTheme) {
-        btnTheme.addEventListener('click', function () {
-          const currentTheme = document.documentElement.getAttribute('data-theme');
-          const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-          sessionStorage.setItem('lgs_manual_theme', newTheme);
-          applyTheme(newTheme);
-        });
+      // 3. Manual Click Toggle
+      if (btn) {
+        btn.onclick = () => {
+          const current = document.documentElement.getAttribute('data-theme');
+          const target = current === 'dark' ? 'light' : 'dark';
+          localStorage.setItem('lgs_theme', target);
+          applyTheme(target);
+        };
       }
-
     })();
-    // ─────────────────────────────────────────────────────────────────────────
 
-    // ── Helper: Live Credit Progress Bar & Percentage UI ──────────────────────
-    function updateCreditUI(remaining, total) {
-      const rem = Math.max(0, parseInt(remaining, 10) || 0);
-      const tot = Math.max(1, parseInt(total, 10) || 50);
-      const pct = Math.min(100, Math.max(0, Math.round((rem / tot) * 100)));
-
-      const credLbl = document.getElementById('lbl-user-credits');
-      if (credLbl) credLbl.textContent = `Credits: ${rem} / ${tot}`;
-
-      const pctLbl = document.getElementById('lbl-user-credit-pct');
-      if (pctLbl) pctLbl.textContent = `${pct}%`;
-
-      const fill = document.getElementById('credit-progress-fill');
-      if (fill) {
-        fill.style.width = `${pct}%`;
-        fill.style.background = pct < 20
-          ? 'linear-gradient(90deg, #ff4757, #ffa502)'
-          : pct < 50
-            ? 'linear-gradient(90deg, #ffa502, #ffb347)'
-            : 'linear-gradient(90deg, #6c63ff, #00d2ff)';
-      }
-    }
-    window.updateCreditUI = updateCreditUI;
-    function showToast(msg, type = 'info', duration = 3500) {
-      let container = document.getElementById('toast-container');
-      if (!container) {
-        container = document.createElement('div');
-        container.id = 'toast-container';
-        container.style.cssText = 'position:fixed;bottom:24px;right:24px;z-index:99999;display:flex;flex-direction:column;gap:10px;max-width:380px;pointer-events:none;';
-        document.body.appendChild(container);
-      }
-      const el = document.createElement('div');
-      el.className = `toast toast-${type}`;
-      const bg = type === 'success' ? 'rgba(34,197,94,0.15)' : type === 'error' ? 'rgba(239,68,68,0.15)' : type === 'warning' ? 'rgba(245,158,11,0.15)' : 'rgba(99,102,241,0.15)';
-      const border = type === 'success' ? 'rgba(34,197,94,0.4)' : type === 'error' ? 'rgba(239,68,68,0.4)' : type === 'warning' ? 'rgba(245,158,11,0.4)' : 'rgba(99,102,241,0.4)';
-      const color = type === 'success' ? '#22c55e' : type === 'error' ? '#ef4444' : type === 'warning' ? '#f59e0b' : '#6366f1';
-      const icon = type === 'success' ? 'fa-circle-check' : type === 'error' ? 'fa-triangle-exclamation' : type === 'warning' ? 'fa-circle-exclamation' : 'fa-circle-info';
-
-      el.style.cssText = `background:${bg};border:1px solid ${border};color:var(--text-heading,#fff);backdrop-filter:blur(12px);padding:12px 16px;border-radius:10px;box-shadow:0 10px 25px -5px rgba(0,0,0,0.3);font-size:13px;font-weight:600;display:flex;align-items:center;gap:10px;pointer-events:auto;animation:toastIn 0.3s cubic-bezier(0.16,1,0.3,1);`;
-      el.innerHTML = `<i class="fa-solid ${icon}" style="color:${color};font-size:16px;flex-shrink:0;"></i> <span style="flex:1;">${msg}</span>`;
-      container.appendChild(el);
-
-      setTimeout(() => {
-        el.style.animation = 'toastOut 0.3s ease forwards';
-        setTimeout(() => el.remove(), 300);
-      }, duration);
-    }
-    // Inject Keyframes
-    const toastStyle = document.createElement('style');
-    toastStyle.textContent = `@keyframes toastIn { from { opacity:0; transform:translateY(20px) scale(0.95); } to { opacity:1; transform:translateY(0) scale(1); } } @keyframes toastOut { from { opacity:1; transform:translateY(0) scale(1); } to { opacity:0; transform:translateY(20px) scale(0.95); } }`;
-    document.head.appendChild(toastStyle);
-
-    // ── Package Upgrade Request System ────────────────────────────────────────
-    const btnUpgrade = document.getElementById('btn-upgrade-plan');
-    if (btnUpgrade) {
-      btnUpgrade.addEventListener('click', function () {
-        let modal = document.getElementById('upgrade-plan-modal');
-        if (!modal) {
-          modal = document.createElement('div');
-          modal.id = 'upgrade-plan-modal';
-          modal.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);backdrop-filter:blur(8px);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px;';
-          modal.innerHTML = `
-            <div style="background:var(--bg-card,#111827);border:1px solid rgba(255,255,255,0.12);border-radius:16px;width:100%;max-width:480px;padding:24px;box-shadow:0 25px 50px -12px rgba(0,0,0,0.5);color:var(--text-heading,#fff);">
-              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
-                <h3 style="margin:0;font-size:18px;display:flex;align-items:center;gap:8px;"><i class="fa-solid fa-bolt" style="color:#ffb347;"></i> Request Package Upgrade</h3>
-                <button onclick="document.getElementById('upgrade-plan-modal').style.display='none';" style="background:none;border:none;color:rgba(255,255,255,0.6);font-size:18px;cursor:pointer;"><i class="fa-solid fa-xmark"></i></button>
-              </div>
-              <p style="font-size:13px;color:var(--text-muted,#94a3b8);margin-bottom:20px;">Choose a package below to submit an upgrade request to the Administrator:</p>
-              <div style="display:flex;flex-direction:column;gap:12px;margin-bottom:24px;">
-                <label style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;background:rgba(108,99,255,0.1);border:1px solid rgba(108,99,255,0.3);border-radius:10px;cursor:pointer;">
-                  <div style="display:flex;align-items:center;gap:10px;">
-                    <input type="radio" name="plan-option" value="pro" checked style="accent-color:#6c63ff;">
-                    <div>
-                      <strong style="color:#a78bfa;font-size:14px;">PRO PLAN</strong>
-                      <div style="font-size:12px;color:rgba(255,255,255,0.7);">1,000 Credits / Day</div>
-                    </div>
-                  </div>
-                  <span style="font-size:12px;font-weight:700;background:rgba(108,99,255,0.2);color:#a78bfa;padding:4px 8px;border-radius:6px;">Popular</span>
-                </label>
-                <label style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;background:rgba(255,179,71,0.1);border:1px solid rgba(255,179,71,0.3);border-radius:10px;cursor:pointer;">
-                  <div style="display:flex;align-items:center;gap:10px;">
-                    <input type="radio" name="plan-option" value="enterprise" style="accent-color:#ffb347;">
-                    <div>
-                      <strong style="color:#ffb347;font-size:14px;">ENTERPRISE PLAN</strong>
-                      <div style="font-size:12px;color:rgba(255,255,255,0.7);">Unlimited (999,999 Credits / Day)</div>
-                    </div>
-                  </div>
-                  <span style="font-size:12px;font-weight:700;background:rgba(255,179,71,0.2);color:#ffb347;padding:4px 8px;border-radius:6px;">Unlimited</span>
-                </label>
-              </div>
-              <div style="display:flex;gap:10px;justify-content:flex-end;">
-                <button onclick="document.getElementById('upgrade-plan-modal').style.display='none';" style="padding:10px 16px;border-radius:8px;border:1px solid rgba(255,255,255,0.15);background:none;color:#fff;font-size:13px;font-weight:600;cursor:pointer;">Cancel</button>
-                <button id="btn-submit-upgrade" style="padding:10px 20px;border-radius:8px;border:none;background:linear-gradient(135deg,#6c63ff,#5a52e0);color:#fff;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:8px;">
-                  <i class="fa-solid fa-paper-plane"></i> Submit Request
-                </button>
-              </div>
-            </div>
-          `;
-          document.body.appendChild(modal);
-
-          document.getElementById('btn-submit-upgrade').addEventListener('click', async function () {
-            if (!currentUserSession) return;
-            const selected = modal.querySelector('input[name="plan-option"]:checked')?.value || 'pro';
-            this.disabled = true;
-            this.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Submitting...';
-
-            try {
-              const res = await fetch(`${API_BASE_AUTH}/upgrade-request`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ id: currentUserSession.id, email: currentUserSession.email, requestedPackage: selected })
-              });
-              const data = await res.json();
-              modal.style.display = 'none';
-              if (data.success) {
-                showToast(data.message, 'success', 4500);
-              } else {
-                showToast(data.message || 'Failed to submit request', 'error');
-              }
-            } catch (e) {
-              modal.style.display = 'none';
-              showToast('Network error submitting upgrade request.', 'error');
-            } finally {
-              this.disabled = false;
-              this.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Submit Request';
-            }
-          });
-        } else {
-          modal.style.display = 'flex';
-        }
+    // ── 3. Interactive FAQ Accordion ──────────────────────────────────────────
+    document.querySelectorAll('.faq-question').forEach(q => {
+      q.addEventListener('click', () => {
+        const item = q.parentElement;
+        const isActive = item.classList.contains('active');
+        document.querySelectorAll('.faq-item').forEach(i => i.classList.remove('active'));
+        if (!isActive) item.classList.add('active');
       });
-    }
-    // ─────────────────────────────────────────────────────────────────────────
+    });
+
+    // ── 4. Interactive Live Simulator Typing Animation ────────────────────────
+    (function initTypingAnimation() {
+      const el = document.getElementById('typing-command');
+      if (!el) return;
+
+      const samples = [
+        'exec crawl --url="https://stripe.com" --extract="emails,phones,socials,services"',
+        'exec crawl --url="https://airbnb.com" --extract="contacts,keywords,industry"',
+        'exec crawl --url="https://shopify.com" --extract="full-b2b-intelligence"'
+      ];
+      let sampleIndex = 0;
+      let charIndex = 0;
+      let isDeleting = false;
+
+      function type() {
+        const currentText = samples[sampleIndex];
+        if (isDeleting) {
+          el.textContent = currentText.substring(0, charIndex - 1);
+          charIndex--;
+        } else {
+          el.textContent = currentText.substring(0, charIndex + 1);
+          charIndex++;
+        }
+
+        let speed = isDeleting ? 30 : 60;
+        if (!isDeleting && charIndex === currentText.length) {
+          speed = 3500; // Pause at end
+          isDeleting = true;
+        } else if (isDeleting && charIndex === 0) {
+          isDeleting = false;
+          sampleIndex = (sampleIndex + 1) % samples.length;
+          speed = 600;
+        }
+
+        setTimeout(type, speed);
+      }
+
+      setTimeout(type, 1500);
+    })();
   </script>
 </body>
 
