@@ -665,22 +665,37 @@
     }
 
     // Error message helper
-    function showError(msg, isSuccess = false) {
+    function showError(msg, isSuccess = false, type = 'error') {
       let el = document.getElementById('login-error-msg');
       if (!el) {
         el = document.createElement('p');
         el.id = 'login-error-msg';
-        el.style.cssText = 'font-size:13px;margin:8px 0 0;text-align:center;font-weight:600;';
+        el.style.cssText = 'font-size:13px;margin:10px 0 0;text-align:center;font-weight:600;padding:8px 12px;border-radius:6px;';
         document.getElementById('login-form').appendChild(el);
       }
-      el.style.color = isSuccess ? '#2ed573' : '#ff4757';
-      el.textContent = msg;
+      if (type === 'pending') {
+        el.style.color = '#f59e0b';
+        el.style.background = 'rgba(245,158,11,0.12)';
+        el.style.border = '1px solid rgba(245,158,11,0.3)';
+        el.innerHTML = `<i class="fa-solid fa-clock"></i> ${msg}`;
+      } else if (isSuccess) {
+        el.style.color = '#2ed573';
+        el.style.background = 'rgba(46,213,115,0.1)';
+        el.style.border = '1px solid rgba(46,213,115,0.3)';
+        el.innerHTML = `<i class="fa-solid fa-circle-check"></i> ${msg}`;
+      } else {
+        el.style.color = '#ff4757';
+        el.style.background = 'rgba(255,71,87,0.1)';
+        el.style.border = '1px solid rgba(255,71,87,0.3)';
+        el.innerHTML = `<i class="fa-solid fa-circle-exclamation"></i> ${msg}`;
+      }
     }
     function clearError() {
       const el = document.getElementById('login-error-msg');
       if (el) {
-        el.style.color = '#ff4757';
         el.textContent = '';
+        el.style.background = 'transparent';
+        el.style.border = 'none';
       }
     }
 
@@ -719,19 +734,23 @@
         });
         clearTimeout(timer);
 
-        if (res.ok) {
-          const data = await res.json();
-          if (data.success) {
-            const userObj = data.user ? { fullname: data.user.name, email: data.user.email, id: data.user.id } : { fullname: email, email };
-            completeLogin(userObj, data.token);
-            return;
+        let data = null;
+        try { data = await res.json(); } catch (e) {}
+
+        if (res.ok && data && data.success) {
+          const userObj = data.user ? { fullname: data.user.name, email: data.user.email, id: data.user.id } : { fullname: email, email };
+          completeLogin(userObj, data.token);
+          return;
+        } else if (data) {
+          btn.classList.remove('is-loading');
+          if (data.status === 'pending' || (data.message && data.message.toLowerCase().includes('pending'))) {
+            showError(data.message || 'Your account is pending admin approval. Please wait for an administrator to activate your account.', false, 'pending');
           } else {
-            btn.classList.remove('is-loading');
             showError(data.message || 'Invalid email or password. Please try again.');
-            wrapper.classList.add('shake');
-            setTimeout(() => wrapper.classList.remove('shake'), 500);
-            return;
           }
+          wrapper.classList.add('shake');
+          setTimeout(() => wrapper.classList.remove('shake'), 500);
+          return;
         }
       } catch (err) {
         console.warn('[Login Server Error] API fetch failed:', err);
@@ -793,14 +812,14 @@
       const handleSuccess = () => {
         btn.classList.remove('is-loading');
         document.getElementById('email').value = email;
-        successEl.innerHTML = '<i class="fa-solid fa-circle-check"></i> Registration successful! Saved to MySQL DB. Switching to Sign In...';
+        successEl.innerHTML = '<i class="fa-solid fa-clock" style="color:#f59e0b;"></i> Registration submitted! Your account is pending Admin approval. Switching to Sign In...';
         document.getElementById('signup-form').reset();
 
         setTimeout(() => {
           successEl.innerHTML = '';
           signinTab.click();
-          showError('Registration successful! Please enter your password to sign in.', true);
-        }, 1200);
+          showError('Registration submitted! Your account is pending admin approval. You will be able to log in once approved.', false, 'pending');
+        }, 1600);
       };
 
       try {
@@ -815,23 +834,23 @@
         });
         clearTimeout(timer);
 
-        if (res.ok) {
-          const data = await res.json();
-          if (data.success) {
-            const users = getUsers();
-            if (!users.find(u => u.email === email)) {
-              users.push({ fullname: name, email: email, password: password, createdAt: new Date().toISOString() });
-              saveUsers(users);
-            }
-            handleSuccess();
-            return;
-          } else {
-            btn.classList.remove('is-loading');
-            errEl.textContent = data.message || 'Registration failed!';
-            wrapper.classList.add('shake');
-            setTimeout(() => wrapper.classList.remove('shake'), 500);
-            return;
+        let data = null;
+        try { data = await res.json(); } catch (e) {}
+
+        if (res.ok && data && data.success) {
+          const users = getUsers();
+          if (!users.find(u => u.email === email)) {
+            users.push({ fullname: name, email: email, password: password, status: 'pending', createdAt: new Date().toISOString() });
+            saveUsers(users);
           }
+          handleSuccess();
+          return;
+        } else if (data) {
+          btn.classList.remove('is-loading');
+          errEl.textContent = data.message || 'Registration failed!';
+          wrapper.classList.add('shake');
+          setTimeout(() => wrapper.classList.remove('shake'), 500);
+          return;
         }
       } catch (err) {
         console.warn('[Signup Server Error] API fetch failed:', err);
@@ -849,7 +868,6 @@
 
       errEl.textContent = '⛔ Server is OFF!';
       return;
-      handleSuccess();
     };
 
     document.getElementById('reg-password').oninput = function () {

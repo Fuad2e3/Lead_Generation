@@ -686,6 +686,12 @@
       border: 1px solid rgba(255, 71, 87, 0.25);
     }
 
+    .status-badge.pending {
+      background: rgba(245, 158, 11, 0.15);
+      color: #f59e0b;
+      border: 1px solid rgba(245, 158, 11, 0.3);
+    }
+
     /* Package Badges */
     .package-badge {
       display: inline-flex;
@@ -1099,6 +1105,13 @@
           </div>
         </div>
         <div class="stat-card">
+          <div class="stat-icon orange" style="background:rgba(245,158,11,0.15);color:#f59e0b;"><i class="fa-solid fa-user-clock"></i></div>
+          <div class="stat-info">
+            <div class="value" id="stat-pending" style="color:#f59e0b;">—</div>
+            <div class="label">Pending Approval</div>
+          </div>
+        </div>
+        <div class="stat-card">
           <div class="stat-icon red"><i class="fa-solid fa-ban"></i></div>
           <div class="stat-info">
             <div class="value" id="stat-banned">—</div>
@@ -1169,6 +1182,7 @@
           <div style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center;">
             <select id="filter-status" class="table-search" style="width: auto; padding: 7px 12px; cursor: pointer;">
               <option value="">All Statuses</option>
+              <option value="pending">Pending Approval</option>
               <option value="active">Active</option>
               <option value="banned">Banned</option>
               <option value="inactive">Inactive</option>
@@ -1218,6 +1232,42 @@
           <span id="footer-count">Loading...</span>
           <div id="users-see-more-container" style="display:flex; gap:8px;"></div>
           <span id="footer-time"></span>
+        </div>
+      </div>
+
+      <!-- New User Registration Approval Requests Card -->
+      <div class="table-card" style="margin-top: 28px;">
+        <div class="table-header">
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <h2><i class="fa-solid fa-user-clock" style="color:#f59e0b;"></i> New User Registration Approval Requests</h2>
+            <span id="badge-pending-registrations" style="display:none; font-size:11px; background:linear-gradient(135deg, #f59e0b, #d97706); color:#fff; padding:3px 10px; border-radius:12px; font-weight:700; box-shadow:0 0 10px rgba(245,158,11,0.4); text-transform:uppercase;">0 PENDING</span>
+          </div>
+          <button class="btn-refresh" onclick="loadPendingUsers()"><i class="fa-solid fa-rotate-right"
+              id="pending-users-refresh-icon"></i> Refresh Requests</button>
+        </div>
+        <div class="table-responsive">
+          <table>
+            <thead>
+              <tr>
+                <th><i class="fa-solid fa-hashtag"></i>User ID</th>
+                <th><i class="fa-solid fa-user"></i>User Name</th>
+                <th><i class="fa-solid fa-at"></i>Email</th>
+                <th><i class="fa-solid fa-crown"></i>Default Package</th>
+                <th><i class="fa-solid fa-circle-dot"></i>Status</th>
+                <th><i class="fa-solid fa-calendar-plus"></i>Registered Date</th>
+                <th><i class="fa-solid fa-gears"></i>Action</th>
+              </tr>
+            </thead>
+            <tbody id="pending-users-table-body">
+              <tr>
+                <td colspan="7" class="text-center" style="padding:30px;color:var(--text-muted);">Loading pending user registration requests...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="table-footer" id="pending-users-table-footer" style="display: none;">
+          <span id="pending-users-footer-count">Showing 0 requests</span>
+          <div id="pending-users-see-more-container" style="display:flex; gap:8px;"></div>
         </div>
       </div>
 
@@ -1360,6 +1410,9 @@
     let currentFilteredUsers = [];
     let usersDisplayLimit = 10;
 
+    let allPendingUsers = [];
+    let pendingUsersDisplayLimit = 10;
+
     let allUpgradeRequests = [];
     let upgradesDisplayLimit = 10;
 
@@ -1385,6 +1438,18 @@
         const remainingCredits = Math.max(0, (u.daily_credits || 50) - (u.used_credits_today || 0));
         const totalCredits = u.daily_credits || 50;
         const usedPercent = Math.min(100, Math.round(((u.used_credits_today || 0) / totalCredits) * 100));
+
+        const statusBadge = u.status === 'pending'
+          ? `<span class="status-badge pending"><i class="fa-solid fa-clock"></i> Pending</span>`
+          : u.status === 'active'
+            ? `<span class="status-badge active"><i class="fa-solid fa-circle-check"></i> Active</span>`
+            : u.status === 'banned'
+              ? `<span class="status-badge banned"><i class="fa-solid fa-ban"></i> Banned</span>`
+              : `<span class="status-badge inactive"><i class="fa-solid fa-circle-pause"></i> Inactive</span>`;
+
+        const approveBtn = u.status === 'pending'
+          ? `<button class="btn-action primary" onclick="setStatus(${u.id}, 'active')" style="background:rgba(34,197,94,0.15);color:#22c55e;border-color:rgba(34,197,94,0.3);" title="Approve Registration"><i class="fa-solid fa-check"></i> Approve</button>`
+          : '';
 
         return `
         <tr id="row-${u.id}">
@@ -1416,10 +1481,7 @@
             </div>
           </td>
           <td>
-            <span class="status-badge ${u.status}">
-              <i class="fa-solid ${u.status === 'active' ? 'fa-circle-check' : u.status === 'banned' ? 'fa-ban' : 'fa-circle-pause'}"></i>
-              ${u.status}
-            </span>
+            ${statusBadge}
           </td>
           <td class="td-violations">
             <span class="${violationClass(u.rate_limit_violations)}">${u.rate_limit_violations}</span>
@@ -1428,6 +1490,7 @@
           <td class="td-datetime">${fmtDate(u.created_at)}</td>
           <td>
             <div class="actions">
+              ${approveBtn}
               <button class="btn-action btn-reset" onclick="changeUserPackage(${u.id}, '${u.package || 'free'}', ${u.daily_credits || 50})" title="Change Package & Custom Credits"><i class="fa-solid fa-sliders"></i> Plan</button>
               ${u.status !== 'banned'
           ? `<button class="btn-action btn-ban" onclick="setStatus(${u.id}, 'banned')" title="Ban User"><i class="fa-solid fa-ban"></i> Ban</button>`
@@ -1475,6 +1538,8 @@
     function updateStats(users) {
       document.getElementById('stat-total').textContent = users.length;
       document.getElementById('stat-active').textContent = users.filter(u => u.status === 'active').length;
+      const pendingEl = document.getElementById('stat-pending');
+      if (pendingEl) pendingEl.textContent = users.filter(u => u.status === 'pending').length;
       document.getElementById('stat-banned').textContent = users.filter(u => u.status === 'banned').length;
       document.getElementById('stat-violations').textContent = users.reduce((s, u) => s + (u.rate_limit_violations || 0), 0);
     }
@@ -1936,6 +2001,129 @@
       }
     }
 
+    // ── Load New User Registration Approval Requests
+    function renderPendingUsersTable() {
+      const tbody = document.getElementById('pending-users-table-body');
+      const footer = document.getElementById('pending-users-table-footer');
+      const footerCount = document.getElementById('pending-users-footer-count');
+      const seeMoreContainer = document.getElementById('pending-users-see-more-container');
+
+      if (!allPendingUsers || allPendingUsers.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="7" class="text-center" style="padding:20px;color:var(--text-muted);">No pending user registration requests.</td></tr>`;
+        if (footer) footer.style.display = 'none';
+        return;
+      }
+
+      if (footer) footer.style.display = 'flex';
+      const toRender = allPendingUsers.slice(0, pendingUsersDisplayLimit);
+
+      tbody.innerHTML = toRender.map(u => {
+        const pkgBadge = u.package === 'enterprise'
+          ? '<span class="pkg-badge ent">ENTERPRISE</span>'
+          : u.package === 'pro'
+            ? '<span class="pkg-badge pro">PRO</span>'
+            : '<span class="package-badge free">FREE</span>';
+
+        const statusBadge = '<span class="status-badge pending"><i class="fa-solid fa-clock"></i> Pending</span>';
+
+        const actionBtns = `
+          <div style="display:flex;gap:6px;">
+            <button class="btn-action primary" onclick="handlePendingUserAction(${u.id}, 'approve')" style="background:rgba(34,197,94,0.15);color:#22c55e;border-color:rgba(34,197,94,0.3);"><i class="fa-solid fa-check"></i> Approve</button>
+            <button class="btn-action danger" onclick="handlePendingUserAction(${u.id}, 'reject')"><i class="fa-solid fa-xmark"></i> Reject</button>
+          </div>
+        `;
+
+        return `
+          <tr>
+            <td class="td-id">#${u.id}</td>
+            <td class="td-name"><strong>${u.name || 'User'}</strong></td>
+            <td class="td-email">${u.email}</td>
+            <td>${pkgBadge}</td>
+            <td>${statusBadge}</td>
+            <td class="td-datetime">${fmtDate(u.created_at)}</td>
+            <td>${actionBtns}</td>
+          </tr>
+        `;
+      }).join('');
+
+      if (footerCount) footerCount.textContent = `Showing ${toRender.length} of ${allPendingUsers.length} requests`;
+
+      if (seeMoreContainer) {
+        let btnsHtml = '';
+        if (allPendingUsers.length > pendingUsersDisplayLimit) {
+          const remaining = allPendingUsers.length - pendingUsersDisplayLimit;
+          btnsHtml += `<button class="btn-see-more" onclick="showMorePendingUsers()"><i class="fa-solid fa-chevron-down"></i> See More (+${Math.min(10, remaining)})</button>`;
+          btnsHtml += `<button class="btn-see-more" onclick="showAllPendingUsers()"><i class="fa-solid fa-angles-down"></i> See All (${allPendingUsers.length})</button>`;
+        } else if (pendingUsersDisplayLimit > 10 && allPendingUsers.length > 10) {
+          btnsHtml += `<button class="btn-see-less" onclick="showLessPendingUsers()"><i class="fa-solid fa-chevron-up"></i> Show Less (10)</button>`;
+        }
+        seeMoreContainer.innerHTML = btnsHtml;
+      }
+    }
+
+    function showMorePendingUsers() {
+      pendingUsersDisplayLimit += 10;
+      renderPendingUsersTable();
+    }
+
+    function showAllPendingUsers() {
+      pendingUsersDisplayLimit = allPendingUsers.length;
+      renderPendingUsersTable();
+    }
+
+    function showLessPendingUsers() {
+      pendingUsersDisplayLimit = 10;
+      renderPendingUsersTable();
+    }
+
+    async function loadPendingUsers(isSilent = false) {
+      const icon = document.getElementById('pending-users-refresh-icon');
+      if (icon && !isSilent) icon.classList.add('fa-spin');
+      try {
+        const res = await fetch(`${API_BASE}/pending-users?_t=${Date.now()}`, { headers: ADMIN_HEADERS, cache: 'no-store' });
+        const data = await res.json();
+        allPendingUsers = (data.success && data.requests) ? data.requests : [];
+        renderPendingUsersTable();
+
+        // Update live pending badge
+        const badge = document.getElementById('badge-pending-registrations');
+        if (badge) {
+          if (allPendingUsers.length > 0) {
+            badge.textContent = `${allPendingUsers.length} PENDING`;
+            badge.style.display = 'inline-block';
+          } else {
+            badge.style.display = 'none';
+          }
+        }
+      } catch (err) {
+        if (!isSilent) console.error(err);
+      } finally {
+        if (icon && !isSilent) icon.classList.remove('fa-spin');
+      }
+    }
+
+    async function handlePendingUserAction(id, action) {
+      if (!confirm(`Are you sure you want to ${action} this registration request?`)) return;
+      try {
+        const res = await fetch(`${API_BASE}/pending-users/${id}/action`, {
+          method: 'POST',
+          headers: ADMIN_HEADERS,
+          body: JSON.stringify({ action })
+        });
+        const data = await res.json();
+        if (data.success) {
+          toast(data.message, 'success');
+          loadPendingUsers();
+          loadUsers();
+          loadActivityLogs();
+        } else {
+          toast(data.message || 'Action failed', 'error');
+        }
+      } catch (e) {
+        toast('Network error performing user approval action', 'error');
+      }
+    }
+
     // ── Load Package Upgrade Requests
     function renderUpgradeRequestsTable() {
       const tbody = document.getElementById('upgrades-table-body');
@@ -2040,12 +2228,13 @@
       }
     }
 
-    // ── Live Auto-Sync for Admin Dashboard (Syncs audit logs, users & upgrades every 5s automatically)
+    // ── Live Auto-Sync for Admin Dashboard (Syncs audit logs, users, pending & upgrades every 5s automatically)
     function autoSyncAdminDataLive() {
       const isAuth = localStorage.getItem('lgs_admin_auth') === 'true' || sessionStorage.getItem('lgs_admin_auth') === 'true';
       const dashboard = document.getElementById('admin-dashboard-container');
       if (isAuth && dashboard && dashboard.style.display !== 'none') {
         loadActivityLogs(true);
+        loadPendingUsers(true);
         loadUpgradeRequests(true);
         loadUsers(true);
       }
@@ -2261,6 +2450,7 @@
                 if (dashboardContainer) dashboardContainer.style.display = 'block';
 
                 loadUsers();
+                loadPendingUsers();
                 loadAnnouncement();
                 loadActivityLogs();
                 loadUpgradeRequests();
@@ -2287,11 +2477,14 @@
           sessionStorage.removeItem('lgs_admin_secret');
 
           allUsers = [];
+          allPendingUsers = [];
           allActivityLogs = [];
           allUpgradeRequests = [];
 
           const tbody = document.getElementById('table-body');
           if (tbody) tbody.innerHTML = '';
+          const pendingTbody = document.getElementById('pending-users-table-body');
+          if (pendingTbody) pendingTbody.innerHTML = '';
           const logsTbody = document.getElementById('logs-table-body');
           if (logsTbody) logsTbody.innerHTML = '';
           const upgTbody = document.getElementById('upgrades-table-body');
@@ -2355,6 +2548,7 @@
               currentFilteredUsers = allUsers;
               renderTable(allUsers);
               updateStats(allUsers);
+              loadPendingUsers();
               loadAnnouncement();
               loadActivityLogs();
               loadUpgradeRequests();
