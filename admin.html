@@ -2081,8 +2081,12 @@
       if (icon && !isSilent) icon.classList.add('fa-spin');
       try {
         const res = await fetch(`${API_BASE}/pending-users?_t=${Date.now()}`, { headers: ADMIN_HEADERS, cache: 'no-store' });
-        const data = await res.json();
-        allPendingUsers = (data.success && data.requests) ? data.requests : [];
+        if (res.ok) {
+          const data = await res.json();
+          allPendingUsers = (data.success && data.requests) ? data.requests : [];
+        } else {
+          allPendingUsers = (allUsers || []).filter(u => u.status === 'pending');
+        }
         renderPendingUsersTable();
 
         // Update live pending badge
@@ -2097,6 +2101,8 @@
         }
       } catch (err) {
         if (!isSilent) console.error(err);
+        allPendingUsers = (allUsers || []).filter(u => u.status === 'pending');
+        renderPendingUsersTable();
       } finally {
         if (icon && !isSilent) icon.classList.remove('fa-spin');
       }
@@ -2105,14 +2111,22 @@
     async function handlePendingUserAction(id, action) {
       if (!confirm(`Are you sure you want to ${action} this registration request?`)) return;
       try {
-        const res = await fetch(`${API_BASE}/pending-users/${id}/action`, {
+        let res = await fetch(`${API_BASE}/pending-users/${id}/action`, {
           method: 'POST',
           headers: ADMIN_HEADERS,
           body: JSON.stringify({ action })
         });
+        if (!res.ok) {
+          const newStatus = action === 'approve' ? 'active' : 'banned';
+          res = await fetch(`${API_BASE}/users/${id}/status`, {
+            method: 'POST',
+            headers: ADMIN_HEADERS,
+            body: JSON.stringify({ status: newStatus })
+          });
+        }
         const data = await res.json();
         if (data.success) {
-          toast(data.message, 'success');
+          toast(data.message || `User registration ${action}d successfully!`, 'success');
           loadPendingUsers();
           loadUsers();
           loadActivityLogs();
