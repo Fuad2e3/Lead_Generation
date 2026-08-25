@@ -437,17 +437,52 @@
     @media (max-width: 850px) {
       body {
         overflow-y: auto;
-        align-items: flex-start;
+        align-items: center;
+        padding: 70px 16px 30px;
       }
 
       .login-wrapper {
         grid-template-columns: 1fr;
         height: auto;
         max-height: none;
+        max-width: 480px;
       }
 
       .info-side {
         display: none;
+      }
+
+      .form-side {
+        padding: 32px 24px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      body {
+        padding: 65px 12px 24px;
+      }
+
+      .form-side {
+        padding: 24px 16px;
+      }
+
+      .form-side h2 {
+        font-size: 20px;
+      }
+
+      #btn-back-home {
+        top: 14px;
+        left: 14px;
+        padding: 6px 12px;
+        font-size: 12px;
+      }
+
+      #btn-theme {
+        top: 14px;
+        right: 14px;
+        width: 36px;
+        height: 36px;
+        font-size: 14px;
       }
     }
   </style>

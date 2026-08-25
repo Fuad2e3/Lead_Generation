@@ -1490,45 +1490,139 @@ input[type="text"]:focus {
 }
 
 /* ==========================================================================
-   RESPONSIVE ENHANCEMENTS (Mobile & Tablet)
+   RESPONSIVE ENHANCEMENTS (Mobile, Tablet, Laptop & Desktop)
    ========================================================================== */
+@media (max-width: 1024px) {
+  .app-container {
+    padding: 16px 20px 50px;
+  }
+
+  .grid-layout-2col {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+}
+
 @media (max-width: 768px) {
   .app-container {
     padding: 12px 14px 40px;
   }
 
   .app-header {
-    padding: 12px 16px;
+    padding: 14px 16px;
     flex-direction: column;
     align-items: stretch;
     gap: 12px;
   }
 
+  .header-brand {
+    justify-content: space-between;
+  }
+
   .header-actions {
     width: 100%;
-    justify-content: space-between;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: flex-start;
+  }
+
+  #header-credit-badge {
+    min-width: 140px;
+    flex: 1 1 auto;
   }
 
   .stats-counters-grid {
     grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
   }
 
   .automation-top-bar {
     flex-direction: column;
     align-items: stretch;
+    gap: 10px;
   }
 
   .session-controls {
-    justify-content: flex-start;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    width: 100%;
+  }
+
+  .session-controls .btn {
+    flex: 1 1 auto;
+    justify-content: center;
+  }
+
+  .table-responsive {
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .modal-backdrop {
+    padding: 12px;
+  }
+
+  .modal-box {
+    max-height: 92vh;
+    border-radius: var(--radius-lg);
+  }
+
+  .modal-body {
+    max-height: calc(92vh - 130px);
+    padding: 16px;
+  }
+}
+
+@media (max-width: 540px) {
+  .checkbox-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .url-action-bar {
+    flex-direction: column;
+  }
+
+  .url-action-bar .btn {
+    width: 100%;
+    justify-content: center;
   }
 }
 
 @media (max-width: 480px) {
   .stats-counters-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 6px;
+  }
+
+  .stat-box {
+    padding: 8px 6px;
+  }
+
+  .stat-box .stat-number {
+    font-size: 18px;
+  }
+
+  .stat-box .stat-label {
+    font-size: 8.5px;
   }
 
   .export-grid {
     grid-template-columns: 1fr;
+  }
+
+  .card-header {
+    padding: 12px 14px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .card-body {
+    padding: 12px 14px;
+  }
+
+  .brand-text h1 {
+    font-size: 17px;
   }
 }
