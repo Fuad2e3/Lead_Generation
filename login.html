@@ -19,7 +19,8 @@
   <title>Login - Lead Generation</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&family=Outfit:wght@400;500;600;700;800;900&display=swap"
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&family=Outfit:wght@400;500;600;700;800;900&display=swap"
     rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="stylesheet" href="styles.css">
@@ -325,7 +326,7 @@
       left: 10px;
       font-size: 11px;
       color: var(--color-primary);
-      background: var(--bg-app);
+      background: var(--bg-card);
       padding: 0 6px;
       transform: translateY(0);
     }
@@ -738,7 +739,7 @@
         clearTimeout(timer);
 
         let data = null;
-        try { data = await res.json(); } catch (e) {}
+        try { data = await res.json(); } catch (e) { }
 
         if (res.ok && data && data.success) {
           const userObj = data.user ? { fullname: data.user.name, email: data.user.email, id: data.user.id } : { fullname: email, email };
@@ -838,7 +839,7 @@
         clearTimeout(timer);
 
         let data = null;
-        try { data = await res.json(); } catch (e) {}
+        try { data = await res.json(); } catch (e) { }
 
         if (res.ok && data && data.success) {
           const users = getUsers();
