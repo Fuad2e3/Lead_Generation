@@ -2399,15 +2399,11 @@
         }
         renderPendingUsersTable();
 
-        // Update live pending badge
+        // Update live pending badge — always visible, shows 0 when none pending
         const badge = document.getElementById('badge-pending-registrations');
         if (badge) {
-          if (allPendingUsers.length > 0) {
-            badge.textContent = `${allPendingUsers.length} PENDING`;
-            badge.style.display = 'inline-block';
-          } else {
-            badge.style.display = 'none';
-          }
+          badge.textContent = `${allPendingUsers.length} PENDING`;
+          badge.style.display = 'inline-block';
         }
       } catch (err) {
         if (!isSilent) console.error(err);
@@ -2534,16 +2530,12 @@
         allUpgradeRequests = (data.success && data.requests) ? data.requests : [];
         renderUpgradeRequestsTable();
 
-        // Update live pending badge
+        // Update live pending badge — always visible, shows 0 when none pending
         const pendingCount = allUpgradeRequests.filter(r => r.status === 'pending').length;
         const badge = document.getElementById('badge-pending-upgrades');
         if (badge) {
-          if (pendingCount > 0) {
-            badge.textContent = `${pendingCount} PENDING`;
-            badge.style.display = 'inline-block';
-          } else {
-            badge.style.display = 'none';
-          }
+          badge.textContent = `${pendingCount} PENDING`;
+          badge.style.display = 'inline-block';
         }
       } catch (err) {
         if (!isSilent) console.error(err);
