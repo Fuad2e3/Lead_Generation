@@ -3,6 +3,16 @@
 
 <head>
   <script>
+    // Clickjacking mitigation: break out of any frame this page is loaded
+    // into. GitHub Pages serves static files with no way to set the
+    // X-Frame-Options header, and CSP's frame-ancestors directive is not
+    // honored via <meta> — so this JS-level guard is the only defense
+    // available on this hosting platform.
+    if (window.top !== window.self) {
+      window.top.location = window.self.location;
+    }
+  </script>
+  <script>
     (function () {
       const saved = localStorage.getItem('lgs_theme');
       const theme = saved || (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
@@ -16,6 +26,7 @@
   <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
   <meta name="theme-color" content="#070913" media="(prefers-color-scheme: dark)">
   <meta name="theme-color" content="#F0F4F8" media="(prefers-color-scheme: light)">
+  <meta http-equiv="Content-Security-Policy-Report-Only" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com data:; img-src 'self' data: https:; connect-src *; object-src 'none'; base-uri 'self'; form-action 'self';">
   <title>Login - Lead Generation</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -703,7 +714,7 @@
           </div>
           <div class="floating-group" style="position: relative;">
             <i class="fa-solid fa-key main-icon"></i>
-            <input type="password" id="reg-password" placeholder=" " required>
+            <input type="password" id="reg-password" placeholder=" " minlength="8" required>
             <label>Password</label>
             <i class="fa-solid fa-eye eye-icon" role="button" tabindex="0" aria-label="Show password"></i>
             <div class="strength-meter" id="strength-meter">
@@ -1046,8 +1057,11 @@
       if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
         errEl.textContent = 'Please enter a valid email address.'; return;
       }
-      if (password.length < 6) {
-        errEl.textContent = 'Password must be at least 6 characters.'; return;
+      if (password.length < 8) {
+        errEl.textContent = 'Password must be at least 8 characters.'; return;
+      }
+      if (!/[A-Za-z]/.test(password) || !/[0-9]/.test(password)) {
+        errEl.textContent = 'Password must include at least one letter and one number.'; return;
       }
       if (password !== confirmPassword) {
         errEl.textContent = 'Passwords do not match.'; return;

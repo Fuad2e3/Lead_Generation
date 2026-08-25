@@ -3,6 +3,16 @@
 
 <head>
   <script>
+    // Clickjacking mitigation: break out of any frame this page is loaded
+    // into. GitHub Pages serves static files with no way to set the
+    // X-Frame-Options header, and CSP's frame-ancestors directive is not
+    // honored via <meta> — so this JS-level guard is the only defense
+    // available on this hosting platform.
+    if (window.top !== window.self) {
+      window.top.location = window.self.location;
+    }
+  </script>
+  <script>
     (function () {
       const saved = localStorage.getItem('lgs_theme');
       const theme = saved || (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
@@ -16,6 +26,7 @@
   <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
   <meta name="theme-color" content="#070913" media="(prefers-color-scheme: dark)">
   <meta name="theme-color" content="#F0F4F8" media="(prefers-color-scheme: light)">
+  <meta http-equiv="Content-Security-Policy-Report-Only" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com data:; img-src 'self' data: https:; connect-src *; object-src 'none'; base-uri 'self'; form-action 'self';">
   <title>Admin Panel — User Management</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link
@@ -1751,7 +1762,10 @@
       const el = document.createElement('div');
       el.className = `toast ${type}`;
       const icon = type === 'success' ? 'fa-circle-check' : type === 'error' ? 'fa-triangle-exclamation' : 'fa-circle-info';
-      el.innerHTML = `<i class="fa-solid ${icon}"></i><span>${msg}</span>`;
+      // msg often comes straight from a backend API response — set via
+      // textContent (never innerHTML) so it can never be interpreted as HTML.
+      el.innerHTML = `<i class="fa-solid ${icon}"></i><span></span>`;
+      el.querySelector('span').textContent = msg;
       container.appendChild(el);
       setTimeout(() => el.remove(), 3500);
     }
