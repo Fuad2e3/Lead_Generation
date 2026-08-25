@@ -1,5 +1,5 @@
 window.LGS_CONFIG = {
-  API_URL: "https://industrial-keyboards-studios-leonard.trycloudflare.com"
+  API_URL: "https://aspect-similarly-pat-mar.trycloudflare.com"
 };
 
 
