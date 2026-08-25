@@ -3,11 +3,10 @@
 
 <head>
   <script>
-    // Always OS Theme Sync — ignores any saved preference, always follows device Dark/Light
     (function () {
-      const dark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-      document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
-      localStorage.removeItem('lgs_theme'); // clear any old manual override
+      const saved = localStorage.getItem('lgs_theme');
+      const theme = saved || (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+      document.documentElement.setAttribute('data-theme', theme);
     })();
   </script>
   <script src="config.js"></script>
@@ -924,17 +923,17 @@
         btnTheme.style.pointerEvents = 'auto';
       }
 
-      // Page load: always follow OS, clear any saved preference
+      // Page load: load saved preference or fall back to OS theme
       const osTheme = (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
-      localStorage.removeItem('lgs_theme');
-      applyTheme(osTheme);
+      const currentTheme = localStorage.getItem('lgs_theme') || osTheme;
+      applyTheme(currentTheme);
 
-      // Live OS listener (only if user hasn't manually toggled this session)
+      // Live OS listener (only if user hasn't explicitly set a custom theme preference)
       if (window.matchMedia) {
         const mq = window.matchMedia('(prefers-color-scheme: dark)');
-        const onOSChange = () => {
-          if (!sessionStorage.getItem('lgs_manual_theme')) {
-            applyTheme(mq.matches ? 'dark' : 'light');
+        const onOSChange = (e) => {
+          if (!localStorage.getItem('lgs_theme')) {
+            applyTheme(e.matches ? 'dark' : 'light');
           }
         };
         if (mq.addEventListener) mq.addEventListener('change', onOSChange);
@@ -947,7 +946,7 @@
         btnTheme.addEventListener('click', function () {
           const current = document.documentElement.getAttribute('data-theme');
           const next = (current === 'dark') ? 'light' : 'dark';
-          sessionStorage.setItem('lgs_manual_theme', next);
+          localStorage.setItem('lgs_theme', next);
           applyTheme(next);
         });
       }

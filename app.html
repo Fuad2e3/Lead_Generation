@@ -3,11 +3,10 @@
 
 <head>
   <script>
-    // Always OS Theme Sync — ignores any saved preference, always follows device Dark/Light
     (function () {
-      const dark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-      document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
-      localStorage.removeItem('lgs_theme'); // clear any old manual override
+      const saved = localStorage.getItem('lgs_theme');
+      const theme = saved || (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+      document.documentElement.setAttribute('data-theme', theme);
     })();
 
     if (localStorage.getItem('lgs_auth') !== 'true') {
@@ -732,31 +731,30 @@
         btnTheme.style.pointerEvents = 'auto';
       }
 
-      // On every page load: always follow OS, clear any old saved preference
+      // On page load: load saved preference or fall back to OS theme
       const osTheme = (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
-      localStorage.removeItem('lgs_theme');
-      applyTheme(osTheme);
+      const currentTheme = localStorage.getItem('lgs_theme') || osTheme;
+      applyTheme(currentTheme);
 
-      // Live OS listener: auto-update if OS Dark/Light changes while page is open
+      // Live OS listener: auto-update if OS Dark/Light changes while page is open (if not manually set)
       if (window.matchMedia) {
         const mq = window.matchMedia('(prefers-color-scheme: dark)');
-        const onOSChange = () => {
-          // Only follow OS if user hasn't manually toggled this session
-          if (!sessionStorage.getItem('lgs_manual_theme')) {
-            applyTheme(mq.matches ? 'dark' : 'light');
+        const onOSChange = (e) => {
+          if (!localStorage.getItem('lgs_theme')) {
+            applyTheme(e.matches ? 'dark' : 'light');
           }
         };
         if (mq.addEventListener) mq.addEventListener('change', onOSChange);
         else if (mq.addListener) mq.addListener(onOSChange);
       }
 
-      // Manual toggle: Dark ↔ Light, mark session as manually set
+      // Manual toggle: Dark ↔ Light, persist in localStorage
       const btnTheme = document.getElementById('btn-theme');
       if (btnTheme) {
         btnTheme.addEventListener('click', function () {
           const currentTheme = document.documentElement.getAttribute('data-theme');
           const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-          sessionStorage.setItem('lgs_manual_theme', newTheme);
+          localStorage.setItem('lgs_theme', newTheme);
           applyTheme(newTheme);
         });
       }
