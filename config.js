@@ -1,5 +1,5 @@
 window.LGS_CONFIG = {
-  API_URL: "https://sperm-shades-regards-maintained.trycloudflare.com"
+  API_URL: "https://industrial-keyboards-studios-leonard.trycloudflare.com"
 };
 
 
