@@ -364,6 +364,27 @@ a {
   box-shadow: 0 8px 20px -6px rgba(99, 102, 241, 0.3);
 }
 
+/* Visually-hidden but still focusable/keyboard-accessible checkbox, used to
+   wrap a native input inside a styled label (e.g. the sound-toggle pill)
+   instead of a non-semantic clickable icon. */
+.sr-only-checkbox {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.sr-only-checkbox:focus-visible ~ i {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
 #header-credit-badge {
   padding: 6px 14px;
   min-width: 175px;
@@ -1123,19 +1144,10 @@ input[type="text"]:focus {
   transition: color 0.2s ease;
 }
 
-.data-table th:hover {
-  color: #ffffff;
-  cursor: pointer;
-}
-
 [data-theme="light"] .data-table th {
   background: rgba(241, 245, 249, 0.97);
   color: #0f172a;
   border-bottom: 1px solid rgba(99, 102, 241, 0.2);
-}
-
-[data-theme="light"] .data-table th:hover {
-  color: var(--color-primary);
 }
 
 .data-table td {

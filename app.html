@@ -96,6 +96,10 @@
           <button id="btn-theme" class="action-pill" title="Toggle Light/Dark Theme">
             <i class="fa-solid fa-moon"></i>
           </button>
+          <label id="sound-toggle-pill" class="action-pill" title="Sound Chime: On (click to mute)">
+            <input type="checkbox" id="chk-sound" checked class="sr-only-checkbox">
+            <i id="sound-toggle-icon" class="fa-solid fa-bell"></i>
+          </label>
         </div>
 
         <span class="header-divider" aria-hidden="true"></span>
@@ -422,7 +426,6 @@
     <select id="proxy-select">
       <option value="direct" selected></option>
     </select>
-    <input type="checkbox" id="chk-sound" checked>
     <div id="console-log"></div>
     <div id="console-log-visible"></div>
     <canvas id="status-chart"></canvas>
@@ -756,6 +759,33 @@
         });
       }
 
+    })();
+    // ─────────────────────────────────────────────────────────────────────────
+
+    // ── Sound Chime Toggle: persisted mute/unmute for the completion chime ────
+    // #chk-sound itself is read directly by the mining engine when a session
+    // finishes — this only makes the existing checkbox visible/clickable via
+    // a header pill and remembers the choice across visits.
+    (function initSoundToggle() {
+      const chk = document.getElementById('chk-sound');
+      const icon = document.getElementById('sound-toggle-icon');
+      const pill = document.getElementById('sound-toggle-pill');
+      if (!chk) return;
+
+      const saved = localStorage.getItem('lgs_sound_enabled');
+      chk.checked = saved === null ? true : saved === 'true';
+
+      function syncSoundUI() {
+        if (icon) icon.className = chk.checked ? 'fa-solid fa-bell' : 'fa-solid fa-bell-slash';
+        if (pill) pill.title = chk.checked ? 'Sound Chime: On (click to mute)' : 'Sound Chime: Off (click to unmute)';
+      }
+
+      chk.addEventListener('change', function () {
+        localStorage.setItem('lgs_sound_enabled', chk.checked ? 'true' : 'false');
+        syncSoundUI();
+      });
+
+      syncSoundUI();
     })();
     // ─────────────────────────────────────────────────────────────────────────
 

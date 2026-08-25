@@ -345,6 +345,12 @@
       color: var(--text-muted);
       cursor: pointer;
       font-size: 14px;
+      border-radius: 4px;
+    }
+
+    .eye-icon:focus-visible {
+      outline: 2px solid var(--color-primary);
+      outline-offset: 2px;
     }
 
     /* Remember Me / Forgot Password row */
@@ -647,7 +653,7 @@
             <i class="fa-solid fa-key main-icon"></i>
             <input type="password" id="password" placeholder=" " required>
             <label>Password</label>
-            <i class="fa-solid fa-eye eye-icon"></i>
+            <i class="fa-solid fa-eye eye-icon" role="button" tabindex="0" aria-label="Show password"></i>
           </div>
           <div class="login-options-row">
             <label class="remember-me-label">
@@ -699,7 +705,7 @@
             <i class="fa-solid fa-key main-icon"></i>
             <input type="password" id="reg-password" placeholder=" " required>
             <label>Password</label>
-            <i class="fa-solid fa-eye eye-icon"></i>
+            <i class="fa-solid fa-eye eye-icon" role="button" tabindex="0" aria-label="Show password"></i>
             <div class="strength-meter" id="strength-meter">
               <div class="strength-bar" id="strength-bar"></div>
             </div>
@@ -708,7 +714,7 @@
             <i class="fa-solid fa-key main-icon"></i>
             <input type="password" id="reg-confirm-password" placeholder=" " required>
             <label>Confirm Password</label>
-            <i class="fa-solid fa-eye eye-icon"></i>
+            <i class="fa-solid fa-eye eye-icon" role="button" tabindex="0" aria-label="Show password"></i>
           </div>
           <button type="submit" class="btn-submit">
             <div class="spinner"></div>
@@ -1118,14 +1124,26 @@
     };
 
     document.querySelectorAll('.eye-icon').forEach(eye => {
-      eye.onclick = function () {
-        const input = this.parentElement.querySelector('input');
+      const toggle = function () {
+        const input = eye.parentElement.querySelector('input');
         if (input.type === 'password') {
-          input.type = 'text'; this.classList.replace('fa-eye', 'fa-eye-slash');
+          input.type = 'text'; eye.classList.replace('fa-eye', 'fa-eye-slash');
+          eye.setAttribute('aria-label', 'Hide password');
         } else {
-          input.type = 'password'; this.classList.replace('fa-eye-slash', 'fa-eye');
+          input.type = 'password'; eye.classList.replace('fa-eye-slash', 'fa-eye');
+          eye.setAttribute('aria-label', 'Show password');
         }
       };
+      eye.onclick = toggle;
+      // Keyboard support: role="button"/tabindex on the <i> makes it
+      // focusable, but only a real <button> gets Enter/Space "click"
+      // behavior for free — wire both keys explicitly here.
+      eye.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          toggle();
+        }
+      });
     });
 
 

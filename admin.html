@@ -1668,6 +1668,7 @@
             </div>
             <button class="btn-refresh" onclick="loadActivityLogs()"><i class="fa-solid fa-rotate-right"
                 id="logs-refresh-icon"></i> Refresh Logs</button>
+            <button class="btn-refresh" id="btn-export-logs-csv" title="Export the currently filtered logs to a CSV file"><i class="fa-solid fa-file-csv"></i> Export CSV</button>
           </div>
         </div>
         <div class="table-responsive">
@@ -2854,6 +2855,24 @@
       return `"${s.replace(/"/g, '""')}"`;
     }
 
+    // Shared CSV-download helper: builds the file from a header row + array
+    // of row arrays (each field already run through csvField()) and triggers
+    // a browser download.
+    function downloadCsv(filenamePrefix, headers, rowsOfFields) {
+      const lines = [headers.map(csvField).join(',')];
+      rowsOfFields.forEach(fields => lines.push(fields.map(csvField).join(',')));
+      const csvContent = '﻿' + lines.join('\r\n'); // BOM for Excel UTF-8 compatibility
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${filenamePrefix}-${new Date().toISOString().slice(0, 10)}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    }
+
     const btnExportCsv = document.getElementById('btn-export-users-csv');
     if (btnExportCsv) {
       btnExportCsv.addEventListener('click', () => {
@@ -2863,27 +2882,37 @@
           return;
         }
         const headers = ['ID', 'Name', 'Email', 'Package', 'Daily Credits', 'Used Today', 'Remaining', 'Status', 'Violations', 'Last Login', 'Created At'];
-        const lines = [headers.map(csvField).join(',')];
-        rows.forEach(u => {
+        const dataRows = rows.map(u => {
           const total = u.daily_credits || 50;
           const used = u.used_credits_today || 0;
           const remaining = Math.max(0, total - used);
-          lines.push([
+          return [
             u.id, u.name || '', u.email || '', u.package || 'free', total, used, remaining,
             u.status || '', u.rate_limit_violations || 0, u.last_login || '', u.created_at || ''
-          ].map(csvField).join(','));
+          ];
         });
-        const csvContent = '﻿' + lines.join('\r\n'); // BOM for Excel UTF-8 compatibility
-        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `users-export-${new Date().toISOString().slice(0, 10)}.csv`;
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
-        URL.revokeObjectURL(url);
+        downloadCsv('users-export', headers, dataRows);
         toast(`Exported ${rows.length} user(s) to CSV.`, 'success');
+      });
+    }
+
+    const btnExportLogsCsv = document.getElementById('btn-export-logs-csv');
+    if (btnExportLogsCsv) {
+      btnExportLogsCsv.addEventListener('click', () => {
+        const q = (logsSearchQuery || '').trim().toLowerCase();
+        const rows = !q ? (allActivityLogs || []) : (allActivityLogs || []).filter(l =>
+          (l.user_email || '').toLowerCase().includes(q) ||
+          (l.action || '').toLowerCase().includes(q) ||
+          (l.details || '').toLowerCase().includes(q)
+        );
+        if (!rows || rows.length === 0) {
+          toast('No activity logs to export.', 'error');
+          return;
+        }
+        const headers = ['ID', 'User Email', 'Action', 'Details', 'Timestamp'];
+        const dataRows = rows.map(l => [l.id, l.user_email || 'System', l.action || '', l.details || '', l.created_at || '']);
+        downloadCsv('activity-logs-export', headers, dataRows);
+        toast(`Exported ${rows.length} log(s) to CSV.`, 'success');
       });
     }
 
