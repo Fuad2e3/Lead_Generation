@@ -578,7 +578,7 @@
     }
 
     thead th {
-      background: rgba(108, 99, 255, 0.06);
+      background: rgba(108, 99, 255, 0.08);
       border-bottom: 1px solid var(--border);
       padding: 11px 16px;
       text-align: left;
@@ -586,8 +586,13 @@
       font-size: 11px;
       text-transform: uppercase;
       letter-spacing: 0.8px;
-      color: var(--text-muted);
+      color: #e2e8f0;
       white-space: nowrap;
+    }
+
+    [data-theme="light"] thead th {
+      color: #0f172a;
+      background: rgba(108, 99, 255, 0.05);
     }
 
     thead th i {
