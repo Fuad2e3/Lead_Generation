@@ -434,6 +434,55 @@
       display: none;
     }
 
+    /* ── Floating Nav Buttons (Home / Theme Toggle) — Professional Polish */
+    .floating-nav-btn {
+      position: fixed;
+      top: 20px;
+      z-index: 1000;
+      border: 1px solid var(--border-card);
+      background: var(--bg-card);
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      backdrop-filter: blur(10px);
+      box-shadow: var(--shadow-glass);
+      transition: all 0.2s;
+    }
+
+    #btn-back-home {
+      left: 20px;
+      padding: 8px 16px;
+      border-radius: 30px;
+      gap: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      text-decoration: none;
+    }
+
+    #btn-theme {
+      right: 20px;
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 16px;
+    }
+
+    .api-status-pill {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-input);
+      padding: 5px 12px;
+      border-radius: 20px;
+      color: var(--text-muted);
+      font-size: 11px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s;
+    }
+
     @media (max-width: 850px) {
       body {
         overflow-y: auto;
@@ -489,12 +538,10 @@
 </head>
 
 <body>
-  <a href="index.html" id="btn-back-home" title="Back to Home"
-    style="position: fixed; top: 20px; left: 20px; z-index: 1000; padding: 8px 16px; border-radius: 30px; border: 1px solid var(--border-card); background: var(--bg-card); color: var(--text-main); text-decoration: none; display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; backdrop-filter: blur(10px); box-shadow: var(--shadow-glass); transition: all 0.2s;">
+  <a href="index.html" id="btn-back-home" class="floating-nav-btn" title="Back to Home">
     <i class="fa-solid fa-arrow-left"></i> <span>Home</span>
   </a>
-  <button id="btn-theme" title="Toggle Light/Dark Theme"
-    style="position: fixed; top: 20px; right: 20px; z-index: 1000; width: 42px; height: 42px; border-radius: 50%; border: 1px solid var(--border-card); background: var(--bg-card); color: var(--text-main); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 16px; backdrop-filter: blur(10px); box-shadow: var(--shadow-glass);"><i
+  <button id="btn-theme" class="floating-nav-btn" title="Toggle Light/Dark Theme"><i
       class="fa-solid fa-moon"></i></button>
   <div class="bg-blobs">
     <div class="blob blob-1"></div>
@@ -595,8 +642,7 @@
       </div>
 
       <div style="display: none; margin-top: 15px; text-align: center;">
-        <button id="btn-api-config"
-          style="background: rgba(255,255,255,0.05); border: 1px solid var(--border-input); padding: 5px 12px; border-radius: 20px; color: var(--text-muted); font-size: 11px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s;">
+        <button id="btn-api-config" class="api-status-pill">
           <i class="fa-solid fa-server" style="color: var(--color-primary);"></i> <span id="api-status-label">Backend
             API Server Settings</span>
         </button>

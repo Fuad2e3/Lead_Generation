@@ -248,6 +248,33 @@
       border-radius: var(--radius-md);
     }
 
+    .btn-block {
+      width: 100%;
+    }
+
+    /* Small layout utilities — Professional Polish */
+    .flex-row-gap-sm {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .flex-row-gap-md {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .flex-row-gap-lg {
+      display: flex;
+      gap: 20px;
+    }
+
+    .nav-login-btn {
+      padding: 9px 20px;
+    }
+
     .badge-pill {
       display: inline-flex;
       align-items: center;
@@ -947,6 +974,19 @@
       font-size: 13px;
     }
 
+    .footer-links {
+      display: flex;
+      gap: 20px;
+    }
+
+    .footer-links a {
+      color: var(--text-muted);
+    }
+
+    .footer-links a:hover {
+      color: var(--primary-light);
+    }
+
     .system-status {
       display: inline-flex;
       align-items: center;
@@ -1058,8 +1098,8 @@
         </button>
 
         <!-- Dynamic User Auth Button Container -->
-        <div id="auth-buttons-container" style="display: flex; align-items: center; gap: 10px;">
-          <a href="login.html" class="btn btn-primary btn-sm" id="nav-btn-login" style="padding: 9px 20px;">
+        <div id="auth-buttons-container" class="flex-row-gap-sm">
+          <a href="login.html" class="btn btn-primary btn-sm nav-login-btn" id="nav-btn-login">
             <i class="fa-solid fa-right-to-bracket"></i> Sign In
           </a>
         </div>
@@ -1355,7 +1395,7 @@
               <li><i class="fa-solid fa-check"></i> Daily Credit Auto-Reset at 1:00 AM</li>
             </ul>
           </div>
-          <a href="login.html" class="btn btn-secondary" style="width: 100%;">Get Started Free</a>
+          <a href="login.html" class="btn btn-secondary btn-block">Get Started Free</a>
         </div>
 
         <!-- Pro Tier -->
@@ -1374,7 +1414,7 @@
               <li><i class="fa-solid fa-check"></i> Priority Ticket Support</li>
             </ul>
           </div>
-          <a href="login.html" class="btn btn-primary" style="width: 100%;">Upgrade to Pro</a>
+          <a href="login.html" class="btn btn-primary btn-block">Upgrade to Pro</a>
         </div>
 
         <!-- Enterprise Tier -->
@@ -1391,7 +1431,7 @@
               <li><i class="fa-solid fa-check"></i> 24/7 Dedicated Account Manager</li>
             </ul>
           </div>
-          <a href="login.html" class="btn btn-outline" style="width: 100%;">Contact Enterprise</a>
+          <a href="login.html" class="btn btn-outline btn-block">Contact Enterprise</a>
         </div>
       </div>
     </div>
@@ -1456,7 +1496,7 @@
       <div class="cta-banner">
         <h2>Ready to Supercharge Your <span class="gradient-text">Lead Pipeline?</span></h2>
         <p>Join thousands of professionals using ProspectInsight to extract verified B2B leads at 15x parallel speed.</p>
-        <div style="display: flex; justify-content: center; gap: 16px; flex-wrap: wrap;">
+        <div class="flex-row-gap-md">
           <a href="login.html" class="btn btn-primary btn-lg" id="footer-cta-btn">
             <i class="fa-solid fa-bolt"></i> Get Started Free Today
           </a>
@@ -1512,10 +1552,10 @@
 
       <div class="footer-bottom">
         <div>&copy; 2026 ProspectInsight Inc. All rights reserved.</div>
-        <div style="display: flex; gap: 20px;">
-          <a href="#" style="color: var(--text-muted);">Privacy Policy</a>
-          <a href="#" style="color: var(--text-muted);">Terms of Service</a>
-          <a href="#" style="color: var(--text-muted);">Security</a>
+        <div class="footer-links">
+          <a href="#">Privacy Policy</a>
+          <a href="#">Terms of Service</a>
+          <a href="#">Security</a>
         </div>
       </div>
     </div>
@@ -1538,7 +1578,7 @@
         } catch (e) {}
 
         container.innerHTML = `
-          <a href="app.html" class="btn btn-primary btn-sm" style="display:flex;align-items:center;gap:8px;">
+          <a href="app.html" class="btn btn-primary btn-sm">
             <i class="fa-solid fa-gauge-high"></i> Dashboard (${userName}) &rarr;
           </a>
         `;
