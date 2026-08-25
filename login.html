@@ -741,13 +741,6 @@
       }
     });
 
-    // ── Helpers: User Storage
-    function getUsers() {
-      try { return JSON.parse(localStorage.getItem('lgs_users') || '[]'); } catch (e) { return []; }
-    }
-    function saveUsers(users) {
-      localStorage.setItem('lgs_users', JSON.stringify(users));
-    }
 
     // Error message helper
     function showError(msg, isSuccess = false, type = 'error') {
@@ -758,22 +751,26 @@
         el.style.cssText = 'font-size:13px;margin:10px 0 0;text-align:center;font-weight:600;padding:8px 12px;border-radius:6px;';
         document.getElementById('login-form').appendChild(el);
       }
+      // msg may come from a backend API response, so it's written via
+      // textContent (never innerHTML) to avoid any HTML/script injection —
+      // only the icon markup below is trusted, fixed internal HTML.
       if (type === 'pending') {
         el.style.color = '#f59e0b';
         el.style.background = 'rgba(245,158,11,0.12)';
         el.style.border = '1px solid rgba(245,158,11,0.3)';
-        el.innerHTML = `<i class="fa-solid fa-clock"></i> ${msg}`;
+        el.innerHTML = `<i class="fa-solid fa-clock"></i> <span></span>`;
       } else if (isSuccess) {
         el.style.color = '#2ed573';
         el.style.background = 'rgba(46,213,115,0.1)';
         el.style.border = '1px solid rgba(46,213,115,0.3)';
-        el.innerHTML = `<i class="fa-solid fa-circle-check"></i> ${msg}`;
+        el.innerHTML = `<i class="fa-solid fa-circle-check"></i> <span></span>`;
       } else {
         el.style.color = '#ff4757';
         el.style.background = 'rgba(255,71,87,0.1)';
         el.style.border = '1px solid rgba(255,71,87,0.3)';
-        el.innerHTML = `<i class="fa-solid fa-circle-exclamation"></i> ${msg}`;
+        el.innerHTML = `<i class="fa-solid fa-circle-exclamation"></i> <span></span>`;
       }
+      el.querySelector('span').textContent = msg;
     }
     function clearError() {
       const el = document.getElementById('login-error-msg');
@@ -923,11 +920,6 @@
         try { data = await res.json(); } catch (e) { }
 
         if (res.ok && data && data.success) {
-          const users = getUsers();
-          if (!users.find(u => u.email === email)) {
-            users.push({ fullname: name, email: email, password: password, status: 'pending', createdAt: new Date().toISOString() });
-            saveUsers(users);
-          }
           handleSuccess();
           return;
         } else if (data) {

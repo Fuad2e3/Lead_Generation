@@ -1661,8 +1661,24 @@
     // ─────────────────────────────────────────────────────────────────────────
     const ADMIN_HEADERS = {
       'Content-Type': 'application/json',
-      'x-admin-secret': localStorage.getItem('lgs_admin_secret') || sessionStorage.getItem('lgs_admin_secret') || 'admin_secret_123'
+      // No hardcoded default secret — an unauthenticated session sends no
+      // x-admin-secret header at all, rather than a guessable client-side
+      // default value. The real secret is only ever set after a successful
+      // /api/admin/login response (see ADMIN_HEADERS['x-admin-secret'] below).
+      'x-admin-secret': localStorage.getItem('lgs_admin_secret') || sessionStorage.getItem('lgs_admin_secret') || ''
     };
+
+    // ── HTML-escape helper — always wrap user-controlled text (name, email,
+    //    details, etc.) before inserting into innerHTML to prevent stored XSS.
+    function escapeHtml(str) {
+      if (str === null || str === undefined) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
 
     // ── Toast
     function toast(msg, type = 'info') {
@@ -1748,11 +1764,11 @@
           <td class="td-id">#${u.id}</td>
           <td>
             <div class="td-name">
-              <div class="avatar">${initials(u.name)}</div>
-              <span>${u.name || '—'}</span>
+              <div class="avatar">${escapeHtml(initials(u.name))}</div>
+              <span>${escapeHtml(u.name) || '—'}</span>
             </div>
           </td>
-          <td class="td-email">${u.email}</td>
+          <td class="td-email">${escapeHtml(u.email)}</td>
           <td>
             <div style="display:flex;flex-direction:column;gap:3px;min-width:140px;">
               <div style="display:flex;align-items:center;justify-content:space-between;gap:6px;">
@@ -1789,7 +1805,7 @@
           : `<button class="btn-action btn-unban" onclick="setStatus(${u.id}, 'active')" title="Unban User"><i class="fa-solid fa-circle-check"></i> Unban</button>`
         }
               <button class="btn-action btn-reset" onclick="resetViolations(${u.id})" title="Reset Violations"><i class="fa-solid fa-rotate-left"></i> Reset</button>
-              <button class="btn-action btn-delete" onclick="deleteUser(${u.id}, '${u.name}')" title="Delete User"><i class="fa-solid fa-trash"></i></button>
+              <button class="btn-action btn-delete" onclick="deleteUser(${u.id})" title="Delete User"><i class="fa-solid fa-trash"></i></button>
             </div>
           </td>
         </tr>
@@ -1960,7 +1976,7 @@
             const maxCr = u.daily_credits || 50;
             const loginDate = parseDateSafe(u.last_login);
             const lastTime = loginDate ? loginDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Today';
-            const initials = (u.name || u.email || 'U').substring(0, 2).toUpperCase();
+            const initials = escapeHtml((u.name || u.email || 'U').substring(0, 2).toUpperCase());
             const pkgColor = u.package === 'enterprise' ? '#f59e0b' : (u.package === 'pro' ? '#6366f1' : '#64748b');
 
             return `
@@ -1970,8 +1986,8 @@
                     ${initials}
                   </div>
                   <div style="min-width:0; overflow:hidden;">
-                    <div style="font-size:12px; font-weight:600; color:var(--text-heading); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${u.name || 'User'}</div>
-                    <div style="font-size:10px; color:var(--text-muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${u.email}</div>
+                    <div style="font-size:12px; font-weight:600; color:var(--text-heading); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${escapeHtml(u.name) || 'User'}</div>
+                    <div style="font-size:10px; color:var(--text-muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${escapeHtml(u.email)}</div>
                   </div>
                 </div>
                 <div style="text-align:right; flex-shrink:0;">
@@ -2105,7 +2121,9 @@
     }
 
     // ── Delete user
-    async function deleteUser(id, name) {
+    async function deleteUser(id) {
+      const u = (allUsers || []).find(x => x.id === id) || (currentFilteredUsers || []).find(x => x.id === id);
+      const name = u ? u.name : `#${id}`;
       if (!confirm(`Delete user "${name}" (#${id})? This cannot be undone.`)) return;
       try {
         let res = await fetch(`${API_BASE}/users/${id}/delete`, { method: 'POST', headers: ADMIN_HEADERS });
@@ -2114,7 +2132,7 @@
         }
         const data = await res.json();
         if (data.success) {
-          toast(`User "${name}" deleted successfully.`, 'success');
+          toast(`User "${escapeHtml(name)}" deleted successfully.`, 'success');
           loadUsers();
         } else {
           toast(data.message || 'Failed', 'error');
@@ -2229,8 +2247,8 @@
           actionBadge = `<span class="status-badge" style="background:rgba(168,85,247,0.15);color:#c084fc;border:1px solid rgba(168,85,247,0.3);font-weight:700;"><i class="fa-solid fa-sliders"></i> PLAN_UPDATE</span>`;
         }
 
-        // Highlight details for mining session
-        let formattedDetails = l.details || '';
+        // Highlight details for mining session (escape first, then apply trusted highlight markup)
+        let formattedDetails = escapeHtml(l.details || '');
         if (formattedDetails.includes('Deducted:')) {
           formattedDetails = formattedDetails.replace(/(Deducted:\s*-\d+\s*Credits?)/i, '<strong style="color:#ff4757;background:rgba(255,71,87,0.1);padding:2px 6px;border-radius:4px;border:1px solid rgba(255,71,87,0.25);">$1</strong>');
         } else if (l.action === 'MINING_SESSION' && formattedDetails.includes('Mined')) {
@@ -2240,7 +2258,7 @@
         return `
           <tr>
             <td class="td-id">#${l.id}</td>
-            <td class="td-email"><strong>${l.user_email || 'System'}</strong></td>
+            <td class="td-email"><strong>${escapeHtml(l.user_email) || 'System'}</strong></td>
             <td>${actionBadge}</td>
             <td>${formattedDetails}</td>
             <td class="td-datetime">${fmtDate(l.created_at)}</td>
@@ -2328,8 +2346,8 @@
         return `
           <tr>
             <td class="td-id">#${u.id}</td>
-            <td class="td-name"><strong>${u.name || 'User'}</strong></td>
-            <td class="td-email">${u.email}</td>
+            <td class="td-name"><strong>${escapeHtml(u.name) || 'User'}</strong></td>
+            <td class="td-email">${escapeHtml(u.email)}</td>
             <td>${pkgBadge}</td>
             <td>${statusBadge}</td>
             <td class="td-datetime">${fmtDate(u.created_at)}</td>
@@ -2467,8 +2485,8 @@
         return `
           <tr>
             <td class="td-id">#${r.id}</td>
-            <td class="td-name"><strong>${r.user_name || 'User'}</strong></td>
-            <td class="td-email">${r.user_email}</td>
+            <td class="td-name"><strong>${escapeHtml(r.user_name) || 'User'}</strong></td>
+            <td class="td-email">${escapeHtml(r.user_email)}</td>
             <td>${pkgBadge}</td>
             <td>${statusBadge}</td>
             <td class="td-datetime">${fmtDate(r.created_at)}</td>
