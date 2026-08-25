@@ -1734,13 +1734,11 @@
     const _API_HOST = getApiHost();
     const API_BASE = `${_API_HOST}/api/admin`;
     // ─────────────────────────────────────────────────────────────────────────
+    const _savedToken = localStorage.getItem('lgs_admin_secret') || sessionStorage.getItem('lgs_admin_secret') || '';
     const ADMIN_HEADERS = {
       'Content-Type': 'application/json',
-      // No hardcoded default secret — an unauthenticated session sends no
-      // x-admin-secret header at all, rather than a guessable client-side
-      // default value. The real secret is only ever set after a successful
-      // /api/admin/login response (see ADMIN_HEADERS['x-admin-secret'] below).
-      'x-admin-secret': localStorage.getItem('lgs_admin_secret') || sessionStorage.getItem('lgs_admin_secret') || ''
+      'x-admin-secret': _savedToken,
+      'Authorization': _savedToken ? `Bearer ${_savedToken}` : ''
     };
 
     // ── HTML-escape helper — always wrap user-controlled text (name, email,
@@ -3081,11 +3079,14 @@
                   localStorage.setItem('lgs_admin_secret', data.adminToken);
                   sessionStorage.setItem('lgs_admin_secret', data.adminToken);
                   ADMIN_HEADERS['x-admin-secret'] = data.adminToken;
+                  ADMIN_HEADERS['Authorization'] = `Bearer ${data.adminToken}`;
                 }
 
                 toast('Super Admin Authentication Verified! Welcome.', 'success');
                 if (authOverlay) authOverlay.style.display = 'none';
                 if (dashboardContainer) dashboardContainer.style.display = 'block';
+
+                startInactivityTracker();
 
                 loadUsers();
                 loadPendingUsers();
@@ -3107,12 +3108,34 @@
           });
         }
 
+        // ── 🛡️ Inactivity Auto-Logout (20 Minutes) ─────────────────────────────
+        let inactivityTimer = null;
+        const INACTIVITY_TIMEOUT_MS = 20 * 60 * 1000; // 20 minutes
+
+        function resetInactivityTimer() {
+          const isAuthed = localStorage.getItem('lgs_admin_auth') === 'true' || sessionStorage.getItem('lgs_admin_auth') === 'true';
+          if (!isAuthed) return;
+          if (inactivityTimer) clearTimeout(inactivityTimer);
+          inactivityTimer = setTimeout(() => {
+            forceAdminLogoutDueToServerOffline('Session closed due to 20 minutes of inactivity.');
+            toast('Admin session logged out due to inactivity.', 'info');
+          }, INACTIVITY_TIMEOUT_MS);
+        }
+
+        function startInactivityTracker() {
+          ['mousemove', 'mousedown', 'keydown', 'touchstart', 'scroll'].forEach(evt => {
+            window.addEventListener(evt, resetInactivityTimer, { passive: true });
+          });
+          resetInactivityTimer();
+        }
+
         // ── Server Health & Admin Session Heartbeat (Every 4 seconds) ─────────
         function forceAdminLogoutDueToServerOffline(errMsg) {
           localStorage.removeItem('lgs_admin_auth');
           localStorage.removeItem('lgs_admin_secret');
           sessionStorage.removeItem('lgs_admin_auth');
           sessionStorage.removeItem('lgs_admin_secret');
+          if (inactivityTimer) clearTimeout(inactivityTimer);
 
           allUsers = [];
           allPendingUsers = [];
@@ -3170,7 +3193,12 @@
         const isAuth = localStorage.getItem('lgs_admin_auth') === 'true' || sessionStorage.getItem('lgs_admin_auth') === 'true';
         if (isAuth) {
           const savedSecret = localStorage.getItem('lgs_admin_secret') || sessionStorage.getItem('lgs_admin_secret');
-          if (savedSecret) ADMIN_HEADERS['x-admin-secret'] = savedSecret;
+          if (savedSecret) {
+            ADMIN_HEADERS['x-admin-secret'] = savedSecret;
+            ADMIN_HEADERS['Authorization'] = `Bearer ${savedSecret}`;
+          }
+
+          startInactivityTracker();
 
           // Perform initial verification check before showing dashboard
           fetch(`${API_BASE}/users`, { headers: ADMIN_HEADERS })
