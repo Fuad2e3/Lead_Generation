@@ -1291,6 +1291,52 @@
       padding: 7px 12px;
       cursor: pointer;
     }
+
+    /* ── Bulk select column & actions bar */
+    .th-checkbox {
+      width: 36px;
+    }
+
+    .td-checkbox {
+      width: 36px;
+      text-align: center;
+    }
+
+    .row-select-checkbox,
+    #select-all-users {
+      width: 15px;
+      height: 15px;
+      cursor: pointer;
+      accent-color: var(--primary);
+    }
+
+    .bulk-actions-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 10px;
+      padding: 10px 20px;
+      background: rgba(108, 99, 255, 0.08);
+      border-bottom: 1px solid var(--border);
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .bulk-actions-buttons {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    /* ── Activity Logs search bar */
+    .logs-search-row {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
   </style>
 </head>
 
@@ -1562,6 +1608,16 @@
               <i class="fa-solid fa-magnifying-glass"></i>
               <input type="text" class="table-search" id="search-input" placeholder="Search name, email, id...">
             </div>
+            <button class="btn-refresh" id="btn-export-users-csv" title="Export the currently filtered users to a CSV file"><i class="fa-solid fa-file-csv"></i> Export CSV</button>
+          </div>
+        </div>
+
+        <div id="bulk-actions-bar" class="bulk-actions-bar" style="display:none;">
+          <span id="bulk-selected-count">0 selected</span>
+          <div class="bulk-actions-buttons">
+            <button class="btn-action primary" id="btn-bulk-ban" style="background:rgba(239,68,68,0.15);color:#ef4444;border-color:rgba(239,68,68,0.3);"><i class="fa-solid fa-ban"></i> Ban Selected</button>
+            <button class="btn-action danger" id="btn-bulk-delete"><i class="fa-solid fa-trash"></i> Delete Selected</button>
+            <button class="btn-action" id="btn-bulk-clear"><i class="fa-solid fa-xmark"></i> Clear Selection</button>
           </div>
         </div>
 
@@ -1569,6 +1625,7 @@
           <table id="users-table">
             <thead>
               <tr>
+                <th class="th-checkbox"><input type="checkbox" id="select-all-users" title="Select all"></th>
                 <th><i class="fa-solid fa-hashtag"></i>ID</th>
                 <th><i class="fa-solid fa-user"></i>Name</th>
                 <th><i class="fa-solid fa-at"></i>Email</th>
@@ -1604,8 +1661,14 @@
       <div class="table-card section-spaced">
         <div class="table-header">
           <h2><i class="fa-solid fa-clock-rotate-left"></i> System Activity Audit Logs</h2>
-          <button class="btn-refresh" onclick="loadActivityLogs()"><i class="fa-solid fa-rotate-right"
-              id="logs-refresh-icon"></i> Refresh Logs</button>
+          <div class="logs-search-row">
+            <div class="search-wrapper">
+              <i class="fa-solid fa-magnifying-glass"></i>
+              <input type="text" class="table-search" id="logs-search-input" placeholder="Search email, action, details...">
+            </div>
+            <button class="btn-refresh" onclick="loadActivityLogs()"><i class="fa-solid fa-rotate-right"
+                id="logs-refresh-icon"></i> Refresh Logs</button>
+          </div>
         </div>
         <div class="table-responsive">
           <table>
@@ -1726,6 +1789,33 @@
 
     let allActivityLogs = [];
     let logsDisplayLimit = 10;
+    let logsSearchQuery = '';
+
+    // ── Bulk Selection (Users Table) ──────────────────────────────────────────
+    let selectedUserIds = new Set();
+
+    function syncSelectAllCheckbox() {
+      const selectAll = document.getElementById('select-all-users');
+      if (!selectAll) return;
+      const rowCheckboxes = Array.from(document.querySelectorAll('#table-body .row-select-checkbox'));
+      if (rowCheckboxes.length === 0) {
+        selectAll.checked = false;
+        selectAll.indeterminate = false;
+        return;
+      }
+      const checkedCount = rowCheckboxes.filter(cb => cb.checked).length;
+      selectAll.checked = checkedCount === rowCheckboxes.length;
+      selectAll.indeterminate = checkedCount > 0 && checkedCount < rowCheckboxes.length;
+    }
+
+    function updateBulkActionsBar() {
+      const bar = document.getElementById('bulk-actions-bar');
+      const countEl = document.getElementById('bulk-selected-count');
+      if (!bar || !countEl) return;
+      const count = selectedUserIds.size;
+      countEl.textContent = `${count} selected`;
+      bar.style.display = count > 0 ? 'flex' : 'none';
+    }
 
     // ── Render Users Table
     function renderTable(users) {
@@ -1737,6 +1827,8 @@
         tbody.innerHTML = `<tr><td colspan="10"><div class="empty-state"><i class="fa-solid fa-users-slash"></i><p>No users found.</p></div></td></tr>`;
         document.getElementById('footer-count').textContent = '0 users found';
         if (seeMoreContainer) seeMoreContainer.innerHTML = '';
+        syncSelectAllCheckbox();
+        updateBulkActionsBar();
         return;
       }
 
@@ -1761,6 +1853,7 @@
 
         return `
         <tr id="row-${u.id}">
+          <td class="td-checkbox"><input type="checkbox" class="row-select-checkbox" data-id="${u.id}" ${selectedUserIds.has(u.id) ? 'checked' : ''}></td>
           <td class="td-id">#${u.id}</td>
           <td>
             <div class="td-name">
@@ -1811,6 +1904,18 @@
         </tr>
       `;
       }).join('');
+
+      // Wire up per-row checkboxes and keep selection state in sync across re-renders
+      tbody.querySelectorAll('.row-select-checkbox').forEach(cb => {
+        cb.addEventListener('change', () => {
+          const id = parseInt(cb.dataset.id, 10);
+          if (cb.checked) selectedUserIds.add(id); else selectedUserIds.delete(id);
+          syncSelectAllCheckbox();
+          updateBulkActionsBar();
+        });
+      });
+      syncSelectAllCheckbox();
+      updateBulkActionsBar();
 
       document.getElementById('footer-count').textContent = `Showing ${usersToRender.length} of ${currentFilteredUsers.length} users`;
 
@@ -2231,14 +2336,21 @@
       const footerCount = document.getElementById('logs-footer-count');
       const seeMoreContainer = document.getElementById('logs-see-more-container');
 
-      if (!allActivityLogs || allActivityLogs.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="5" class="text-center" style="padding:20px;color:var(--text-muted);">No activity logs recorded yet.</td></tr>`;
+      const q = (logsSearchQuery || '').trim().toLowerCase();
+      const filteredLogs = !q ? (allActivityLogs || []) : (allActivityLogs || []).filter(l =>
+        (l.user_email || '').toLowerCase().includes(q) ||
+        (l.action || '').toLowerCase().includes(q) ||
+        (l.details || '').toLowerCase().includes(q)
+      );
+
+      if (!filteredLogs || filteredLogs.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="5" class="text-center" style="padding:20px;color:var(--text-muted);">${q ? 'No activity logs match your search.' : 'No activity logs recorded yet.'}</td></tr>`;
         if (footer) footer.style.display = 'none';
         return;
       }
 
       if (footer) footer.style.display = 'flex';
-      const toRender = allActivityLogs.slice(0, logsDisplayLimit);
+      const toRender = filteredLogs.slice(0, logsDisplayLimit);
 
       tbody.innerHTML = toRender.map(l => {
         let actionBadge = `<span class="status-badge active">${l.action}</span>`;
@@ -2273,15 +2385,15 @@
         `;
       }).join('');
 
-      if (footerCount) footerCount.textContent = `Showing ${toRender.length} of ${allActivityLogs.length} logs`;
+      if (footerCount) footerCount.textContent = `Showing ${toRender.length} of ${filteredLogs.length} logs${q ? ' (filtered)' : ''}`;
 
       if (seeMoreContainer) {
         let btnsHtml = '';
-        if (allActivityLogs.length > logsDisplayLimit) {
-          const remaining = allActivityLogs.length - logsDisplayLimit;
+        if (filteredLogs.length > logsDisplayLimit) {
+          const remaining = filteredLogs.length - logsDisplayLimit;
           btnsHtml += `<button class="btn-see-more" onclick="showMoreLogs()"><i class="fa-solid fa-chevron-down"></i> See More (+${Math.min(10, remaining)})</button>`;
-          btnsHtml += `<button class="btn-see-more" onclick="showAllLogs()"><i class="fa-solid fa-angles-down"></i> See All (${allActivityLogs.length})</button>`;
-        } else if (logsDisplayLimit > 10 && allActivityLogs.length > 10) {
+          btnsHtml += `<button class="btn-see-more" onclick="showAllLogs()"><i class="fa-solid fa-angles-down"></i> See All (${filteredLogs.length})</button>`;
+        } else if (logsDisplayLimit > 10 && filteredLogs.length > 10) {
           btnsHtml += `<button class="btn-see-less" onclick="showLessLogs()"><i class="fa-solid fa-chevron-up"></i> Show Less (10)</button>`;
         }
         seeMoreContainer.innerHTML = btnsHtml;
@@ -2616,6 +2728,129 @@
     const filterPkgEl = document.getElementById('filter-package');
     if (filterStatusEl) filterStatusEl.addEventListener('change', applyUserFilters);
     if (filterPkgEl) filterPkgEl.addEventListener('change', applyUserFilters);
+
+    // ── Activity Logs Search ───────────────────────────────────────────────
+    const logsSearchEl = document.getElementById('logs-search-input');
+    if (logsSearchEl) {
+      logsSearchEl.addEventListener('input', () => {
+        logsSearchQuery = logsSearchEl.value;
+        logsDisplayLimit = 10;
+        renderActivityLogsTable();
+      });
+    }
+
+    // ── Users Table: Select-All & Bulk Actions ─────────────────────────────
+    const selectAllEl = document.getElementById('select-all-users');
+    if (selectAllEl) {
+      selectAllEl.addEventListener('change', () => {
+        const rowCheckboxes = document.querySelectorAll('#table-body .row-select-checkbox');
+        rowCheckboxes.forEach(cb => {
+          cb.checked = selectAllEl.checked;
+          const id = parseInt(cb.dataset.id, 10);
+          if (selectAllEl.checked) selectedUserIds.add(id); else selectedUserIds.delete(id);
+        });
+        updateBulkActionsBar();
+      });
+    }
+
+    async function bulkSetStatus(ids, status) {
+      const results = await Promise.allSettled(ids.map(async (id) => {
+        let res = await fetch(`${API_BASE}/users/${id}/status`, { method: 'POST', headers: ADMIN_HEADERS, body: JSON.stringify({ status }) });
+        if (!res.ok) res = await fetch(`${API_BASE}/users/${id}/status`, { method: 'PATCH', headers: ADMIN_HEADERS, body: JSON.stringify({ status }) });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        return res;
+      }));
+      return results.filter(r => r.status === 'fulfilled').length;
+    }
+
+    async function bulkDeleteUsers(ids) {
+      const results = await Promise.allSettled(ids.map(async (id) => {
+        let res = await fetch(`${API_BASE}/users/${id}/delete`, { method: 'POST', headers: ADMIN_HEADERS });
+        if (!res.ok) res = await fetch(`${API_BASE}/users/${id}`, { method: 'DELETE', headers: ADMIN_HEADERS });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        return res;
+      }));
+      return results.filter(r => r.status === 'fulfilled').length;
+    }
+
+    const btnBulkBan = document.getElementById('btn-bulk-ban');
+    if (btnBulkBan) {
+      btnBulkBan.addEventListener('click', async () => {
+        const ids = Array.from(selectedUserIds);
+        if (ids.length === 0) return;
+        if (!confirm(`Ban ${ids.length} selected user(s)? They will lose access immediately.`)) return;
+        btnBulkBan.disabled = true;
+        const successCount = await bulkSetStatus(ids, 'banned');
+        btnBulkBan.disabled = false;
+        toast(`${successCount} of ${ids.length} user(s) banned.`, successCount === ids.length ? 'success' : 'error');
+        selectedUserIds.clear();
+        loadUsers();
+      });
+    }
+
+    const btnBulkDelete = document.getElementById('btn-bulk-delete');
+    if (btnBulkDelete) {
+      btnBulkDelete.addEventListener('click', async () => {
+        const ids = Array.from(selectedUserIds);
+        if (ids.length === 0) return;
+        if (!confirm(`Permanently delete ${ids.length} selected user(s)? This cannot be undone.`)) return;
+        btnBulkDelete.disabled = true;
+        const successCount = await bulkDeleteUsers(ids);
+        btnBulkDelete.disabled = false;
+        toast(`${successCount} of ${ids.length} user(s) deleted.`, successCount === ids.length ? 'success' : 'error');
+        selectedUserIds.clear();
+        loadUsers();
+      });
+    }
+
+    const btnBulkClear = document.getElementById('btn-bulk-clear');
+    if (btnBulkClear) {
+      btnBulkClear.addEventListener('click', () => {
+        selectedUserIds.clear();
+        document.querySelectorAll('#table-body .row-select-checkbox').forEach(cb => cb.checked = false);
+        syncSelectAllCheckbox();
+        updateBulkActionsBar();
+      });
+    }
+
+    // ── Users Table: Export CSV ─────────────────────────────────────────────
+    function csvField(val) {
+      const s = (val === null || val === undefined) ? '' : String(val);
+      return `"${s.replace(/"/g, '""')}"`;
+    }
+
+    const btnExportCsv = document.getElementById('btn-export-users-csv');
+    if (btnExportCsv) {
+      btnExportCsv.addEventListener('click', () => {
+        const rows = currentFilteredUsers && currentFilteredUsers.length ? currentFilteredUsers : allUsers;
+        if (!rows || rows.length === 0) {
+          toast('No users to export.', 'error');
+          return;
+        }
+        const headers = ['ID', 'Name', 'Email', 'Package', 'Daily Credits', 'Used Today', 'Remaining', 'Status', 'Violations', 'Last Login', 'Created At'];
+        const lines = [headers.map(csvField).join(',')];
+        rows.forEach(u => {
+          const total = u.daily_credits || 50;
+          const used = u.used_credits_today || 0;
+          const remaining = Math.max(0, total - used);
+          lines.push([
+            u.id, u.name || '', u.email || '', u.package || 'free', total, used, remaining,
+            u.status || '', u.rate_limit_violations || 0, u.last_login || '', u.created_at || ''
+          ].map(csvField).join(','));
+        });
+        const csvContent = '﻿' + lines.join('\r\n'); // BOM for Excel UTF-8 compatibility
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `users-export-${new Date().toISOString().slice(0, 10)}.csv`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
+        toast(`Exported ${rows.length} user(s) to CSV.`, 'success');
+      });
+    }
 
 
     // ── Theme System: OS Auto Sync on Load + Manual Toggle on Click ──────────
