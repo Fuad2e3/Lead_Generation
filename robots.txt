@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Disallow: /app.html
+Disallow: /admin.html
+Disallow: /admin/
+
+Sitemap: https://prospectinsight.app/sitemap.xml
