@@ -1649,6 +1649,32 @@ input[type="text"]:focus {
   flex-wrap: wrap;
 }
 
+/* Icon-only pills (Theme, Sound, Logout) don't need as much horizontal
+   padding as text pills — trims a little width off every row on desktop,
+   which matters once enough pills are present to approach wrapping. */
+.header-group-utility #btn-theme,
+.header-group-utility #sound-toggle-pill,
+#btn-logout {
+  padding-left: 13px;
+  padding-right: 13px;
+}
+
+/* Below this width the full header row (credit badge + Upgrade Plan +
+   Home + Language + Theme + Sound + Logout) can get tight enough to wrap
+   onto a second line — collapse the Home/Language text labels to
+   icon+tooltip only to reliably keep it on one line. Functionality is
+   unchanged; only the visible text goes away. */
+@media (max-width: 1360px) {
+  .header-utility-label {
+    display: none;
+  }
+
+  .header-group-utility .action-pill {
+    padding-left: 13px;
+    padding-right: 13px;
+  }
+}
+
 .header-divider {
   width: 1px;
   align-self: stretch;

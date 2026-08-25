@@ -88,10 +88,10 @@
 
         <div class="header-group header-group-utility">
           <a href="index.html" class="action-pill" title="Visit Home Page">
-            <i class="fa-solid fa-house"></i> <span>Home</span>
+            <i class="fa-solid fa-house"></i> <span class="header-utility-label">Home</span>
           </a>
           <button id="btn-lang" class="action-pill" title="Switch Language">
-            <i class="fa-solid fa-language"></i> <span id="lang-label">English</span>
+            <i class="fa-solid fa-language"></i> <span id="lang-label" class="header-utility-label">English</span>
           </button>
           <button id="btn-theme" class="action-pill" title="Toggle Light/Dark Theme">
             <i class="fa-solid fa-moon"></i>
@@ -777,7 +777,22 @@
 
       function syncSoundUI() {
         if (icon) icon.className = chk.checked ? 'fa-solid fa-bell' : 'fa-solid fa-bell-slash';
-        if (pill) pill.title = chk.checked ? 'Sound Chime: On (click to mute)' : 'Sound Chime: Off (click to unmute)';
+        if (pill) {
+          pill.title = chk.checked ? 'Sound Chime: On (click to mute)' : 'Sound Chime: Off (click to unmute)';
+          if (chk.checked) {
+            // On — accent cyan glow, matching the app's brand accent
+            pill.style.background = 'rgba(6,182,212,0.16)';
+            pill.style.borderColor = 'rgba(34,211,238,0.55)';
+            pill.style.color = '#22d3ee';
+            pill.style.boxShadow = '0 0 14px rgba(6,182,212,0.35)';
+          } else {
+            // Muted — dimmed, no glow, so "off" reads clearly at a glance
+            pill.style.background = 'var(--bg-input)';
+            pill.style.borderColor = 'var(--border-input)';
+            pill.style.color = 'var(--text-muted)';
+            pill.style.boxShadow = 'none';
+          }
+        }
       }
 
       chk.addEventListener('change', function () {
