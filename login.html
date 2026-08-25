@@ -347,6 +347,52 @@
       font-size: 14px;
     }
 
+    /* Remember Me / Forgot Password row */
+    .login-options-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin: -6px 0 18px;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .remember-me-label {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 12.5px;
+      color: var(--text-muted);
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .remember-me-label input[type="checkbox"] {
+      width: 14px;
+      height: 14px;
+      accent-color: var(--color-primary);
+      cursor: pointer;
+    }
+
+    .forgot-password-link {
+      font-size: 12.5px;
+      font-weight: 600;
+      color: var(--color-primary);
+      text-decoration: none;
+    }
+
+    .forgot-password-link:hover {
+      text-decoration: underline;
+    }
+
+    .back-to-signin-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 18px;
+      font-size: 13px;
+    }
+
     /* Strength Meter */
     .strength-meter {
       position: absolute;
@@ -603,11 +649,35 @@
             <label>Password</label>
             <i class="fa-solid fa-eye eye-icon"></i>
           </div>
+          <div class="login-options-row">
+            <label class="remember-me-label">
+              <input type="checkbox" id="remember-me" checked>
+              <span>Remember Me</span>
+            </label>
+            <a href="#" id="forgot-password-link" class="forgot-password-link">Forgot Password?</a>
+          </div>
           <button type="submit" class="btn-submit">
             <div class="spinner"></div>
             <i class="fa-solid fa-right-to-bracket"></i> <span>Sign In</span>
           </button>
         </form>
+      </div>
+
+      <div id="forgot-section" style="display: none;">
+        <h2>Reset Password</h2>
+        <p class="welcome-msg" style="margin-bottom: 25px;">Enter your account email and we'll send you a link to reset your password.</p>
+        <form id="forgot-form">
+          <div class="floating-group">
+            <i class="fa-solid fa-at main-icon"></i>
+            <input type="email" id="forgot-email" placeholder=" " required>
+            <label>Work Email</label>
+          </div>
+          <button type="submit" class="btn-submit">
+            <div class="spinner"></div>
+            <i class="fa-solid fa-paper-plane"></i> <span>Send Reset Link</span>
+          </button>
+        </form>
+        <a href="#" id="back-to-signin-link" class="forgot-password-link back-to-signin-link"><i class="fa-solid fa-arrow-left"></i> Back to Sign In</a>
       </div>
 
       <div id="signup-section" style="display: none;">
@@ -634,6 +704,12 @@
               <div class="strength-bar" id="strength-bar"></div>
             </div>
           </div>
+          <div class="floating-group">
+            <i class="fa-solid fa-key main-icon"></i>
+            <input type="password" id="reg-confirm-password" placeholder=" " required>
+            <label>Confirm Password</label>
+            <i class="fa-solid fa-eye eye-icon"></i>
+          </div>
           <button type="submit" class="btn-submit">
             <div class="spinner"></div>
             <i class="fa-solid fa-user-plus"></i> <span>Create Account</span>
@@ -651,21 +727,39 @@
   </div>
 
   <script>
-    if (localStorage.getItem('lgs_auth') === 'true') { window.location.href = 'app.html'; }
+    if (localStorage.getItem('lgs_auth') === 'true' || sessionStorage.getItem('lgs_auth') === 'true') { window.location.href = 'app.html'; }
 
     const signinTab = document.getElementById('signin-tab');
     const signupTab = document.getElementById('signup-tab');
     const signinSection = document.getElementById('signin-section');
     const signupSection = document.getElementById('signup-section');
+    const forgotSection = document.getElementById('forgot-section');
+    const tabNav = document.querySelector('.tab-nav');
     const wrapper = document.querySelector('.login-wrapper');
 
     signinTab.onclick = () => {
       signinTab.classList.add('active'); signupTab.classList.remove('active');
       signinSection.style.display = 'block'; signupSection.style.display = 'none';
+      forgotSection.style.display = 'none';
     };
     signupTab.onclick = () => {
       signupTab.classList.add('active'); signinTab.classList.remove('active');
       signupSection.style.display = 'block'; signinSection.style.display = 'none';
+      forgotSection.style.display = 'none';
+    };
+
+    // ── Forgot Password flow ────────────────────────────────────────────────
+    document.getElementById('forgot-password-link').onclick = (e) => {
+      e.preventDefault();
+      tabNav.style.display = 'none';
+      signinSection.style.display = 'none';
+      forgotSection.style.display = 'block';
+    };
+    document.getElementById('back-to-signin-link').onclick = (e) => {
+      e.preventDefault();
+      forgotSection.style.display = 'none';
+      tabNav.style.display = 'flex';
+      signinTab.click();
     };
 
     // ── Server URL Config ────────────────────────────────────────────────────
@@ -796,11 +890,20 @@
 
       btn.classList.add('is-loading');
 
+      const rememberMe = document.getElementById('remember-me') ? document.getElementById('remember-me').checked : true;
+
       // Helper for successful login redirect
       const completeLogin = (userObj, token) => {
-        localStorage.setItem('lgs_auth', 'true');
-        localStorage.setItem('lgs_session', JSON.stringify(userObj));
-        if (token) localStorage.setItem('lgs_token', token);
+        // Remember Me checked -> persist in localStorage (survives browser restarts).
+        // Unchecked -> sessionStorage only (cleared when the browser/tab closes).
+        const store = rememberMe ? localStorage : sessionStorage;
+        // Clear the other storage first so stale state doesn't linger there.
+        (rememberMe ? sessionStorage : localStorage).removeItem('lgs_auth');
+        (rememberMe ? sessionStorage : localStorage).removeItem('lgs_session');
+        (rememberMe ? sessionStorage : localStorage).removeItem('lgs_token');
+        store.setItem('lgs_auth', 'true');
+        store.setItem('lgs_session', JSON.stringify(userObj));
+        if (token) store.setItem('lgs_token', token);
         window.location.href = 'app.html';
       };
 
@@ -852,6 +955,57 @@
       return;
     };
 
+    // ── FORGOT PASSWORD FORM ────────────────────────────────────────────────
+    document.getElementById('forgot-form').onsubmit = async function (e) {
+      e.preventDefault();
+      const btn = this.querySelector('.btn-submit');
+      const email = (document.getElementById('forgot-email').value || '').trim().toLowerCase();
+      if (!email) return;
+
+      let msgEl = document.getElementById('forgot-msg');
+      if (!msgEl) {
+        msgEl = document.createElement('p');
+        msgEl.id = 'forgot-msg';
+        msgEl.style.cssText = 'font-size:13px;margin:10px 0 0;text-align:center;font-weight:600;padding:8px 12px;border-radius:6px;';
+        this.appendChild(msgEl);
+      }
+
+      btn.classList.add('is-loading');
+      let reachedServer = false;
+
+      try {
+        const controller = new AbortController();
+        const timer = setTimeout(() => controller.abort(), 10000);
+        await fetch(`${API_BASE}/forgot-password`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email }),
+          signal: controller.signal
+        });
+        clearTimeout(timer);
+        reachedServer = true;
+      } catch (err) {
+        console.warn('[Forgot Password] API fetch failed:', err);
+      }
+
+      btn.classList.remove('is-loading');
+
+      if (reachedServer) {
+        // Always shown as success regardless of whether the email exists, to
+        // avoid leaking which addresses are registered (standard reset-flow UX).
+        msgEl.style.color = '#2ed573';
+        msgEl.style.background = 'rgba(46,213,115,0.1)';
+        msgEl.style.border = '1px solid rgba(46,213,115,0.3)';
+        msgEl.innerHTML = '<i class="fa-solid fa-circle-check"></i> If an account exists for that email, a reset link is on its way.';
+        this.reset();
+      } else {
+        msgEl.style.color = '#ff4757';
+        msgEl.style.background = 'rgba(255,71,87,0.1)';
+        msgEl.style.border = '1px solid rgba(255,71,87,0.3)';
+        msgEl.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> Unable to reach the server. Please try again later.';
+      }
+    };
+
     // ── SIGNUP FORM
     document.getElementById('signup-form').onsubmit = async function (e) {
       e.preventDefault();
@@ -860,6 +1014,7 @@
       const name = (document.getElementById('reg-name').value || '').trim();
       const email = (document.getElementById('reg-email').value || '').trim().toLowerCase();
       const password = (document.getElementById('reg-password').value || '');
+      const confirmPassword = (document.getElementById('reg-confirm-password').value || '');
 
       let errEl = document.getElementById('signup-error-msg');
       if (!errEl) {
@@ -887,6 +1042,9 @@
       }
       if (password.length < 6) {
         errEl.textContent = 'Password must be at least 6 characters.'; return;
+      }
+      if (password !== confirmPassword) {
+        errEl.textContent = 'Passwords do not match.'; return;
       }
 
       btn.classList.add('is-loading');

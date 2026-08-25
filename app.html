@@ -9,7 +9,7 @@
       document.documentElement.setAttribute('data-theme', theme);
     })();
 
-    if (localStorage.getItem('lgs_auth') !== 'true') {
+    if (localStorage.getItem('lgs_auth') !== 'true' && sessionStorage.getItem('lgs_auth') !== 'true') {
       window.location.href = 'login.html';
     }
   </script>
@@ -580,7 +580,7 @@
     // Fetch User Status, Credits, and System Announcement on Load
     async function syncUserStatusAndCredits() {
       try {
-        const sessionStr = localStorage.getItem('lgs_session');
+        const sessionStr = localStorage.getItem('lgs_session') || sessionStorage.getItem('lgs_session');
         if (!sessionStr) return;
         currentUserSession = JSON.parse(sessionStr);
 
@@ -595,6 +595,9 @@
           localStorage.removeItem('lgs_auth');
           localStorage.removeItem('lgs_session');
           localStorage.removeItem('lgs_token');
+          sessionStorage.removeItem('lgs_auth');
+          sessionStorage.removeItem('lgs_session');
+          sessionStorage.removeItem('lgs_token');
           alert(data.message || 'Your account has been banned or removed by an administrator.');
           window.location.href = 'login.html';
           return;
@@ -687,6 +690,9 @@
           localStorage.removeItem('lgs_auth');
           localStorage.removeItem('lgs_session');
           localStorage.removeItem('lgs_token');
+          sessionStorage.removeItem('lgs_auth');
+          sessionStorage.removeItem('lgs_session');
+          sessionStorage.removeItem('lgs_token');
           window.location.href = 'login.html';
         }
       });

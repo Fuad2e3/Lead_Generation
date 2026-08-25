@@ -1583,7 +1583,7 @@
   <script>
     // ── 1. Dynamic Authentication State Recognition ────────────────────────────
     (function checkAuthState() {
-      const isAuth = localStorage.getItem('lgs_auth') === 'true';
+      const isAuth = localStorage.getItem('lgs_auth') === 'true' || sessionStorage.getItem('lgs_auth') === 'true';
       const container = document.getElementById('auth-buttons-container');
       const heroPrimaryCta = document.getElementById('hero-primary-cta');
       const footerCtaBtn = document.getElementById('footer-cta-btn');
@@ -1591,7 +1591,7 @@
       if (isAuth && container) {
         let userName = 'User';
         try {
-          const session = JSON.parse(localStorage.getItem('lgs_session') || '{}');
+          const session = JSON.parse(localStorage.getItem('lgs_session') || sessionStorage.getItem('lgs_session') || '{}');
           userName = session.fullname || session.name || 'User';
         } catch (e) {}
         // Escape before inserting into innerHTML — userName ultimately comes
