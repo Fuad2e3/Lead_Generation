@@ -1625,7 +1625,7 @@
           <table id="users-table">
             <thead>
               <tr>
-                <th class="th-checkbox"><input type="checkbox" id="select-all-users" title="Select all"></th>
+                <th class="th-checkbox"><input type="checkbox" id="select-all-users" title="Select all users matching the current filter (not just this page)"></th>
                 <th><i class="fa-solid fa-hashtag"></i>ID</th>
                 <th><i class="fa-solid fa-user"></i>Name</th>
                 <th><i class="fa-solid fa-at"></i>Email</th>
@@ -1797,15 +1797,19 @@
     function syncSelectAllCheckbox() {
       const selectAll = document.getElementById('select-all-users');
       if (!selectAll) return;
-      const rowCheckboxes = Array.from(document.querySelectorAll('#table-body .row-select-checkbox'));
-      if (rowCheckboxes.length === 0) {
+      // Scoped to every user matching the current filter — not just the
+      // rows currently rendered on screen (pagination via "See More") — so
+      // the checked/indeterminate state always matches what Bulk Actions
+      // will actually operate on.
+      const total = currentFilteredUsers.length;
+      if (total === 0) {
         selectAll.checked = false;
         selectAll.indeterminate = false;
         return;
       }
-      const checkedCount = rowCheckboxes.filter(cb => cb.checked).length;
-      selectAll.checked = checkedCount === rowCheckboxes.length;
-      selectAll.indeterminate = checkedCount > 0 && checkedCount < rowCheckboxes.length;
+      const selectedCount = currentFilteredUsers.filter(u => selectedUserIds.has(u.id)).length;
+      selectAll.checked = selectedCount === total;
+      selectAll.indeterminate = selectedCount > 0 && selectedCount < total;
     }
 
     function updateBulkActionsBar() {
@@ -2743,33 +2747,56 @@
     const selectAllEl = document.getElementById('select-all-users');
     if (selectAllEl) {
       selectAllEl.addEventListener('change', () => {
-        const rowCheckboxes = document.querySelectorAll('#table-body .row-select-checkbox');
-        rowCheckboxes.forEach(cb => {
-          cb.checked = selectAllEl.checked;
+        // Select/deselect every user matching the current filter, not just
+        // the rows currently rendered on screen — see syncSelectAllCheckbox().
+        if (selectAllEl.checked) {
+          currentFilteredUsers.forEach(u => selectedUserIds.add(u.id));
+        } else {
+          currentFilteredUsers.forEach(u => selectedUserIds.delete(u.id));
+        }
+        // Reflect the change on whichever row checkboxes are actually rendered.
+        document.querySelectorAll('#table-body .row-select-checkbox').forEach(cb => {
           const id = parseInt(cb.dataset.id, 10);
-          if (selectAllEl.checked) selectedUserIds.add(id); else selectedUserIds.delete(id);
+          cb.checked = selectedUserIds.has(id);
         });
+        syncSelectAllCheckbox();
         updateBulkActionsBar();
       });
     }
 
+    // Runs `worker` over `items` in fixed-size concurrent batches instead of
+    // firing every request at once, so a large bulk selection (hundreds of
+    // users) doesn't saturate the backend or the browser's per-host
+    // connection limit and cause otherwise-healthy requests to time out.
+    async function runInBatches(items, batchSize, worker) {
+      const results = [];
+      for (let i = 0; i < items.length; i += batchSize) {
+        const batch = items.slice(i, i + batchSize);
+        const batchResults = await Promise.allSettled(batch.map(worker));
+        results.push(...batchResults);
+      }
+      return results;
+    }
+
+    const BULK_ACTION_BATCH_SIZE = 8;
+
     async function bulkSetStatus(ids, status) {
-      const results = await Promise.allSettled(ids.map(async (id) => {
+      const results = await runInBatches(ids, BULK_ACTION_BATCH_SIZE, async (id) => {
         let res = await fetch(`${API_BASE}/users/${id}/status`, { method: 'POST', headers: ADMIN_HEADERS, body: JSON.stringify({ status }) });
         if (!res.ok) res = await fetch(`${API_BASE}/users/${id}/status`, { method: 'PATCH', headers: ADMIN_HEADERS, body: JSON.stringify({ status }) });
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         return res;
-      }));
+      });
       return results.filter(r => r.status === 'fulfilled').length;
     }
 
     async function bulkDeleteUsers(ids) {
-      const results = await Promise.allSettled(ids.map(async (id) => {
+      const results = await runInBatches(ids, BULK_ACTION_BATCH_SIZE, async (id) => {
         let res = await fetch(`${API_BASE}/users/${id}/delete`, { method: 'POST', headers: ADMIN_HEADERS });
         if (!res.ok) res = await fetch(`${API_BASE}/users/${id}`, { method: 'DELETE', headers: ADMIN_HEADERS });
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         return res;
-      }));
+      });
       return results.filter(r => r.status === 'fulfilled').length;
     }
 
@@ -2815,7 +2842,15 @@
 
     // ── Users Table: Export CSV ─────────────────────────────────────────────
     function csvField(val) {
-      const s = (val === null || val === undefined) ? '' : String(val);
+      let s = (val === null || val === undefined) ? '' : String(val);
+      // Prevent CSV/formula injection (OWASP-recommended mitigation): a value
+      // that starts with =, +, -, @, tab, or CR is treated by Excel/Sheets as
+      // a formula when opened — a user-controlled name/email could otherwise
+      // execute arbitrary formulas in the admin's spreadsheet app. Prefixing
+      // a single quote forces it to be read back as plain, literal text.
+      if (/^[=+\-@\t\r]/.test(s)) {
+        s = "'" + s;
+      }
       return `"${s.replace(/"/g, '""')}"`;
     }
 
