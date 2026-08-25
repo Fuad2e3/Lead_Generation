@@ -1244,8 +1244,81 @@
         </div>
       </div>
 
-      <!-- Table Card -->
+      <!-- 1. New User Registration Approval Requests Card -->
       <div class="table-card">
+        <div class="table-header">
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <h2><i class="fa-solid fa-user-clock" style="color:#f59e0b;"></i> New User Registration Approval Requests</h2>
+            <span id="badge-pending-registrations" style="display:none; font-size:11px; background:linear-gradient(135deg, #f59e0b, #d97706); color:#fff; padding:3px 10px; border-radius:12px; font-weight:700; box-shadow:0 0 10px rgba(245,158,11,0.4); text-transform:uppercase;">0 PENDING</span>
+          </div>
+          <button class="btn-refresh" onclick="loadPendingUsers()"><i class="fa-solid fa-rotate-right"
+              id="pending-users-refresh-icon"></i> Refresh Requests</button>
+        </div>
+        <div class="table-responsive">
+          <table>
+            <thead>
+              <tr>
+                <th><i class="fa-solid fa-hashtag"></i>User ID</th>
+                <th><i class="fa-solid fa-user"></i>User Name</th>
+                <th><i class="fa-solid fa-at"></i>Email</th>
+                <th><i class="fa-solid fa-crown"></i>Default Package</th>
+                <th><i class="fa-solid fa-circle-dot"></i>Status</th>
+                <th><i class="fa-solid fa-calendar-plus"></i>Registered Date</th>
+                <th><i class="fa-solid fa-gears"></i>Action</th>
+              </tr>
+            </thead>
+            <tbody id="pending-users-table-body">
+              <tr>
+                <td colspan="7" class="text-center" style="padding:30px;color:var(--text-muted);">Loading pending user registration requests...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="table-footer" id="pending-users-table-footer" style="display: none;">
+          <span id="pending-users-footer-count">Showing 0 requests</span>
+          <div id="pending-users-see-more-container" style="display:flex; gap:8px;"></div>
+        </div>
+      </div>
+
+      <!-- 2. User Package Upgrade Requests Card -->
+      <div class="table-card" style="margin-top: 28px;">
+        <div class="table-header">
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <h2><i class="fa-solid fa-bolt" style="color:#ffb347;"></i> User Package Upgrade Requests</h2>
+            <span id="badge-pending-upgrades" style="display:none; font-size:11px; background:linear-gradient(135deg, #ff4757, #ff6b81); color:#fff; padding:3px 10px; border-radius:12px; font-weight:700; box-shadow:0 0 10px rgba(255,71,87,0.4); text-transform:uppercase;">0 PENDING</span>
+          </div>
+          <button class="btn-refresh" onclick="loadUpgradeRequests()"><i class="fa-solid fa-rotate-right"
+              id="upgrades-refresh-icon"></i> Refresh Requests</button>
+        </div>
+        <div class="table-responsive">
+          <table>
+            <thead>
+              <tr>
+                <th><i class="fa-solid fa-hashtag"></i>Req ID</th>
+                <th><i class="fa-solid fa-user"></i>User</th>
+                <th><i class="fa-solid fa-at"></i>Email</th>
+                <th><i class="fa-solid fa-crown"></i>Requested Package</th>
+                <th><i class="fa-solid fa-circle-dot"></i>Status</th>
+                <th><i class="fa-solid fa-calendar-plus"></i>Requested Date</th>
+                <th><i class="fa-solid fa-gears"></i>Action</th>
+              </tr>
+            </thead>
+            <tbody id="upgrades-table-body">
+              <tr>
+                <td colspan="7" class="text-center" style="padding:30px;color:var(--text-muted);">Loading package
+                  upgrade requests...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="table-footer" id="upgrades-table-footer" style="display: none;">
+          <span id="upgrades-footer-count">Showing 0 requests</span>
+          <div id="upgrades-see-more-container" style="display:flex; gap:8px;"></div>
+        </div>
+      </div>
+
+      <!-- 3. Users Table Card -->
+      <div class="table-card" style="margin-top: 28px;">
         <div class="table-header">
           <h2><i class="fa-solid fa-table-list"></i> Users Table</h2>
           <div style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center;">
@@ -1304,80 +1377,7 @@
         </div>
       </div>
 
-      <!-- New User Registration Approval Requests Card -->
-      <div class="table-card" style="margin-top: 28px;">
-        <div class="table-header">
-          <div style="display: flex; align-items: center; gap: 10px;">
-            <h2><i class="fa-solid fa-user-clock" style="color:#f59e0b;"></i> New User Registration Approval Requests</h2>
-            <span id="badge-pending-registrations" style="display:none; font-size:11px; background:linear-gradient(135deg, #f59e0b, #d97706); color:#fff; padding:3px 10px; border-radius:12px; font-weight:700; box-shadow:0 0 10px rgba(245,158,11,0.4); text-transform:uppercase;">0 PENDING</span>
-          </div>
-          <button class="btn-refresh" onclick="loadPendingUsers()"><i class="fa-solid fa-rotate-right"
-              id="pending-users-refresh-icon"></i> Refresh Requests</button>
-        </div>
-        <div class="table-responsive">
-          <table>
-            <thead>
-              <tr>
-                <th><i class="fa-solid fa-hashtag"></i>User ID</th>
-                <th><i class="fa-solid fa-user"></i>User Name</th>
-                <th><i class="fa-solid fa-at"></i>Email</th>
-                <th><i class="fa-solid fa-crown"></i>Default Package</th>
-                <th><i class="fa-solid fa-circle-dot"></i>Status</th>
-                <th><i class="fa-solid fa-calendar-plus"></i>Registered Date</th>
-                <th><i class="fa-solid fa-gears"></i>Action</th>
-              </tr>
-            </thead>
-            <tbody id="pending-users-table-body">
-              <tr>
-                <td colspan="7" class="text-center" style="padding:30px;color:var(--text-muted);">Loading pending user registration requests...</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-        <div class="table-footer" id="pending-users-table-footer" style="display: none;">
-          <span id="pending-users-footer-count">Showing 0 requests</span>
-          <div id="pending-users-see-more-container" style="display:flex; gap:8px;"></div>
-        </div>
-      </div>
-
-      <!-- Package Upgrade Requests Card -->
-      <div class="table-card" style="margin-top: 28px;">
-        <div class="table-header">
-          <div style="display: flex; align-items: center; gap: 10px;">
-            <h2><i class="fa-solid fa-bolt" style="color:#ffb347;"></i> User Package Upgrade Requests</h2>
-            <span id="badge-pending-upgrades" style="display:none; font-size:11px; background:linear-gradient(135deg, #ff4757, #ff6b81); color:#fff; padding:3px 10px; border-radius:12px; font-weight:700; box-shadow:0 0 10px rgba(255,71,87,0.4); text-transform:uppercase;">0 PENDING</span>
-          </div>
-          <button class="btn-refresh" onclick="loadUpgradeRequests()"><i class="fa-solid fa-rotate-right"
-              id="upgrades-refresh-icon"></i> Refresh Requests</button>
-        </div>
-        <div class="table-responsive">
-          <table>
-            <thead>
-              <tr>
-                <th><i class="fa-solid fa-hashtag"></i>Req ID</th>
-                <th><i class="fa-solid fa-user"></i>User</th>
-                <th><i class="fa-solid fa-at"></i>Email</th>
-                <th><i class="fa-solid fa-crown"></i>Requested Package</th>
-                <th><i class="fa-solid fa-circle-dot"></i>Status</th>
-                <th><i class="fa-solid fa-calendar-plus"></i>Requested Date</th>
-                <th><i class="fa-solid fa-gears"></i>Action</th>
-              </tr>
-            </thead>
-            <tbody id="upgrades-table-body">
-              <tr>
-                <td colspan="7" class="text-center" style="padding:30px;color:var(--text-muted);">Loading package
-                  upgrade requests...</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-        <div class="table-footer" id="upgrades-table-footer" style="display: none;">
-          <span id="upgrades-footer-count">Showing 0 requests</span>
-          <div id="upgrades-see-more-container" style="display:flex; gap:8px;"></div>
-        </div>
-      </div>
-
-      <!-- Activity Audit Logs Card -->
+      <!-- 4. System Activity Audit Logs Card -->
       <div class="table-card" style="margin-top: 28px;">
         <div class="table-header">
           <h2><i class="fa-solid fa-clock-rotate-left"></i> System Activity Audit Logs</h2>
