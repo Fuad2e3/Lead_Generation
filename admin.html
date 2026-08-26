@@ -1348,6 +1348,63 @@
       align-items: center;
       flex-wrap: wrap;
     }
+
+    /* 🛡️ Human Verification Component for Admin */
+    .recaptcha-box {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--bg-surface-elevated, var(--bg-card));
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      padding: 10px 14px;
+      cursor: pointer;
+      user-select: none;
+      transition: all 0.2s ease;
+    }
+    .recaptcha-box:hover {
+      border-color: var(--primary);
+      background: rgba(99, 102, 241, 0.06);
+    }
+    .recaptcha-checkbox {
+      width: 24px;
+      height: 24px;
+      border: 2px solid var(--border-focus, #6366f1);
+      border-radius: 4px;
+      background: var(--bg-surface);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+      flex-shrink: 0;
+    }
+    .recaptcha-box.verifying .recaptcha-checkbox {
+      border-color: var(--primary);
+      border-top-color: transparent;
+      border-radius: 50%;
+      animation: spinAdminVerify 0.6s linear infinite;
+    }
+    @keyframes spinAdminVerify {
+      to { transform: rotate(360deg); }
+    }
+    .recaptcha-box.verified .recaptcha-checkbox {
+      background: #10b981;
+      border-color: #10b981;
+      box-shadow: 0 0 10px rgba(16, 185, 129, 0.4);
+    }
+    .recaptcha-checkbox i {
+      color: #fff;
+      font-size: 13px;
+      display: none;
+    }
+    .recaptcha-box.verified .recaptcha-checkbox i {
+      display: block;
+      animation: checkAdminPop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    @keyframes checkAdminPop {
+      0% { transform: scale(0); }
+      100% { transform: scale(1); }
+    }
   </style>
 </head>
 
@@ -1391,6 +1448,34 @@
             <input type="password" id="admin-login-password" required placeholder="Enter secret password"
               autocomplete="current-password">
             <i class="fa-solid fa-eye toggle-pass" id="btn-toggle-admin-pass"></i>
+          </div>
+        </div>
+
+        <!-- 🛡️ Human Verification (Admin Security) -->
+        <div class="human-verify-card" id="admin-human-verify-card" style="margin: 16px 0 18px; padding: 12px 14px; background: rgba(99, 102, 241, 0.04); border: 1px solid var(--border-subtle); border-radius: 12px; transition: all 0.25s ease;">
+          <div class="human-verify-header" style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
+            <div class="human-verify-title" style="display: flex; align-items: center; gap: 7px; font-size: 12.5px; font-weight: 700; color: var(--text-heading);">
+              <i class="fa-solid fa-shield-halved" style="color: #10b981; font-size: 14px;"></i>
+              <span>Human Verification</span>
+            </div>
+          </div>
+
+          <div class="recaptcha-box" id="admin-recaptcha-box" role="checkbox" aria-checked="false" tabindex="0">
+            <div class="recaptcha-left" style="display: flex; align-items: center; gap: 12px;">
+              <div class="recaptcha-checkbox" id="admin-recaptcha-checkbox">
+                <i class="fa-solid fa-check"></i>
+              </div>
+              <span class="recaptcha-label" id="admin-recaptcha-label" style="font-size: 13.5px; font-weight: 600; color: var(--text-heading);">I'm not a robot</span>
+            </div>
+            <div class="recaptcha-right" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; opacity: 0.85;">
+              <i class="fa-brands fa-cloudflare" style="color:#f38020; font-size: 18px;"></i>
+              <span style="font-size: 9px; color: var(--text-muted); font-weight: 500;">Security Cloud</span>
+            </div>
+          </div>
+
+          <div class="verify-footer-note" style="display: flex; align-items: center; gap: 6px; margin-top: 8px; font-size: 11px; color: var(--text-muted); font-weight: 500;">
+            <i class="fa-solid fa-circle-check" style="color: #10b981; font-size: 12px;"></i>
+            <span>Security verification to safeguard Admin portal</span>
           </div>
         </div>
 
@@ -3042,7 +3127,45 @@
             if (dashboardContainer) dashboardContainer.style.display = 'none';
             if (authOverlay) authOverlay.style.display = 'flex';
             if (passInput) passInput.value = '';
+            isAdminHumanVerified = false;
+            if (adminRecaptchaBox) {
+              adminRecaptchaBox.classList.remove('verified');
+              adminRecaptchaBox.setAttribute('aria-checked', 'false');
+              if (adminRecaptchaLabel) adminRecaptchaLabel.textContent = "I'm not a robot";
+            }
             hideAuthError();
+          });
+        }
+
+        // ── Human Verification Interactive Handler for Admin ─────────────────
+        let isAdminHumanVerified = false;
+        const adminRecaptchaBox = document.getElementById('admin-recaptcha-box');
+        const adminHumanVerifyCard = document.getElementById('admin-human-verify-card');
+        const adminRecaptchaLabel = document.getElementById('admin-recaptcha-label');
+
+        if (adminRecaptchaBox) {
+          function triggerAdminVerification() {
+            if (isAdminHumanVerified || adminRecaptchaBox.classList.contains('verifying')) return;
+            adminRecaptchaBox.classList.add('verifying');
+            if (adminRecaptchaLabel) adminRecaptchaLabel.textContent = 'Verifying...';
+
+            setTimeout(() => {
+              adminRecaptchaBox.classList.remove('verifying');
+              adminRecaptchaBox.classList.add('verified');
+              adminRecaptchaBox.setAttribute('aria-checked', 'true');
+              if (adminRecaptchaLabel) adminRecaptchaLabel.textContent = "I'm not a robot";
+              isAdminHumanVerified = true;
+              if (adminHumanVerifyCard) adminHumanVerifyCard.style.borderColor = 'var(--border-subtle)';
+              hideAuthError();
+            }, 550);
+          }
+
+          adminRecaptchaBox.addEventListener('click', triggerAdminVerification);
+          adminRecaptchaBox.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              triggerAdminVerification();
+            }
           });
         }
 
@@ -3056,6 +3179,16 @@
 
             if (!email || !password) {
               return showAuthError('Please enter both Admin Email and Password.');
+            }
+
+            if (!isAdminHumanVerified) {
+              if (adminHumanVerifyCard) {
+                adminHumanVerifyCard.style.borderColor = '#ff4757';
+                adminHumanVerifyCard.classList.remove('shake-anim');
+                void adminHumanVerifyCard.offsetWidth;
+                adminHumanVerifyCard.classList.add('shake-anim');
+              }
+              return showAuthError('Please check the "I\'m not a robot" box to verify you are human.');
             }
 
             if (btnSubmit) {
