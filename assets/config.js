@@ -1,4 +1,4 @@
 window.LGS_CONFIG = {
-  API_URL: "https://boutique-flashers-year-research.trycloudflare.com",
+  API_URL: "https://school-suffered-parking-cylinder.trycloudflare.com",
   SCRAPER_URL: "http://localhost:4000"
 };
