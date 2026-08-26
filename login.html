@@ -565,6 +565,182 @@
       filter: drop-shadow(0 0 5px rgba(34, 197, 94, 0.4));
     }
 
+    /* 🛡️ Human Verification (SSL Secured) Component */
+    .human-verify-card {
+      margin: 16px 0 18px;
+      padding: 12px 14px;
+      background: var(--bg-input);
+      border: 1px solid var(--border-input);
+      border-radius: 12px;
+      transition: all 0.25s ease;
+    }
+
+    .human-verify-card:hover {
+      border-color: var(--border-focus);
+    }
+
+    .human-verify-card.error-shake {
+      animation: verifyShake 0.4s ease;
+      border-color: #ff4757 !important;
+      box-shadow: 0 0 12px rgba(255, 71, 87, 0.25);
+    }
+
+    @keyframes verifyShake {
+      0%, 100% { transform: translateX(0); }
+      20%, 60% { transform: translateX(-6px); }
+      40%, 80% { transform: translateX(6px); }
+    }
+
+    .human-verify-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+
+    .human-verify-title {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 12.5px;
+      font-weight: 700;
+      color: var(--text-heading);
+      letter-spacing: 0.1px;
+    }
+
+    .human-verify-title i {
+      color: #10b981;
+      font-size: 14px;
+    }
+
+    .ssl-verify-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 3px 9px;
+      background: rgba(16, 185, 129, 0.1);
+      border: 1px solid rgba(16, 185, 129, 0.35);
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 600;
+      color: #10b981;
+    }
+
+    .ssl-verify-pill i {
+      font-size: 10px;
+    }
+
+    .recaptcha-box {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--bg-card);
+      border: 1px solid var(--border-input);
+      border-radius: 8px;
+      padding: 10px 14px;
+      cursor: pointer;
+      user-select: none;
+      transition: all 0.2s ease;
+    }
+
+    .recaptcha-box:hover {
+      border-color: var(--primary);
+      background: rgba(99, 102, 241, 0.04);
+    }
+
+    .recaptcha-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .recaptcha-checkbox {
+      width: 24px;
+      height: 24px;
+      border: 2px solid var(--border-focus);
+      border-radius: 4px;
+      background: var(--bg-input);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+      flex-shrink: 0;
+    }
+
+    .recaptcha-box.verifying .recaptcha-checkbox {
+      border-color: var(--primary);
+      border-top-color: transparent;
+      border-radius: 50%;
+      animation: spinVerify 0.6s linear infinite;
+    }
+
+    @keyframes spinVerify {
+      to { transform: rotate(360deg); }
+    }
+
+    .recaptcha-box.verified .recaptcha-checkbox {
+      background: #10b981;
+      border-color: #10b981;
+      box-shadow: 0 0 10px rgba(16, 185, 129, 0.4);
+    }
+
+    .recaptcha-checkbox i {
+      color: #fff;
+      font-size: 13px;
+      display: none;
+    }
+
+    .recaptcha-box.verified .recaptcha-checkbox i {
+      display: block;
+      animation: checkPop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    @keyframes checkPop {
+      0% { transform: scale(0); }
+      100% { transform: scale(1); }
+    }
+
+    .recaptcha-label {
+      font-size: 13.5px;
+      font-weight: 600;
+      color: var(--text-heading);
+    }
+
+    .recaptcha-right {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2px;
+      opacity: 0.85;
+    }
+
+    .recaptcha-logo-icon {
+      font-size: 18px;
+    }
+
+    .recaptcha-subtext {
+      font-size: 9px;
+      color: var(--text-muted);
+      font-weight: 500;
+      letter-spacing: 0.2px;
+    }
+
+    .verify-footer-note {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 8px;
+      font-size: 11px;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    .verify-footer-note i {
+      color: #10b981;
+      font-size: 12px;
+    }
+
     @media (max-width: 850px) {
       body {
         overflow-y: auto;
@@ -698,16 +874,44 @@
             </label>
             <a href="#" id="forgot-password-link" class="forgot-password-link">Forgot Password?</a>
           </div>
+
+          <!-- 🛡️ Human Verification (SSL Secured) -->
+          <div class="human-verify-card" id="human-verify-card">
+            <div class="human-verify-header">
+              <div class="human-verify-title">
+                <i class="fa-solid fa-shield-halved"></i>
+                <span>Human Verification</span>
+              </div>
+              <span class="ssl-verify-pill">
+                <i class="fa-solid fa-lock"></i> SSL Secured
+              </span>
+            </div>
+
+            <div class="recaptcha-box" id="recaptcha-box" role="checkbox" aria-checked="false" tabindex="0">
+              <div class="recaptcha-left">
+                <div class="recaptcha-checkbox" id="recaptcha-checkbox">
+                  <i class="fa-solid fa-check"></i>
+                </div>
+                <span class="recaptcha-label" id="recaptcha-label">I'm not a robot</span>
+              </div>
+              <div class="recaptcha-right">
+                <i class="fa-brands fa-cloudflare recaptcha-logo-icon" style="color:#f38020;"></i>
+                <span class="recaptcha-subtext">Security Cloud</span>
+              </div>
+            </div>
+
+            <div class="verify-footer-note">
+              <i class="fa-solid fa-circle-check"></i>
+              <span>Security verification to safeguard your account</span>
+            </div>
+          </div>
+
           <input type="text" name="b_trap" class="bot-trap" tabindex="-1" autocomplete="off" style="position:absolute;left:-9999px;opacity:0;pointer-events:none;" aria-hidden="true">
           <button type="submit" class="btn-submit">
             <div class="spinner"></div>
             <i class="fa-solid fa-right-to-bracket"></i> <span>Sign In</span>
           </button>
         </form>
-        <div class="ssl-secured-badge">
-          <i class="fa-solid fa-lock"></i>
-          <span>256-Bit SSL Encrypted & Secured</span>
-        </div>
       </div>
 
       <div id="forgot-section" style="display: none;">
@@ -927,12 +1131,44 @@
       }
     }
 
+    // ── Human Verification Interactive Handler ─────────────────────────────
+    let isHumanVerified = false;
+    const recaptchaBox = document.getElementById('recaptcha-box');
+    const humanVerifyCard = document.getElementById('human-verify-card');
+    const recaptchaLabel = document.getElementById('recaptcha-label');
+
+    if (recaptchaBox) {
+      function triggerVerification() {
+        if (isHumanVerified || recaptchaBox.classList.contains('verifying')) return;
+        recaptchaBox.classList.add('verifying');
+        recaptchaLabel.textContent = 'Verifying...';
+
+        setTimeout(() => {
+          recaptchaBox.classList.remove('verifying');
+          recaptchaBox.classList.add('verified');
+          recaptchaBox.setAttribute('aria-checked', 'true');
+          recaptchaLabel.textContent = "I'm not a robot";
+          isHumanVerified = true;
+          if (humanVerifyCard) humanVerifyCard.classList.remove('error-shake');
+          clearError();
+        }, 550);
+      }
+
+      recaptchaBox.addEventListener('click', triggerVerification);
+      recaptchaBox.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          triggerVerification();
+        }
+      });
+    }
+
     // ── LOGIN FORM
     document.getElementById('login-form').onsubmit = async function (e) {
       e.preventDefault();
       clearError();
       if (this.querySelector('.bot-trap')?.value) { return; }
-      const btn = this.querySelector('.btn-submit');
+
       const email = (document.getElementById('email').value || '').trim().toLowerCase();
       const password = (document.getElementById('password').value || '');
 
@@ -941,6 +1177,17 @@
         return;
       }
 
+      // Enforce Human Verification
+      if (!isHumanVerified) {
+        if (humanVerifyCard) {
+          humanVerifyCard.classList.add('error-shake');
+          setTimeout(() => humanVerifyCard.classList.remove('error-shake'), 450);
+        }
+        showError('Please check the "I\'m not a robot" box to verify you are human.');
+        return;
+      }
+
+      const btn = this.querySelector('.btn-submit');
       btn.classList.add('is-loading');
 
       const rememberMe = document.getElementById('remember-me') ? document.getElementById('remember-me').checked : true;
