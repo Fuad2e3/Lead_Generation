@@ -136,7 +136,9 @@
 }
 
 html {
-  scroll-behavior: smooth;
+  scroll-behavior: auto; /* Fast, responsive instant scrolling with zero artificial lag */
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: none;
 }
 
 body {
@@ -148,9 +150,10 @@ body {
   overflow-x: hidden;
   position: relative;
   transition: background-color 0.3s ease, color 0.3s ease;
+  -webkit-overflow-scrolling: touch;
 }
 
-/* Ambient Glow Blobs matching index.html */
+/* Ambient Glow Blobs matching index.html with GPU Compositing Layer */
 .ambient-glow {
   position: fixed;
   width: 550px;
@@ -161,6 +164,9 @@ body {
   z-index: 0;
   opacity: 0.22;
   transition: opacity 0.5s ease;
+  will-change: transform;
+  transform: translateZ(0);
+  contain: strict;
 }
 
 .glow-1 {
@@ -183,6 +189,18 @@ body {
 
 [data-theme="light"] .ambient-glow {
   opacity: 0.12;
+}
+
+/* High-Performance Table & Container Scroll Acceleration */
+.table-wrapper,
+.table-responsive,
+.grid-table-container,
+.app-container,
+.leads-table-wrap,
+[class*="table-wrap"] {
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  will-change: scroll-position;
 }
 
 /* Typography */
