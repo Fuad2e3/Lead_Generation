@@ -1,14 +1,17 @@
 @echo off
 title Starting ProspectInsight Servers...
 echo ====================================================
-echo   Starting API Server (Port 3000) & Scraper (Port 4000)
+echo   Starting API, Scraper, and Cloudflare Tunnel
 echo ====================================================
 
 cd dev
-pm2 start ecosystem.js
+pm2 delete all 2>nul
+pm2 start ecosystem.config.js
 pm2 status
 
 echo ====================================================
-echo   Both servers are ONLINE and running with PM2!
+echo   All 3 services are ONLINE with PM2!
+echo   To view the Cloudflare Tunnel link, run:
+echo   pm2 logs cloudflare-tunnel
 echo ====================================================
 pause
