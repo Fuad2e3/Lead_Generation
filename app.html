@@ -325,6 +325,41 @@
           </div>
 
           <div class="card-body card-body-compact">
+            <!-- 🔄 Interactive Workflow Pipeline Stepper -->
+            <div class="workflow-pipeline-container" id="workflow-pipeline">
+              <div class="pipeline-step active" id="pipe-step-1">
+                <div class="step-badge"><i class="fa-solid fa-list-check"></i></div>
+                <div class="step-info">
+                  <span class="step-num">Step 1</span>
+                  <span class="step-title">URLs Ingested</span>
+                </div>
+              </div>
+              <div class="pipeline-connector" id="pipe-conn-1"></div>
+              <div class="pipeline-step" id="pipe-step-2">
+                <div class="step-badge"><i class="fa-solid fa-sliders"></i></div>
+                <div class="step-info">
+                  <span class="step-num">Step 2</span>
+                  <span class="step-title">Config Ready</span>
+                </div>
+              </div>
+              <div class="pipeline-connector" id="pipe-conn-2"></div>
+              <div class="pipeline-step" id="pipe-step-3">
+                <div class="step-badge"><i class="fa-solid fa-network-wired"></i></div>
+                <div class="step-info">
+                  <span class="step-num">Step 3</span>
+                  <span class="step-title">Scraping Active</span>
+                </div>
+              </div>
+              <div class="pipeline-connector" id="pipe-conn-3"></div>
+              <div class="pipeline-step" id="pipe-step-4">
+                <div class="step-badge"><i class="fa-solid fa-trophy"></i></div>
+                <div class="step-info">
+                  <span class="step-num">Step 4</span>
+                  <span class="step-title">Data Extracted</span>
+                </div>
+              </div>
+            </div>
+
             <div id="quick-status" class="quick-status-banner quick-status-inline hidden">
               <span id="quick-status-icon"><i class="fa-solid fa-spinner fa-spin"></i></span> <span
                 id="lbl-status-text">Mining in progress...</span>
@@ -370,8 +405,37 @@
           </div>
         </div>
 
+      </div>
 
-
+      <!-- 🖥️ Live Real-Time Terminal Log Console -->
+      <div class="card glass-card terminal-log-card margin-top-sm" id="terminal-log-card">
+        <div class="card-header card-header-compact flex-between">
+          <div class="terminal-title-group">
+            <h3 class="terminal-title">
+              <i class="fa-solid fa-terminal color-accent"></i> <span>Live Mining Execution Console</span>
+            </h3>
+            <span class="terminal-pulse-badge"><span class="pulse-dot"></span> Live Stream</span>
+          </div>
+          <div class="terminal-header-actions">
+            <button type="button" id="btn-toggle-autoscroll" class="btn btn-secondary btn-xs" title="Toggle Auto Scroll">
+              <i class="fa-solid fa-arrows-down-to-line"></i> Auto-Scroll: ON
+            </button>
+            <button type="button" id="btn-copy-live-logs" class="btn btn-secondary btn-xs" title="Copy all logs to clipboard">
+              <i class="fa-solid fa-copy"></i> Copy
+            </button>
+            <button type="button" id="btn-clear-live-logs" class="btn btn-secondary btn-xs" title="Clear console output">
+              <i class="fa-solid fa-trash-can"></i> Clear
+            </button>
+            <button type="button" id="btn-collapse-live-logs" class="btn btn-secondary btn-xs" title="Collapse / Expand Terminal">
+              <i class="fa-solid fa-chevron-up"></i>
+            </button>
+          </div>
+        </div>
+        <div class="card-body card-body-compact terminal-body-wrapper" id="terminal-body-wrapper">
+          <div id="console-log" class="live-terminal-log-box">
+            <div class="log-line system">[SYSTEM] ⚡ Smart Lead Generation Miner Engine ready. Paste URLs and launch mining session.</div>
+          </div>
+        </div>
       </div>
 
 
@@ -437,8 +501,6 @@
     <select id="proxy-select">
       <option value="direct" selected></option>
     </select>
-    <div id="console-log"></div>
-    <div id="console-log-visible"></div>
     <canvas id="status-chart"></canvas>
     <tbody id="history-table-body"></tbody>
     <button id="btn-clear-log"></button>

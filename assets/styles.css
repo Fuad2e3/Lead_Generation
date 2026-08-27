@@ -2380,3 +2380,247 @@ input[type="text"]:focus {
 .floating-quick-scroll:hover i {
   transform: translateY(1px);
 }
+
+/* ==========================================================================
+   WORKFLOW PIPELINE STEPPER (Modern SaaS Visual Pipeline)
+   ========================================================================== */
+.workflow-pipeline-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--bg-input);
+  border: 1px solid var(--border-card);
+  border-radius: var(--radius-md);
+  padding: 12px 18px;
+  margin-bottom: 16px;
+  gap: 8px;
+  position: relative;
+  overflow-x: auto;
+}
+
+.pipeline-step {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 12px;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  transition: var(--transition-smooth);
+  flex-shrink: 0;
+  opacity: 0.55;
+}
+
+.pipeline-step.active {
+  opacity: 1;
+  background: rgba(99, 102, 241, 0.15);
+  border: 1px solid rgba(99, 102, 241, 0.4);
+  box-shadow: 0 0 15px rgba(99, 102, 241, 0.25);
+}
+
+.pipeline-step.done {
+  opacity: 0.95;
+}
+
+.pipeline-step .step-badge {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--bg-surface-elevated);
+  border: 1.5px solid var(--border-card);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  color: var(--text-muted);
+  transition: var(--transition-fast);
+}
+
+.pipeline-step.active .step-badge {
+  background: var(--color-primary);
+  border-color: var(--color-primary-light);
+  color: #ffffff;
+  box-shadow: 0 0 12px var(--color-primary);
+  animation: pulse-glow 2s infinite;
+}
+
+.pipeline-step.done .step-badge {
+  background: var(--color-success);
+  border-color: var(--color-success);
+  color: #ffffff;
+  box-shadow: 0 0 10px rgba(16, 185, 129, 0.4);
+}
+
+.pipeline-step .step-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.pipeline-step .step-num {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-muted);
+}
+
+.pipeline-step.active .step-num {
+  color: var(--color-primary-light);
+}
+
+.pipeline-step.done .step-num {
+  color: var(--color-success);
+}
+
+.pipeline-step .step-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-heading);
+  white-space: nowrap;
+}
+
+.pipeline-connector {
+  flex: 1;
+  height: 2px;
+  background: var(--border-card);
+  min-width: 20px;
+  transition: background 0.3s ease;
+}
+
+.pipeline-connector.active {
+  background: linear-gradient(90deg, var(--color-primary), var(--color-accent));
+  box-shadow: 0 0 8px var(--color-primary);
+}
+
+@keyframes pulse-glow {
+  0%, 100% { transform: scale(1); box-shadow: 0 0 10px var(--color-primary); }
+  50% { transform: scale(1.06); box-shadow: 0 0 18px var(--color-primary); }
+}
+
+@media (max-width: 768px) {
+  .workflow-pipeline-container {
+    justify-content: flex-start;
+    padding: 10px;
+  }
+  .pipeline-step .step-title {
+    font-size: 11px;
+  }
+}
+
+/* ==========================================================================
+   LIVE REAL-TIME TERMINAL LOG CONSOLE
+   ========================================================================== */
+.terminal-log-card {
+  border-color: rgba(99, 102, 241, 0.25);
+  box-shadow: 0 15px 35px -10px rgba(0, 0, 0, 0.45);
+}
+
+.terminal-title-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.terminal-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-heading);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.terminal-pulse-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 20px;
+  background: rgba(16, 185, 129, 0.15);
+  color: var(--color-success);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.pulse-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--color-success);
+  box-shadow: 0 0 8px var(--color-success);
+  animation: pulse-dot-anim 1.5s infinite;
+}
+
+@keyframes pulse-dot-anim {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(0.8); }
+}
+
+.terminal-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.terminal-body-wrapper {
+  padding: 0 !important;
+  transition: max-height 0.35s ease, opacity 0.35s ease;
+  overflow: hidden;
+}
+
+.terminal-body-wrapper.collapsed {
+  display: none;
+}
+
+.live-terminal-log-box {
+  height: 220px;
+  max-height: 260px;
+  overflow-y: auto;
+  background: #060810;
+  padding: 12px 16px;
+  font-family: var(--font-mono, 'JetBrains Mono', 'Fira Code', monospace);
+  font-size: 12px;
+  line-height: 1.65;
+  color: #cbd5e1;
+  border-bottom-left-radius: var(--radius-lg);
+  border-bottom-right-radius: var(--radius-lg);
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.live-terminal-log-box::-webkit-scrollbar {
+  width: 8px;
+}
+
+.live-terminal-log-box::-webkit-scrollbar-thumb {
+  background: rgba(99, 102, 241, 0.4);
+  border-radius: 4px;
+}
+
+.log-line {
+  margin-bottom: 4px;
+  word-break: break-word;
+  white-space: pre-wrap;
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.log-line.system {
+  color: #818cf8;
+}
+
+.log-line.success {
+  color: #34d399;
+}
+
+.log-line.error {
+  color: #f87171;
+}
+
+.log-line.info {
+  color: #38bdf8;
+}
+
+.log-line.warning {
+  color: #fbbf24;
+}
