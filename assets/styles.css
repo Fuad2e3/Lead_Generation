@@ -444,14 +444,14 @@ a {
 }
 
 .grid-layout-2col {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
 }
 
 @media (max-width: 1024px) {
   .grid-layout-2col {
-    grid-template-columns: 1fr;
+    gap: 16px;
   }
 }
 
@@ -648,7 +648,7 @@ input[type="text"]:focus {
 
 .checkbox-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: 8px;
 }
 
@@ -1528,7 +1528,6 @@ input[type="text"]:focus {
   }
 
   .grid-layout-2col {
-    grid-template-columns: 1fr;
     gap: 16px;
   }
 }
