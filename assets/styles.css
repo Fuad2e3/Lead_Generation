@@ -151,6 +151,8 @@ body {
   position: relative;
   transition: background-color 0.3s ease, color 0.3s ease;
   -webkit-overflow-scrolling: touch;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 /* Ambient Glow Blobs matching index.html with GPU Compositing Layer */
@@ -165,8 +167,10 @@ body {
   opacity: 0.22;
   transition: opacity 0.5s ease;
   will-change: transform;
-  transform: translateZ(0);
+  transform: translate3d(0, 0, 0);
   contain: strict;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
 }
 
 .glow-1 {
@@ -201,6 +205,7 @@ body {
   -webkit-overflow-scrolling: touch;
   overscroll-behavior: contain;
   will-change: scroll-position;
+  transform: translate3d(0, 0, 0);
 }
 
 /* Typography */
