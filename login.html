@@ -50,8 +50,9 @@
       background-color: var(--bg-app);
       margin: 0;
       font-family: 'Inter', sans-serif;
-      padding: 15px;
-      overflow: hidden;
+      padding: 30px 16px;
+      overflow-y: auto;
+      overflow-x: hidden;
       position: relative;
     }
 
@@ -103,11 +104,11 @@
 
     .login-wrapper {
       display: grid;
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns: 1.05fr 1fr;
       width: 100%;
-      max-width: 900px;
-      height: 540px;
-      /* Fixed height to keep it consistent */
+      max-width: 930px;
+      min-height: 560px;
+      height: auto;
       background: var(--bg-card);
       border: 1px solid var(--border-card);
       border-radius: var(--radius-xl);
@@ -116,11 +117,12 @@
       backdrop-filter: blur(20px);
       position: relative;
       z-index: 1;
+      margin: auto;
     }
 
     /* Left Column */
     .info-side {
-      padding: 40px;
+      padding: 40px 36px;
       background: linear-gradient(135deg, rgba(108, 99, 255, 0.1), rgba(0, 210, 255, 0.05));
       border-right: 1px solid var(--border-input);
       display: flex;
@@ -197,11 +199,11 @@
 
     /* Right Column */
     .form-side {
-      padding: 40px;
+      padding: 34px 36px 36px;
       display: flex;
       flex-direction: column;
       justify-content: center;
-      /* This centers the form contents vertically */
+      position: relative;
     }
 
     .tab-nav {
@@ -209,7 +211,7 @@
       background: var(--bg-input);
       border-radius: 30px;
       padding: 4px;
-      margin-bottom: 25px;
+      margin-bottom: 20px;
     }
 
     .tab-btn {
@@ -234,13 +236,13 @@
       font-size: 22px;
       font-weight: 800;
       color: var(--text-heading);
-      margin: 0 0 8px 0;
+      margin: 0 0 6px 0;
     }
 
     .welcome-msg {
       font-size: 13px;
       color: var(--text-muted);
-      margin-bottom: 20px;
+      margin-bottom: 18px !important;
     }
 
     .social-logins {
@@ -297,12 +299,12 @@
     /* Floating Labels */
     .floating-group {
       position: relative;
-      margin-bottom: 18px;
+      margin-bottom: 14px;
     }
 
     .floating-group input {
       width: 100%;
-      padding: 14px 16px 14px 42px;
+      padding: 13px 16px 13px 42px;
       background: var(--bg-input);
       border: 1px solid var(--border-input);
       border-radius: 10px;
@@ -369,7 +371,7 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin: -6px 0 18px;
+      margin: -2px 0 12px;
       flex-wrap: wrap;
       gap: 8px;
     }
@@ -416,7 +418,7 @@
       width: 100%;
       height: 3px;
       background: var(--border-input);
-      bottom: -8px;
+      bottom: -6px;
       border-radius: 2px;
       overflow: hidden;
       display: none;
@@ -430,12 +432,12 @@
 
     .btn-submit {
       width: 100%;
-      padding: 14px;
+      padding: 13px 18px;
       background: linear-gradient(135deg, var(--color-primary), var(--color-primary-hover));
       color: white;
       border: none;
       border-radius: 10px;
-      font-size: 14px;
+      font-size: 14.5px;
       font-weight: 700;
       cursor: pointer;
       display: flex;
@@ -443,11 +445,42 @@
       justify-content: center;
       gap: 10px;
       transition: var(--transition-fast);
+      box-shadow: 0 4px 14px rgba(99, 102, 241, 0.25);
     }
 
     .btn-submit:hover {
       transform: translateY(-1px);
-      box-shadow: 0 5px 15px rgba(108, 99, 255, 0.3);
+      box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
+    }
+
+    /* Alert Banner Messages */
+    #login-error-msg,
+    #signup-error-msg,
+    #signup-success-msg,
+    #forgot-msg {
+      margin: 14px 0 0;
+      font-size: 13px;
+      font-weight: 600;
+      padding: 10px 14px;
+      border-radius: 8px;
+      text-align: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      line-height: 1.4;
+      animation: toastIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    @keyframes toastIn {
+      from {
+        opacity: 0;
+        transform: translateY(6px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
 
     /* Shake Animation */
@@ -1102,36 +1135,35 @@
       if (!el) {
         el = document.createElement('p');
         el.id = 'login-error-msg';
-        el.style.cssText = 'font-size:13px;margin:10px 0 0;text-align:center;font-weight:600;padding:8px 12px;border-radius:6px;';
         document.getElementById('login-form').appendChild(el);
       }
+      el.style.display = 'flex';
       // msg may come from a backend API response, so it's written via
       // textContent (never innerHTML) to avoid any HTML/script injection —
       // only the icon markup below is trusted, fixed internal HTML.
       if (type === 'pending') {
         el.style.color = '#f59e0b';
-        el.style.background = 'rgba(245,158,11,0.12)';
-        el.style.border = '1px solid rgba(245,158,11,0.3)';
-        el.innerHTML = `<i class="fa-solid fa-clock"></i> <span></span>`;
+        el.style.background = 'rgba(245,158,11,0.14)';
+        el.style.border = '1px solid rgba(245,158,11,0.4)';
+        el.innerHTML = `<i class="fa-solid fa-clock" style="font-size:15px;flex-shrink:0;"></i> <span></span>`;
       } else if (isSuccess) {
         el.style.color = '#2ed573';
-        el.style.background = 'rgba(46,213,115,0.1)';
-        el.style.border = '1px solid rgba(46,213,115,0.3)';
-        el.innerHTML = `<i class="fa-solid fa-circle-check"></i> <span></span>`;
+        el.style.background = 'rgba(46,213,115,0.12)';
+        el.style.border = '1px solid rgba(46,213,115,0.4)';
+        el.innerHTML = `<i class="fa-solid fa-circle-check" style="font-size:15px;flex-shrink:0;"></i> <span></span>`;
       } else {
         el.style.color = '#ff4757';
-        el.style.background = 'rgba(255,71,87,0.1)';
-        el.style.border = '1px solid rgba(255,71,87,0.3)';
-        el.innerHTML = `<i class="fa-solid fa-circle-exclamation"></i> <span></span>`;
+        el.style.background = 'rgba(255,71,87,0.12)';
+        el.style.border = '1px solid rgba(255,71,87,0.4)';
+        el.innerHTML = `<i class="fa-solid fa-circle-exclamation" style="font-size:15px;flex-shrink:0;"></i> <span></span>`;
       }
       el.querySelector('span').textContent = msg;
     }
     function clearError() {
       const el = document.getElementById('login-error-msg');
       if (el) {
+        el.style.display = 'none';
         el.textContent = '';
-        el.style.background = 'transparent';
-        el.style.border = 'none';
       }
     }
 
@@ -1325,34 +1357,47 @@
       if (!errEl) {
         errEl = document.createElement('p');
         errEl.id = 'signup-error-msg';
-        errEl.style.cssText = 'color:#ff4757;font-size:13px;margin:8px 0 0;text-align:center;font-weight:600;';
+        errEl.style.cssText = 'color:#ff4757;background:rgba(255,71,87,0.12);border:1px solid rgba(255,71,87,0.4);font-size:13px;margin:14px 0 0;text-align:center;font-weight:600;padding:10px 14px;border-radius:8px;display:none;';
         document.getElementById('signup-form').appendChild(errEl);
       }
       errEl.textContent = '';
+      errEl.style.display = 'none';
 
       let successEl = document.getElementById('signup-success-msg');
       if (!successEl) {
         successEl = document.createElement('p');
         successEl.id = 'signup-success-msg';
-        successEl.style.cssText = 'color:#2ed573;font-size:13px;margin:8px 0 0;text-align:center;font-weight:600;background:rgba(46,213,115,0.1);padding:8px;border-radius:6px;border:1px solid rgba(46,213,115,0.3);';
+        successEl.style.cssText = 'color:#2ed573;background:rgba(46,213,115,0.12);border:1px solid rgba(46,213,115,0.4);font-size:13px;margin:14px 0 0;text-align:center;font-weight:600;padding:10px 14px;border-radius:8px;display:none;';
         document.getElementById('signup-form').appendChild(successEl);
       }
       successEl.innerHTML = '';
+      successEl.style.display = 'none';
+
+      function showSignupError(msg) {
+        errEl.textContent = msg;
+        errEl.style.display = 'block';
+        successEl.style.display = 'none';
+      }
+      function showSignupSuccess(msg) {
+        successEl.innerHTML = msg;
+        successEl.style.display = 'block';
+        errEl.style.display = 'none';
+      }
 
       if (!name || !email || !password) {
-        errEl.textContent = 'Please fill in all fields.'; return;
+        showSignupError('Please fill in all fields.'); return;
       }
       if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
-        errEl.textContent = 'Please enter a valid email address.'; return;
+        showSignupError('Please enter a valid email address.'); return;
       }
       if (password.length < 8) {
-        errEl.textContent = 'Password must be at least 8 characters.'; return;
+        showSignupError('Password must be at least 8 characters.'); return;
       }
       if (!/[A-Za-z]/.test(password) || !/[0-9]/.test(password)) {
-        errEl.textContent = 'Password must include at least one letter and one number.'; return;
+        showSignupError('Password must include at least one letter and one number.'); return;
       }
       if (password !== confirmPassword) {
-        errEl.textContent = 'Passwords do not match.'; return;
+        showSignupError('Passwords do not match.'); return;
       }
 
       btn.classList.add('is-loading');
@@ -1360,11 +1405,12 @@
       const handleSuccess = () => {
         btn.classList.remove('is-loading');
         document.getElementById('email').value = email;
-        successEl.innerHTML = '<i class="fa-solid fa-clock" style="color:#f59e0b;"></i> Registration submitted! Your account is pending Admin approval. Switching to Sign In...';
+        showSignupSuccess('<i class="fa-solid fa-clock" style="color:#f59e0b;"></i> Registration submitted! Your account is pending Admin approval. Switching to Sign In...');
         document.getElementById('signup-form').reset();
 
         setTimeout(() => {
           successEl.innerHTML = '';
+          successEl.style.display = 'none';
           signinTab.click();
           showError('Registration submitted! Your account is pending admin approval. You will be able to log in once approved.', false, 'pending');
         }, 1600);
@@ -1390,7 +1436,7 @@
           return;
         } else if (data) {
           btn.classList.remove('is-loading');
-          errEl.textContent = data.message || 'Registration failed!';
+          showSignupError(data.message || 'Registration failed!');
           wrapper.classList.add('shake');
           setTimeout(() => wrapper.classList.remove('shake'), 500);
           return;
@@ -1405,11 +1451,11 @@
 
       // Check if API_HOST is unconfigured on GitHub Pages
       if (window.location.hostname.endsWith('github.io') && API_HOST.includes('localhost')) {
-        errEl.textContent = '⛔ Server is OFF!';
+        showSignupError('⛔ Server is OFF!');
         return;
       }
 
-      errEl.textContent = '⛔ Server is OFF!';
+      showSignupError('⛔ Server is OFF!');
       return;
     };
 
